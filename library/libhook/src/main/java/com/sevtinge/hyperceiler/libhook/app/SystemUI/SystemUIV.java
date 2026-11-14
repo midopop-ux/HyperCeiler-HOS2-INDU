@@ -243,6 +243,7 @@ public class SystemUIV extends BaseLoad {
         initHook(new ZenModeFix(), PrefsBridge.getBoolean("system_ui_control_center_zen_fix"));
 
         // Media Card
+        initHook(com.sevtinge.hyperceiler.libhook.rules.systemui.controlcenter.media2.DisableMediaCard.INSTANCE, PrefsBridge.getBoolean("system_ui_control_center_media_control_disable_card"));
         initHook(MediaControlBgFactory.INSTANCE, PrefsBridge.getStringAsInt("system_ui_control_center_media_control_background_mode", 0) != 0);
         initHook(CustomBackground.INSTANCE, PrefsBridge.getStringAsInt("system_ui_control_center_media_control_background_mode", 0) != 0);
         initHook(new MediaControlPanelBackgroundMix(), PrefsBridge.getStringAsInt("system_ui_control_center_media_control_background_mode", 0) == 5);

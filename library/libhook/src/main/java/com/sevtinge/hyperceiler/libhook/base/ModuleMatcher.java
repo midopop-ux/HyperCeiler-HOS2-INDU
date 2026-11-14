@@ -142,8 +142,15 @@ public class ModuleMatcher {
     private boolean matchPackage(DataBase data, String packageName) {
         if (data.targetPackage == null) return false;
 
+        String targetLookup = packageName;
+        if ("com.mi.android.globallauncher".equals(packageName)) {
+            targetLookup = "com.miui.home";
+        } else if ("com.mi.android.globalFileexplorer".equals(packageName)) {
+            targetLookup = "com.android.fileexplorer";
+        }
+
         // 精确匹配
-        if (data.targetPackage.equals(packageName)) {
+        if (data.targetPackage.equals(packageName) || data.targetPackage.equals(targetLookup)) {
             return true;
         }
 
