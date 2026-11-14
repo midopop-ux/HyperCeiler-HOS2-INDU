@@ -87,6 +87,23 @@
             app:entries="@array/status_bar_icon_mode_new"
             app:entryValues="@array/status_bar_icon_mode_new_value" />
 
+        <fan.preference.DropDownPreference
+            android:defaultValue="0"
+            android:key="prefs_key_system_ui_status_bar_icon_dual_wifi"
+            android:title="@string/system_statusbaricons_dualwifi_title"
+            app:entries="@array/status_bar_icon_mode_new"
+            app:entryValues="@array/status_bar_icon_mode_new_value" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="prefs_key_system_ui_status_bar_icon_signal_wificonnected"
+            android:title="@string/system_statusbaricons_hidesignal_wificonnected_title" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="prefs_key_system_ui_status_bar_icon_sim_nodata"
+            android:title="@string/system_statusbaricons_sim_nodata_title" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="prefs_key_system_ui_status_bar_icon_mobile_network_hide_card_1"
@@ -141,6 +158,13 @@
             android:defaultValue="0"
             android:key="prefs_key_system_ui_status_bar_icon_bluetooth_battery"
             android:title="@string/system_ui_status_bar_icon_bluetooth_battery"
+            app:entries="@array/status_bar_icon_mode_new"
+            app:entryValues="@array/status_bar_icon_mode_new_value" />
+
+        <fan.preference.DropDownPreference
+            android:defaultValue="0"
+            android:key="prefs_key_system_ui_status_bar_icon_ble_unlock"
+            android:title="@string/system_statusbaricons_ble_unlock_title"
             app:entries="@array/status_bar_icon_mode_new"
             app:entryValues="@array/status_bar_icon_mode_new_value" />
 
@@ -218,6 +242,25 @@
             app:entries="@array/status_bar_icon_mode_new"
             app:entryValues="@array/status_bar_icon_mode_new_value" />
 
+        <DropDownPreference
+            android:defaultValue="0"
+            android:key="prefs_key_system_ui_status_bar_icon_managed_profile"
+            android:title="@string/system_statusbaricons_profile_title"
+            app:entries="@array/status_bar_icon_mode_new"
+            app:entryValues="@array/status_bar_icon_mode_new_value" />
+
+        <DropDownPreference
+            android:defaultValue="0"
+            android:key="prefs_key_system_ui_status_bar_icon_second_space"
+            android:title="@string/system_statusbaricons_secondspace_title"
+            app:entries="@array/status_bar_icon_mode_new"
+            app:entryValues="@array/status_bar_icon_mode_new_value" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="prefs_key_system_ui_status_bar_hide_icon_clock"
+            android:title="@string/system_statusbaricons_clock_title" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="prefs_key_system_ui_status_bar_hide_icon_stealth"
@@ -250,6 +293,11 @@
             android:disableDependentsState="true"
             android:key="prefs_key_system_ui_status_bar_battery_percent"
             android:title="@string/system_ui_status_bar_battery_percent" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="prefs_key_system_ui_status_bar_battery_percent_cc_only"
+            android:title="@string/system_statusbaricons_battery2_title" />
 
         <SwitchPreference
             android:defaultValue="false"

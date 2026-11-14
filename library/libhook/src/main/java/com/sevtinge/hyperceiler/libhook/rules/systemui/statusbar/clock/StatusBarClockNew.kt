@@ -278,13 +278,20 @@ object StatusBarClockNew : BaseHook() {
         val textV = hook.thisObject as TextView
         val context = textV.context
         val miuiClockName = textV.resources.getResourceEntryName(textV.id) ?: return
+        val isHideClock = PrefsBridge.getBoolean("system_ui_status_bar_hide_icon_clock") && miuiClockName == "clock"
         val isHide =
-            (isHidePClock && miuiClockName == "pad_clock") || miuiClockName == "normal_control_center_date_view"
+            (isHidePClock && miuiClockName == "pad_clock") || miuiClockName == "normal_control_center_date_view" || isHideClock
         val isEmpty = setOf(
             getFormatN.isEmpty() && miuiClockName == "date_time",
             getFormatP.isEmpty() && miuiClockName == "pad_clock",
             miuiClockName == "horizontal_time"
         ).any { it }
+
+        if (isHideClock) {
+            textV.text = ""
+            hook.result = null
+            return
+        }
 
         if (isHide) return
         setMiuiClockStyle(miuiClockName, textV)

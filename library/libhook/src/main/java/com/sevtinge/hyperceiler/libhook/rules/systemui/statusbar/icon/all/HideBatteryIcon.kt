@@ -90,6 +90,16 @@ object HideBatteryIcon : BaseHook() {
                         (param.thisObject.getObjectFieldAs<TextView>("mBatteryTextDigitView"))?.textSize = 0F
                     }
 
+                    // Hide battery percentage in statusbar but keep in CC
+                    if (PrefsBridge.getBoolean("system_ui_status_bar_battery_percent_cc_only")) {
+                        val mBatteryView = param.thisObject as? View
+                        if (mBatteryView?.getTag(1008688) != null) {
+                            (param.thisObject.getObjectFieldAs<TextView>("mBatteryPercentMarkView"))?.textSize = 0F
+                            (param.thisObject.getObjectFieldAs<TextView>("mBatteryPercentView"))?.textSize = 0F
+                            (param.thisObject.getObjectFieldAs<TextView>("mBatteryTextDigitView"))?.textSize = 0F
+                        }
+                    }
+
                     // 隐藏电池充电图标
                     if (PrefsBridge.getBoolean("system_ui_status_bar_battery_charging")) {
                         (param.thisObject.getObjectFieldAs<ImageView>("mBatteryChargingInView")).visibility =
@@ -99,6 +109,33 @@ object HideBatteryIcon : BaseHook() {
                     }
                 }
             }
+
+        val miuiPhoneStatusBarViewClass by lazy {
+            loadClass("com.android.systemui.statusbar.phone.MiuiPhoneStatusBarView")
+        }
+        miuiPhoneStatusBarViewClass.findMethod { name("onFinishInflate") }.createHook {
+            after { param ->
+                if (PrefsBridge.getBoolean("system_ui_status_bar_battery_percent_cc_only")) {
+                    val mBattery = param.thisObject.getObjectField("mBattery") as? View
+                    mBattery?.setTag(1008688, true)
+                }
+            }
+        }
+
+        val keyguardStatusBarViewClass by lazy {
+            loadClass("com.android.systemui.statusbar.phone.KeyguardStatusBarView")
+        }
+        keyguardStatusBarViewClass.findMethod { name("onFinishInflate") }.createHook {
+            after { param ->
+                if (PrefsBridge.getBoolean("system_ui_status_bar_battery_percent_cc_only")) {
+                    val mSystemIconsContainer = param.thisObject.getObjectField("mSystemIconsContainer") as? android.view.ViewGroup
+                    val batteryResId = mSystemIconsContainer?.resources?.getIdentifier("battery", "id", "com.android.systemui") ?: 0
+                    if (batteryResId != 0) {
+                        mSystemIconsContainer?.findViewById<View>(batteryResId)?.setTag(1008688, true)
+                    }
+                }
+            }
+        }
     }
 
 }

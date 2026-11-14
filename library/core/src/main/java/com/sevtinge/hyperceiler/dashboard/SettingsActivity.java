@@ -55,7 +55,9 @@ public abstract class SettingsActivity extends SettingsBaseActivity
             caller instanceof HomeFolderSettings ||
             caller instanceof AlertDialogSettings ||
             caller instanceof HomeGestureSettings ||
-            caller instanceof MultiActionSettings;
+            caller instanceof MultiActionSettings ||
+            caller instanceof com.sevtinge.hyperceiler.hooker.systemui.StatusBarSettings ||
+            (pref.getFragment() != null && pref.getFragment().contains("MultiActionSettings"));
 
         onStartSettingsForArguments(pref, isAddPreferenceKey);
         return true;

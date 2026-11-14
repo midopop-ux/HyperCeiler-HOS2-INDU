@@ -63,6 +63,11 @@ public class StatusBarIcon extends BaseHook {
         setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_soundbox_stereo", 0), "stereo", statusBarList, ctrlCenterList);
         setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_tv", 0), "tv", statusBarList, ctrlCenterList);
         setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_wireless_headset", 0), "wireless_headset", statusBarList, ctrlCenterList);
+        setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_dual_wifi", 0), "dual_wifi", statusBarList, ctrlCenterList);
+        setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_dual_wifi", 0), "slave_wifi", statusBarList, ctrlCenterList);
+        setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_ble_unlock", 0), "ble_unlock_mode", statusBarList, ctrlCenterList);
+        setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_managed_profile", 0), "managed_profile", statusBarList, ctrlCenterList);
+        setIcon(PrefsBridge.getStringAsInt("system_ui_status_bar_icon_second_space", 0), "second_space", statusBarList, ctrlCenterList);
 
         com.sevtinge.hyperceiler.libhook.base.BaseHook.setStaticObjectField(mMiuiIconManagerUtils, "RIGHT_BLOCK_LIST", statusBarList);
         com.sevtinge.hyperceiler.libhook.base.BaseHook.setStaticObjectField(mMiuiIconManagerUtils, "CONTROL_CENTER_BLOCK_LIST", ctrlCenterList);

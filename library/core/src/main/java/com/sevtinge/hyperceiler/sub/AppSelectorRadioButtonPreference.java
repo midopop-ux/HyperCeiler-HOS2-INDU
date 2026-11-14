@@ -51,6 +51,7 @@ public class AppSelectorRadioButtonPreference extends RadioButtonPreference {
         super.setChecked(checked);
         if (mArrowView != null) {
             mArrowView.setEnabled(checked);
+            mArrowView.setAlpha(checked ? 1.0f : 0.4f);
         }
     }
 

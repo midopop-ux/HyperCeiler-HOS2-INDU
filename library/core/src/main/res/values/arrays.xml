@@ -66,6 +66,9 @@
         <item>@string/array_global_actions_back</item>
         <item>@string/array_global_actions_scrolltotop</item>
         <item>@string/array_global_actions_launch</item>
+        <item>@string/array_global_actions_shortcut</item>
+        <item>@string/array_global_actions_activity</item>
+        <item>@string/array_global_actions_toggle</item>
     </string-array>
 
     <string-array name="multi_action_key">
@@ -92,6 +95,9 @@
         <item>prefs_key_switch_prev_app</item>
         <item>prefs_key_scroll_to_top</item>
         <item>prefs_key_open_app</item>
+        <item>prefs_key_shortcut</item>
+        <item>prefs_key_open_activity</item>
+        <item>prefs_key_toggle_feature</item>
     </string-array>
 
     <integer-array name="multi_action_value">
@@ -118,5 +124,38 @@
         <item>11</item>
         <item>25</item>
         <item>13</item>
+        <item>22</item>
+        <item>23</item>
+        <item>24</item>
+    </integer-array>
+
+    <string-array name="global_toggles">
+        <item>@string/array_global_toggle_wifi</item>
+        <item>@string/array_global_toggle_bt</item>
+        <item>@string/array_global_toggle_gps</item>
+        <item>@string/array_global_toggle_nfc</item>
+        <item>@string/array_global_toggle_sound</item>
+        <item>@string/array_global_toggle_brightness</item>
+        <item>@string/array_global_toggle_rotation</item>
+        <item>@string/array_global_toggle_torch</item>
+        <item>@string/array_global_toggle_mobiledata</item>
+        <item>@string/array_global_toggle_hotspot</item>
+        <item>@string/array_global_toggle_zen</item>
+        <item>@string/array_global_toggle_night</item>
+    </string-array>
+
+    <integer-array name="global_toggles_val">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
     </integer-array>
 </resources>

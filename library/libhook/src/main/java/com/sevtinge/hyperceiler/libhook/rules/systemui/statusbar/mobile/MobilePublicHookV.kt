@@ -85,6 +85,9 @@ class MobilePublicHookV : BaseHook() {
                         }
                 } else {
                     val getSlotIndex = SubscriptionManager.getSlotIndex(subId)
+                    val hideNoDataSim = PrefsBridge.getBoolean("system_ui_status_bar_icon_sim_nodata")
+                    val hideWithWifi = PrefsBridge.getBoolean("system_ui_status_bar_icon_signal_wificonnected")
+
                     if ((card1 && getSlotIndex == 0) || (card2 && getSlotIndex == 1)) {
                         if (isMoreAndroidVersion(36)) {
                             val pair = loadClass("kotlin.Pair")
@@ -93,6 +96,50 @@ class MobilePublicHookV : BaseHook() {
                             cellularIcon.setObjectField("isVisible", newReadonlyStateFlow(pair))
                         } else {
                             cellularIcon.setObjectField("isVisible", newReadonlyStateFlow(false))
+                        }
+                    } else if (hideNoDataSim || hideWithWifi) {
+                        runCatching {
+                            val isVisibleFlow = cellularIcon.getObjectField("isVisible")
+                            val isVisibleMutable = newReadonlyStateFlow(true)
+                            val wifiAvailableFlow = mobileIconInteractor.getObjectField("wifiAvailable")
+                            val visibleStates = booleanArrayOf(true, false)
+                            val subIds = intArrayOf(-1)
+
+                            val operatorPolicy = Dependency.miuiLegacyDependency
+                                ?.getObjectField("mOperatorCustomizedPolicy")
+                                ?.callMethod("get")
+                            val dataSubIdFlow = operatorPolicy
+                                ?.getObjectField("mobileIcons")
+                                ?.getObjectField("activeMobileDataSubscriptionId")
+
+                            fun updateState() {
+                                var v = visibleStates[0]
+                                if (v && hideWithWifi && visibleStates[1]) {
+                                    v = false
+                                } else if (v && hideNoDataSim && subIds[0] != -1 && subId != subIds[0]) {
+                                    v = false
+                                }
+                                setStateFlowValue(isVisibleMutable, v)
+                            }
+
+                            cellularIcon.setObjectField("isVisible", isVisibleMutable)
+
+                            MiuiStub.javaAdapter.alwaysCollectFlow(isVisibleFlow, Consumer<Boolean> {
+                                visibleStates[0] = it
+                                updateState()
+                            })
+                            if (wifiAvailableFlow != null) {
+                                MiuiStub.javaAdapter.alwaysCollectFlow(wifiAvailableFlow, Consumer<Boolean> {
+                                    visibleStates[1] = it
+                                    updateState()
+                                })
+                            }
+                            if (dataSubIdFlow != null && hideNoDataSim) {
+                                MiuiStub.javaAdapter.alwaysCollectFlow(dataSubIdFlow, Consumer<Int> {
+                                    subIds[0] = it
+                                    updateState()
+                                })
+                            }
                         }
                     }
                 }

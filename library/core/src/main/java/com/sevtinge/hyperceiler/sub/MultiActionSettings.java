@@ -45,6 +45,7 @@ import fan.preference.RadioButtonPreferenceCategory;
 
 public class MultiActionSettings extends SettingsPreferenceFragment
     implements Preference.OnPreferenceChangeListener,
+    Preference.OnPreferenceClickListener,
     AppSelectorRadioButtonPreference.onArrowViewClickListener {
 
     Bundle args;
@@ -155,6 +156,7 @@ public class MultiActionSettings extends SettingsPreferenceFragment
                 radioButtonPreference.setPersistent(false);
                 radioButtonPreference.setLayoutResource(fan.preference.R.layout.miuix_preference_radiobutton_two_state_background);
                 radioButtonPreference.setOnPreferenceChangeListener(this);
+                radioButtonPreference.setOnPreferenceClickListener(this);
                 radioButtonPreferenceCategory.addPreference(radioButtonPreference);
                 radioButtonPreference.setChecked(mMultiActionValues[i] == mCurrentOptimizeMode);
             }
@@ -210,6 +212,7 @@ public class MultiActionSettings extends SettingsPreferenceFragment
         mExpertPreference.setPersistent(false);
         mExpertPreference.setLayoutResource(fan.preference.R.layout.miuix_preference_radiobutton_two_state_background);
         mExpertPreference.setOnPreferenceChangeListener(this);
+        mExpertPreference.setOnPreferenceClickListener(this);
         mExpertPreference.setArrowViewClickListener(this);
         radioButtonPreferenceCategory.addPreference(mExpertPreference);
         mExpertPreference.setChecked(mCurrentOptimizeMode == 13);
@@ -234,16 +237,33 @@ public class MultiActionSettings extends SettingsPreferenceFragment
         return false;
     }
 
+    @Override
+    public boolean onPreferenceClick(@NonNull Preference preference) {
+        String key = preference.getKey();
+        if (preference instanceof RadioButtonPreference) {
+            updateRadioButtonPreference(key);
+            return true;
+        }
+        return false;
+    }
+
     private void updateRadioButtonPreference(String key) {
-        setMultiActionMode(mMultiActions.get(key));
+        Integer mode = mMultiActions.get(key);
+        if (mode != null) {
+            setMultiActionMode(mode);
+        }
         PreferenceCategory preferenceCategory = getPreferenceScreen().findPreference("multi_action");
         if (preferenceCategory != null) {
             int preferenceCount = preferenceCategory.getPreferenceCount();
             for (int i = 0; i < preferenceCount; i++) {
-                RadioButtonPreferenceCategory category = (RadioButtonPreferenceCategory) preferenceCategory.getPreference(i);
-                RadioButtonPreference preference = (RadioButtonPreference) category.getPreference(0);
-                if (preference != null) {
-                    preference.setChecked(preference.getKey().equals(key));
+                Preference cat = preferenceCategory.getPreference(i);
+                if (cat instanceof RadioButtonPreferenceCategory category) {
+                    if (category.getPreferenceCount() > 0) {
+                        Preference p = category.getPreference(0);
+                        if (p instanceof RadioButtonPreference pref) {
+                            pref.setChecked(pref.getKey().equals(key));
+                        }
+                    }
                 }
             }
         }

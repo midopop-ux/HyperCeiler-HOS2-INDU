@@ -186,7 +186,7 @@ public class SystemUIV extends BaseLoad {
             initHook(new NetworkSpeedSec(), PrefsBridge.getBoolean("system_ui_statusbar_network_speed_sec_unit"));
         }
 
-        initHook(StatusBarClockNew.INSTANCE, PrefsBridge.getBoolean("system_ui_statusbar_clock_all_status_enable"));
+        initHook(StatusBarClockNew.INSTANCE, PrefsBridge.getBoolean("system_ui_statusbar_clock_all_status_enable") || PrefsBridge.getBoolean("system_ui_status_bar_hide_icon_clock"));
         //
         // // 硬件指示器
         // initHook(new DisplayHardwareDetail(), PrefsBridge.getBoolean("system_ui_statusbar_battery_enable") ||

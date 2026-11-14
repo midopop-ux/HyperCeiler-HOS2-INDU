@@ -66,10 +66,9 @@ public interface ActivityCallback {
     }
 
     default void onStartSettingsForArguments(Context context, Class<?> cls, Preference preference, boolean isAddPreferenceKey) {
-        Bundle args = null;
+        Bundle args = new Bundle();
 
-        if (isAddPreferenceKey) {
-            args = new Bundle();
+        if (preference.getKey() != null) {
             args.putString("key", preference.getKey());
         }
 

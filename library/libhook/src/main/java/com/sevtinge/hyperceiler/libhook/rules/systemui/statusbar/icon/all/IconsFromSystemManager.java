@@ -80,6 +80,18 @@ public class IconsFromSystemManager extends BaseHook {
             case "call_record" -> {
                 return PrefsBridge.getBoolean("system_ui_status_bar_hide_icon_call_record");
             }
+            case "second_space" -> {
+                return PrefsBridge.getStringAsInt("system_ui_status_bar_icon_second_space", 0) == 2;
+            }
+            case "managed_profile" -> {
+                return PrefsBridge.getStringAsInt("system_ui_status_bar_icon_managed_profile", 0) == 2;
+            }
+            case "ble_unlock_mode" -> {
+                return PrefsBridge.getStringAsInt("system_ui_status_bar_icon_ble_unlock", 0) == 2;
+            }
+            case "dual_wifi", "slave_wifi" -> {
+                return PrefsBridge.getStringAsInt("system_ui_status_bar_icon_dual_wifi", 0) == 2;
+            }
             default -> {
                 return false;
             }

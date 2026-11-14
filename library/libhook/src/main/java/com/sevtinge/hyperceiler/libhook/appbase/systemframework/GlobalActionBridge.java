@@ -59,6 +59,9 @@ public final class GlobalActionBridge {
     private static final int ACTION_ID_SCROLL_TO_TOP = 25;
     private static final int ACTION_ID_MEDIA_KEY_MIN = 85;
     private static final int ACTION_ID_MEDIA_KEY_MAX = 88;
+    private static final int ACTION_ID_LAUNCH_SHORTCUT = 22;
+    private static final int ACTION_ID_LAUNCH_ACTIVITY = 23;
+    private static final int ACTION_ID_TOGGLE_FEATURE = 24;
 
     public static final String ACTION_TOGGLE_COLOR_INVERSION = BaseHook.ACTION_PREFIX + "ToggleColorInversion";
     public static final String ACTION_LOCK_SCREEN = BaseHook.ACTION_PREFIX + "LockScreen";
@@ -97,7 +100,19 @@ public final class GlobalActionBridge {
         if (handleSystemFrameworkAction(context, action)) {
             return true;
         }
-        return action == ACTION_ID_LAUNCH_APP && launchAppIntent(context, key, skipLock);
+        if (action == ACTION_ID_LAUNCH_APP) {
+            return launchAppIntent(context, key, skipLock);
+        }
+        if (action == ACTION_ID_LAUNCH_SHORTCUT) {
+            return launchShortcutIntent(context, key, skipLock);
+        }
+        if (action == ACTION_ID_LAUNCH_ACTIVITY) {
+            return launchActivityIntent(context, key, skipLock);
+        }
+        if (action == ACTION_ID_TOGGLE_FEATURE) {
+            return toggleFeature(context, key);
+        }
+        return false;
     }
 
     public static boolean sendAction(Context context, String actionSuffix) {
@@ -184,6 +199,37 @@ public final class GlobalActionBridge {
 
     public static boolean launchAppIntent(Context context, String key, boolean skipLock) {
         return launchIntent(context, getIntent(key, IntentType.APP, skipLock));
+    }
+
+    public static boolean launchShortcutIntent(Context context, String key, boolean skipLock) {
+        return launchIntent(context, getIntent(key, IntentType.SHORTCUT, skipLock));
+    }
+
+    public static boolean launchActivityIntent(Context context, String key, boolean skipLock) {
+        return launchIntent(context, getIntent(key, IntentType.ACTIVITY, skipLock));
+    }
+
+    public static boolean toggleFeature(Context context, String key) {
+        int toggleId = PrefsBridge.getInt(key + "_toggle", 1);
+        String whatStr = switch (toggleId) {
+            case 1 -> "WiFi";
+            case 2 -> "Bluetooth";
+            case 3 -> "GPS";
+            case 4 -> "NFC";
+            case 5 -> "SoundProfile";
+            case 6 -> "AutoBrightness";
+            case 7 -> "AutoRotation";
+            case 8 -> "Flashlight";
+            case 9 -> "MobileData";
+            case 10 -> "Hotspot";
+            case 11 -> "ZenMode";
+            case 12 -> "NightMode";
+            default -> null;
+        };
+        if (whatStr != null) {
+            return sendAction(context, "Toggle" + whatStr);
+        }
+        return false;
     }
 
     public static boolean launchIntent(Context context, Intent intent) {

@@ -1757,4 +1757,24 @@
     <string name="system_ui_statusbar_double_tap_right_title">Double-tap right corner action</string>
     <string name="powerkeeper_restrict_app_title">System apps battery optimization</string>
     <string name="powerkeeper_restrict_app_summary">Allow configuring battery saver mode for system and protected apps</string>
+    <string name="array_global_toggle_wifi">Wi-Fi</string>
+    <string name="array_global_toggle_bt">Bluetooth</string>
+    <string name="array_global_toggle_gps">GPS</string>
+    <string name="array_global_toggle_nfc">NFC</string>
+    <string name="array_global_toggle_sound">Sound profile</string>
+    <string name="array_global_toggle_brightness">Auto brightness</string>
+    <string name="array_global_toggle_rotation">Auto rotation</string>
+    <string name="array_global_toggle_torch">Flashlight</string>
+    <string name="array_global_toggle_mobiledata">Mobile data</string>
+    <string name="array_global_toggle_hotspot">Hotspot</string>
+    <string name="array_global_toggle_zen">Do Not Disturb</string>
+    <string name="array_global_toggle_night">Night mode</string>
+    <string name="system_statusbaricons_battery2_title">Battery percentage hides in statusbar but appears in control center</string>
+    <string name="system_statusbaricons_clock_title">Clock</string>
+    <string name="system_statusbaricons_ble_unlock_title">Unlock with Bluetooth device</string>
+    <string name="system_statusbaricons_hidesignal_wificonnected_title">Only when connected to Wi-Fi</string>
+    <string name="system_statusbaricons_sim_nodata_title">Non-Data SIM card</string>
+    <string name="system_statusbaricons_dualwifi_title">Dual Wi-Fi</string>
+    <string name="system_statusbaricons_profile_title">Work profile</string>
+    <string name="system_statusbaricons_secondspace_title">Second space</string>
 </resources>
