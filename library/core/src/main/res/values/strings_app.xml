@@ -662,7 +662,7 @@
     <string name="system_ui_statusbar_clock_title">Manage clock indicator</string>
     <string name="system_ui_statusbar_strong_toast_title">Smart strong toast</string>
     <string name="system_ui_statusbar_music_title">Focus lyrics</string>
-    <string name="system_ui_status_bar_double_tap_to_sleep">Double-tap status bar to sleep</string>
+    <string name="system_ui_status_bar_double_tap_to_sleep">Status bar gestures</string>
     <string name="system_ui_statusbar_iconmanage_mobile_network_title">Double row signal bar</string>
     <string name="system_ui_statusbar_iconmanage_mobile_network_icon_theme">Icon themes</string>
     <string name="system_ui_statusbar_iconmanage_mobile_network_icon_theme_classic">Classic</string>

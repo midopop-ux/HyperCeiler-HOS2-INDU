@@ -89,10 +89,7 @@ object DoubleTapToSleep : BaseHook() {
             else -> "prefs_key_system_statusbarcontrols_dt"
         }
 
-        val handled = GlobalActionBridge.handleAction(context, actionKey)
-        if (!handled) {
-            goToSleep(context)
-        }
+        GlobalActionBridge.handleAction(context, actionKey)
     }
 
     private fun goToSleep(context: Context) {
