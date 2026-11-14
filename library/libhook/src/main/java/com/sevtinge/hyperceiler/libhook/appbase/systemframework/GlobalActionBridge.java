@@ -52,6 +52,9 @@ public final class GlobalActionBridge {
     private static final int ACTION_ID_GOOGLE_CIRCLE_TO_SEARCH = 18;
     private static final int ACTION_ID_FORCE_STOP_TOP_APP = 19;
     private static final int ACTION_ID_GOOGLE_VOICE_ASSISTANT = 20;
+    private static final int ACTION_ID_SWITCH_TO_PREV_APP = 11;
+    private static final int ACTION_ID_GO_BACK = 21;
+    private static final int ACTION_ID_SCROLL_TO_TOP = 25;
     private static final int ACTION_ID_MEDIA_KEY_MIN = 85;
     private static final int ACTION_ID_MEDIA_KEY_MAX = 88;
 
@@ -145,6 +148,9 @@ public final class GlobalActionBridge {
             case ACTION_ID_POWER_MENU -> sendAction(context, "OpenPowerMenu");
             case ACTION_ID_GO_HOME -> sendAction(context, "GoHome");
             case ACTION_ID_FORCE_STOP_TOP_APP -> sendAction(context, "ForceStopTopApp");
+            case ACTION_ID_SWITCH_TO_PREV_APP -> sendAction(context, "SwitchToPrevApp");
+            case ACTION_ID_GO_BACK -> sendAction(context, "GoBack");
+            case ACTION_ID_SCROLL_TO_TOP -> sendAction(context, "ScrollToTop");
             default -> false;
         };
     }

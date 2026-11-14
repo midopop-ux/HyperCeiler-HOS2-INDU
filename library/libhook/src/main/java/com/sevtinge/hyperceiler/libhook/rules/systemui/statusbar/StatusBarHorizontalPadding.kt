@@ -24,6 +24,7 @@ import com.sevtinge.hyperceiler.common.utils.PrefsBridge
 import com.sevtinge.hyperceiler.libhook.base.BaseHook
 import io.github.lingqiqi5211.ezhooktool.core.findMethod
 import io.github.lingqiqi5211.ezhooktool.core.loadClass
+import io.github.lingqiqi5211.ezhooktool.xposed.EzXposed
 import io.github.lingqiqi5211.ezhooktool.xposed.dsl.createHook
 
 object StatusBarHorizontalPadding : BaseHook() {
@@ -38,7 +39,7 @@ object StatusBarHorizontalPadding : BaseHook() {
                         val rightDp = PrefsBridge.getInt("system_statusbar_horizmargin_right", 16)
 
                         val rawInsets = param.result as? Insets ?: return@after
-                        val context = mContext ?: return@after
+                        val context = EzXposed.appContext ?: return@after
 
                         val leftPx = TypedValue.applyDimension(
                             TypedValue.COMPLEX_UNIT_DIP,
