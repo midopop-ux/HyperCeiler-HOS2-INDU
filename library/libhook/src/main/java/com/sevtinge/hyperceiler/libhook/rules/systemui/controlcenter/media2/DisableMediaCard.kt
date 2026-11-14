@@ -48,8 +48,8 @@ object DisableMediaCard : BaseHook() {
                 ?: findClassIfExists("com.android.systemui.media.controls.ui.MediaCarouselController")
             if (carouselController != null) {
                 carouselController.findMethod {
-                    filterByName("onDesiredLocationChanged")
-                }.firstOrNull()?.createAfterHook {
+                    name("onDesiredLocationChanged")
+                }.createAfterHook {
                     val mediaFrame = it.thisObject.getObjectFieldOrNullAs<View>("mediaFrame")
                     if (mediaFrame != null) {
                         mediaFrame.visibility = View.GONE
