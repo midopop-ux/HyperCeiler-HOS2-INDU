@@ -92,8 +92,9 @@ public class SystemFrameworkV extends BaseLoad {
 
     @Override
     public void onPackageLoaded() {
-        initHook(new ModulePackageTrust(), PrefsBridge.getBoolean("home_gesture_enable"));
-        initHook(new GlobalActionBootstrap(), PrefsBridge.getBoolean("home_gesture_enable"));
+        boolean needActions = PrefsBridge.getBoolean("home_gesture_enable") || PrefsBridge.getBoolean("system_ui_status_bar_double_tap_to_sleep");
+        initHook(new ModulePackageTrust(), needActions);
+        initHook(new GlobalActionBootstrap(), needActions);
         // initHook(new DisableMiuiWatermark(), PrefsBridge.getBoolean("system_framework_disable_miui_watermark"));
 
         // 核心破解

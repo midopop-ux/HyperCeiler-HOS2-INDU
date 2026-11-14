@@ -139,7 +139,7 @@ public class SystemUIV extends BaseLoad {
         // PluginHelper
         initHook(NewPluginHelperKt.INSTANCE);
         // Actions
-        initHook(new StatusBarActionBootstrap(), PrefsBridge.getBoolean("home_gesture_enable"));
+        initHook(new StatusBarActionBootstrap(), PrefsBridge.getBoolean("home_gesture_enable") || PrefsBridge.getBoolean("system_ui_status_bar_double_tap_to_sleep"));
 
         // 锁屏
         initHook(CustomizeBottomButton.INSTANCE, Keyguard.getLeftButtonType() != 0 && !isMoreSmallVersion(200, 2f));

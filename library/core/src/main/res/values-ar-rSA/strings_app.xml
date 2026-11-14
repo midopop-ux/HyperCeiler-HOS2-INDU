@@ -1624,4 +1624,7 @@
     <string name="system_statusbaricons_dualwifi_title">الواي فاي المزدوج</string>
     <string name="system_statusbaricons_profile_title">الملف الشخصي للعمل</string>
     <string name="system_statusbaricons_secondspace_title">الواجهة الثانية</string>
+    <string name="array_global_actions_select_toggle">اختر وظيفة</string>
+    <string name="array_global_actions_select_shortcut">اختر إختصاراً</string>
+    <string name="array_global_actions_select_activity">اختر نشاطاً</string>
 </resources>

@@ -102,8 +102,9 @@ public class SystemFrameworkB extends BaseLoad {
         initHook(new DisablePersistent(), PrefsBridge.getBoolean("system_framework_disable_persistent"));
 
         // 手势初始化
-        initHook(new ModulePackageTrust(), PrefsBridge.getBoolean("home_gesture_enable"));
-        initHook(new GlobalActionBootstrap(), PrefsBridge.getBoolean("home_gesture_enable"));
+        boolean needActions = PrefsBridge.getBoolean("home_gesture_enable") || PrefsBridge.getBoolean("system_ui_status_bar_double_tap_to_sleep");
+        initHook(new ModulePackageTrust(), needActions);
+        initHook(new GlobalActionBootstrap(), needActions);
 
         // 修复 A16 移植包开启核心破解后掉指纹，仅作备选项
         initHook(DisableRemoveFingerprintSensorConfig.INSTANCE, PrefsBridge.getBoolean("system_framework_core_patch_unloss_fingerprint"));

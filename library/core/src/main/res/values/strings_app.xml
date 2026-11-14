@@ -1777,4 +1777,7 @@
     <string name="system_statusbaricons_dualwifi_title">Dual Wi-Fi</string>
     <string name="system_statusbaricons_profile_title">Work profile</string>
     <string name="system_statusbaricons_secondspace_title">Second space</string>
+    <string name="array_global_actions_select_toggle">Select toggle</string>
+    <string name="array_global_actions_select_shortcut">Select shortcut</string>
+    <string name="array_global_actions_select_activity">Select activity</string>
 </resources>

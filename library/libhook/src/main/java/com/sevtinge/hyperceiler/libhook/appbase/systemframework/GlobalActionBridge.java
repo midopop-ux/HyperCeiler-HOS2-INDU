@@ -198,36 +198,47 @@ public final class GlobalActionBridge {
     }
 
     public static boolean launchAppIntent(Context context, String key, boolean skipLock) {
-        return launchIntent(context, getIntent(key, IntentType.APP, skipLock));
+        return launchIntent(context, getIntent(context, key, IntentType.APP, skipLock));
     }
 
     public static boolean launchShortcutIntent(Context context, String key, boolean skipLock) {
-        return launchIntent(context, getIntent(key, IntentType.SHORTCUT, skipLock));
+        return launchIntent(context, getIntent(context, key, IntentType.SHORTCUT, skipLock));
     }
 
     public static boolean launchActivityIntent(Context context, String key, boolean skipLock) {
-        return launchIntent(context, getIntent(key, IntentType.ACTIVITY, skipLock));
+        return launchIntent(context, getIntent(context, key, IntentType.ACTIVITY, skipLock));
     }
 
     public static boolean toggleFeature(Context context, String key) {
+        String tileSpec = PrefsBridge.getString(key + "_toggle_spec", null);
+        if (tileSpec != null && !tileSpec.isEmpty()) {
+            Intent intent = new Intent(BaseHook.ACTION_PREFIX + "ClickTile");
+            intent.putExtra("spec", tileSpec);
+            context.sendBroadcast(intent);
+            return true;
+        }
+
         int toggleId = PrefsBridge.getInt(key + "_toggle", 1);
-        String whatStr = switch (toggleId) {
-            case 1 -> "WiFi";
-            case 2 -> "Bluetooth";
-            case 3 -> "GPS";
-            case 4 -> "NFC";
-            case 5 -> "SoundProfile";
-            case 6 -> "AutoBrightness";
-            case 7 -> "AutoRotation";
-            case 8 -> "Flashlight";
-            case 9 -> "MobileData";
-            case 10 -> "Hotspot";
-            case 11 -> "ZenMode";
-            case 12 -> "NightMode";
+        String spec = switch (toggleId) {
+            case 1 -> "wifi";
+            case 2 -> "bt";
+            case 3 -> "gps";
+            case 4 -> "nfc";
+            case 5 -> "mute";
+            case 6 -> "autobrightness";
+            case 7 -> "rotation";
+            case 8 -> "flashlight";
+            case 9 -> "cell";
+            case 10 -> "hotspot";
+            case 11 -> "dnd";
+            case 12 -> "night";
             default -> null;
         };
-        if (whatStr != null) {
-            return sendAction(context, "Toggle" + whatStr);
+        if (spec != null) {
+            Intent intent = new Intent(BaseHook.ACTION_PREFIX + "ClickTile");
+            intent.putExtra("spec", spec);
+            context.sendBroadcast(intent);
+            return true;
         }
         return false;
     }
@@ -242,7 +253,7 @@ public final class GlobalActionBridge {
         return true;
     }
 
-    public static Intent getIntent(String prefs, IntentType intentType, boolean skipLock) {
+    public static Intent getIntent(Context context, String prefs, IntentType intentType, boolean skipLock) {
         try {
             if (intentType == IntentType.APP) {
                 prefs += "_app";
@@ -257,15 +268,37 @@ public final class GlobalActionBridge {
                 return null;
             }
 
-            Intent intent = new Intent();
+            Intent intent = null;
             if (intentType == IntentType.SHORTCUT) {
                 intent = Intent.parseUri(prefValue, 0);
             } else {
                 String[] pkgAppArray = prefValue.split("\\|");
-                if (pkgAppArray.length < 2) {
+                if (pkgAppArray.length == 0 || pkgAppArray[0] == null || pkgAppArray[0].isEmpty()) {
                     return null;
                 }
-                intent.setComponent(new ComponentName(pkgAppArray[0], pkgAppArray[1]));
+                String packageName = pkgAppArray[0];
+                String activityName = (pkgAppArray.length >= 2 && pkgAppArray[1] != null && !pkgAppArray[1].isEmpty() && !"null".equals(pkgAppArray[1]))
+                    ? pkgAppArray[1] : null;
+
+                if (intentType == IntentType.APP) {
+                    if (activityName == null) {
+                        intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+                    } else {
+                        intent = new Intent();
+                        intent.setComponent(new ComponentName(packageName, activityName));
+                    }
+                } else if (intentType == IntentType.ACTIVITY) {
+                    if (activityName == null) {
+                        return null;
+                    }
+                    intent = new Intent();
+                    intent.setComponent(new ComponentName(packageName, activityName));
+                }
+
+                if (intent == null) {
+                    return null;
+                }
+
                 int user = PrefsBridge.getInt(prefs + "_user", 0);
                 if (user != 0) {
                     intent.putExtra("user", user);
