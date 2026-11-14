@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.media.AudioManager;
 import android.provider.Settings;
 
 import com.sevtinge.hyperceiler.common.log.AndroidLog;
