@@ -1748,4 +1748,11 @@
     <string name="open_source">Open source projects</string>
     <string name="close_source">Close source projects</string>
     <string name="system_ui_control_center_media_control_disable_card_title">Hide media player card</string>
+    <string name="system_ui_statusbar_horizmargin_title">Status bar horizontal padding</string>
+    <string name="system_ui_statusbar_horizmargin_left_title">Left margin</string>
+    <string name="system_ui_statusbar_horizmargin_right_title">Right margin</string>
+    <string name="system_ui_statusbar_gestures_title">Status bar gestures</string>
+    <string name="system_ui_statusbar_double_tap_center_title">Double-tap center action</string>
+    <string name="system_ui_statusbar_double_tap_left_title">Double-tap left corner action</string>
+    <string name="system_ui_statusbar_double_tap_right_title">Double-tap right corner action</string>
 </resources>

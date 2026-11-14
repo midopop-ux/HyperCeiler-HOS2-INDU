@@ -5,6 +5,7 @@ com.android.camera
 com.android.contacts
 com.android.externalstorage
 com.android.fileexplorer
+com.mi.android.globalFileexplorer
 com.android.htmlviewer
 com.android.incallui
 com.android.mms
@@ -33,6 +34,7 @@ com.miui.euicc
 com.miui.gallery
 com.miui.guardprovider
 com.miui.home
+com.mi.android.globallauncher
 com.miui.huanji
 com.miui.mediaeditor
 com.miui.mishare.connectivity

@@ -44,12 +44,63 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/system_ui_other_title">
+    <PreferenceCategory android:title="@string/system_ui_statusbar_horizmargin_title">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="prefs_key_system_statusbar_horizmargin"
+            android:title="@string/system_ui_statusbar_horizmargin_title" />
+
+        <SeekBarPreferenceCompat
+            android:dependency="prefs_key_system_statusbar_horizmargin"
+            android:key="prefs_key_system_statusbar_horizmargin_left"
+            android:title="@string/system_ui_statusbar_horizmargin_left_title"
+            app:defaultValue="16"
+            app:defaultValueTitle="@string/array_default"
+            app:format="%s dp"
+            app:maxValue="60"
+            app:minValue="0"
+            app:showSeekBarValue="true"
+            app:stepValue="1" />
+
+        <SeekBarPreferenceCompat
+            android:dependency="prefs_key_system_statusbar_horizmargin"
+            android:key="prefs_key_system_statusbar_horizmargin_right"
+            android:title="@string/system_ui_statusbar_horizmargin_right_title"
+            app:defaultValue="16"
+            app:defaultValueTitle="@string/array_default"
+            app:format="%s dp"
+            app:maxValue="60"
+            app:minValue="0"
+            app:showSeekBarValue="true"
+            app:stepValue="1" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/system_ui_statusbar_gestures_title">
         <SwitchPreference
             android:defaultValue="false"
             android:key="prefs_key_system_ui_status_bar_double_tap_to_sleep"
             android:title="@string/system_ui_status_bar_double_tap_to_sleep" />
 
+        <Preference
+            android:dependency="prefs_key_system_ui_status_bar_double_tap_to_sleep"
+            android:fragment="com.sevtinge.hyperceiler.sub.MultiActionSettings"
+            android:key="prefs_key_system_statusbarcontrols_dt"
+            android:title="@string/system_ui_statusbar_double_tap_center_title" />
+
+        <Preference
+            android:dependency="prefs_key_system_ui_status_bar_double_tap_to_sleep"
+            android:fragment="com.sevtinge.hyperceiler.sub.MultiActionSettings"
+            android:key="prefs_key_system_statusbarcontrols_dt_left"
+            android:title="@string/system_ui_statusbar_double_tap_left_title" />
+
+        <Preference
+            android:dependency="prefs_key_system_ui_status_bar_double_tap_to_sleep"
+            android:fragment="com.sevtinge.hyperceiler.sub.MultiActionSettings"
+            android:key="prefs_key_system_statusbarcontrols_dt_right"
+            android:title="@string/system_ui_statusbar_double_tap_right_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/system_ui_other_title">
         <SwitchPreference
             android:defaultValue="false"
             android:key="prefs_key_system_ui_status_bar_hide_icon"

@@ -22,6 +22,8 @@ import android.content.Context
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewGroup
+import com.sevtinge.hyperceiler.common.utils.PrefsBridge
+import com.sevtinge.hyperceiler.libhook.appbase.systemframework.GlobalActionBridge
 import com.sevtinge.hyperceiler.libhook.base.BaseHook
 import io.github.lingqiqi5211.ezhooktool.core.callMethod
 import io.github.lingqiqi5211.ezhooktool.xposed.dsl.getAdditionalInstanceField
@@ -64,7 +66,7 @@ object DoubleTapToSleep : BaseHook() {
                 && abs(currentY - lastY) < TOUCH_SLOP
 
             if (isDoubleTap) {
-                goToSleep(v.context)
+                handleDoubleTap(v.context, v.width, currentX)
                 v.setAdditionalInstanceField("lastTouchTime", 0L)
                 v.setAdditionalInstanceField("lastTouchX", 0f)
                 v.setAdditionalInstanceField("lastTouchY", 0f)
@@ -76,6 +78,20 @@ object DoubleTapToSleep : BaseHook() {
 
             v.performClick()
             false
+        }
+    }
+
+    private fun handleDoubleTap(context: Context, viewWidth: Int, touchX: Float) {
+        val width = if (viewWidth > 0) viewWidth.toFloat() else context.resources.displayMetrics.widthPixels.toFloat()
+        val actionKey = when {
+            touchX < width / 3f -> "prefs_key_system_statusbarcontrols_dt_left"
+            touchX > (width * 2f / 3f) -> "prefs_key_system_statusbarcontrols_dt_right"
+            else -> "prefs_key_system_statusbarcontrols_dt"
+        }
+
+        val handled = GlobalActionBridge.handleAction(context, actionKey)
+        if (!handled) {
+            goToSleep(context)
         }
     }
 

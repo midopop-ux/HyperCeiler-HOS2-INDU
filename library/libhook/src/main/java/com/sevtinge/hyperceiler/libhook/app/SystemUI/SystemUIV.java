@@ -98,6 +98,7 @@ import com.sevtinge.hyperceiler.libhook.rules.systemui.other.UnlockClipboard;
 import com.sevtinge.hyperceiler.libhook.rules.systemui.plugin.NewPluginHelperKt;
 import com.sevtinge.hyperceiler.libhook.rules.systemui.plugin.systemui.QSColor;
 import com.sevtinge.hyperceiler.libhook.rules.systemui.statusbar.DoubleTapToSleep;
+import com.sevtinge.hyperceiler.libhook.rules.systemui.statusbar.StatusBarHorizontalPadding;
 import com.sevtinge.hyperceiler.libhook.rules.systemui.statusbar.HideStatusBarBeforeScreenshot;
 import com.sevtinge.hyperceiler.libhook.rules.systemui.statusbar.clock.StatusBarClockNew;
 import com.sevtinge.hyperceiler.libhook.rules.systemui.statusbar.icon.all.BatteryStyle;
@@ -258,6 +259,7 @@ public class SystemUIV extends BaseLoad {
                 PrefsBridge.getStringAsInt("system_ui_control_center_media_control_progress_mode", 0) != 0);
 
         // Other
+        initHook(StatusBarHorizontalPadding.INSTANCE, PrefsBridge.getBoolean("system_statusbar_horizmargin"));
         initHook(DoubleTapToSleep.INSTANCE, PrefsBridge.getBoolean("system_ui_status_bar_double_tap_to_sleep"));
         initHook(new HideStatusBarBeforeScreenshot(), PrefsBridge.getBoolean("system_ui_status_bar_hide_icon"));
 

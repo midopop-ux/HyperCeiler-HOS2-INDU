@@ -26,6 +26,7 @@
         <item>com.android.contacts</item> <!--通讯录与拨号-->
         <item>com.android.externalstorage</item> <!--外部存储设备-->
         <item>com.android.fileexplorer</item> <!--文件管理-->
+        <item>com.mi.android.globalFileexplorer</item> <!--POCO/Global 文件管理-->
         <item>com.android.htmlviewer</item> <!--HTML 查看器-->
         <item>com.android.incallui</item> <!--电话-->
         <item>com.android.mms</item> <!--短信-->
@@ -54,6 +55,7 @@
         <item>com.miui.gallery</item> <!--相册-->
         <item>com.miui.guardprovider</item> <!--系统安全组件-->
         <item>com.miui.home</item> <!--系统桌面-->
+        <item>com.mi.android.globallauncher</item> <!--POCO桌面-->
         <item>com.miui.huanji</item> <!--小米换机-->
         <item>com.miui.mediaeditor</item> <!--小米相册-编辑-->
         <item>com.miui.mishare.connectivity</item> <!--小米互传-->

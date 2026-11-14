@@ -199,7 +199,7 @@ public class XposedInitEntry extends XposedModule {
     }
 
     private boolean isHookEnabled() {
-        return PrefsBridge.getBoolean(PREF_ALLOW_HOOK, false)
+        return (PrefsBridge.getBoolean("prefs_key_allow_hook", false) || PrefsBridge.getBoolean(PREF_ALLOW_HOOK, false))
             && isFrameworkAllowedForCurrentRuntime();
     }
 
