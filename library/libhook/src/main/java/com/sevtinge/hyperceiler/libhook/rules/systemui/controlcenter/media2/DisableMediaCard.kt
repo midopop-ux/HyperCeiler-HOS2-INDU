@@ -30,11 +30,18 @@ object DisableMediaCard : BaseHook() {
 
         for (clsName in mediaDataManagerClasses) {
             val cls = findClassIfExists(clsName) ?: continue
-            cls.findAllMethods {
-                name("hasActiveMedia", "hasAnyMedia", "hasActiveMediaOrRecommendation", "hasAnyMediaOrRecommendation")
-            }.forEach { method ->
-                method.createHook {
-                    returnConstant(false)
+            val methodNames = listOf("hasActiveMedia", "hasAnyMedia", "hasActiveMediaOrRecommendation", "hasAnyMediaOrRecommendation")
+            for (mName in methodNames) {
+                try {
+                    cls.findAllMethods {
+                        name(mName)
+                    }.forEach { method ->
+                        method.createHook {
+                            returnConstant(false)
+                        }
+                    }
+                } catch (t: Throwable) {
+                    // Ignore
                 }
             }
         }
@@ -48,11 +55,18 @@ object DisableMediaCard : BaseHook() {
 
         for (clsName in mediaHostClasses) {
             val cls = findClassIfExists(clsName) ?: continue
-            cls.findAllMethods {
-                name("getVisible", "getShowsCount")
-            }.forEach { method ->
-                method.createHook {
-                    returnConstant(false)
+            val hostMethodNames = listOf("getVisible", "getShowsCount")
+            for (mName in hostMethodNames) {
+                try {
+                    cls.findAllMethods {
+                        name(mName)
+                    }.forEach { method ->
+                        method.createHook {
+                            returnConstant(false)
+                        }
+                    }
+                } catch (t: Throwable) {
+                    // Ignore
                 }
             }
 
