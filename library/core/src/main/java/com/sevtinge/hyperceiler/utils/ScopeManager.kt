@@ -183,7 +183,19 @@ object ScopeManager {
             safeContext.packageManager.getPackageInfo(normalizedPackage, PackageManager.MATCH_ALL)
             true
         } catch (_: Exception) {
-            false
+            if (normalizedPackage == "com.miui.home") {
+                try {
+                    safeContext.packageManager.getPackageInfo("com.mi.android.globallauncher", PackageManager.MATCH_ALL)
+                    true
+                } catch (_: Exception) { false }
+            } else if (normalizedPackage == "com.android.fileexplorer") {
+                try {
+                    safeContext.packageManager.getPackageInfo("com.mi.android.globalFileexplorer", PackageManager.MATCH_ALL)
+                    true
+                } catch (_: Exception) { false }
+            } else {
+                false
+            }
         }
     }
 

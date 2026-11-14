@@ -105,6 +105,17 @@ public class PackagesUtils {
             packageManager.getPackageInfo(pkg, PackageManager.MATCH_ALL);
             return false;
         } catch (PackageManager.NameNotFoundException e) {
+            if ("com.miui.home".equals(pkg)) {
+                try {
+                    packageManager.getPackageInfo("com.mi.android.globallauncher", PackageManager.MATCH_ALL);
+                    return false;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            } else if ("com.android.fileexplorer".equals(pkg)) {
+                try {
+                    packageManager.getPackageInfo("com.mi.android.globalFileexplorer", PackageManager.MATCH_ALL);
+                    return false;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            }
             AndroidLog.w(TAG, "Didn't find this app on the machine, it may have been uninstalled! " + pkg + " E: " + e);
             return true;
         }
