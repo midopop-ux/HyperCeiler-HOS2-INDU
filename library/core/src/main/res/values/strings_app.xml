@@ -1746,7 +1746,5 @@
     <string name="custom_hook_new">Add hook</string>
     <string name="custom_hook_mode">Select mode</string>
     <string name="open_source">Open source projects</string>
-    <string name="close_source">Close source projects</string>
-    <string name="system_ui_control_center_media_control_disable_card_title">Disable Media Card Completely</string>
-    <string name="system_ui_control_center_media_control_disable_card_summary">Completely hide the media player card (e.g. YouTube) from the notification shade and control center</string>
+    <string name="system_ui_control_center_media_control_disable_card_title">Hide media player card</string>
 </resources>
