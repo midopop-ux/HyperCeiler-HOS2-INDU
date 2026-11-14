@@ -1755,4 +1755,6 @@
     <string name="system_ui_statusbar_double_tap_center_title">Double-tap center action</string>
     <string name="system_ui_statusbar_double_tap_left_title">Double-tap left corner action</string>
     <string name="system_ui_statusbar_double_tap_right_title">Double-tap right corner action</string>
+    <string name="powerkeeper_restrict_app_title">System apps battery optimization</string>
+    <string name="powerkeeper_restrict_app_summary">Allow configuring battery saver mode for system and protected apps</string>
 </resources>

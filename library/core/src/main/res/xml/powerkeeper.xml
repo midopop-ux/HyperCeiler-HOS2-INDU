@@ -59,6 +59,12 @@
             android:title="@string/powerkeeper_prevent_recovery_of_battery_optimization_whitelist"
             android:key="prefs_key_powerkeeper_prevent_recovery_of_battery_optimization_whitelist"
             android:defaultValue="false" />
+
+        <SwitchPreference
+            android:title="@string/powerkeeper_restrict_app_title"
+            android:summary="@string/powerkeeper_restrict_app_summary"
+            android:key="prefs_key_powerkeeper_restrict_app"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
 </PreferenceScreen>

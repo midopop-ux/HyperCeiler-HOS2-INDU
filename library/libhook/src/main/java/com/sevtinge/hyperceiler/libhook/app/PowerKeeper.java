@@ -27,6 +27,7 @@ import com.sevtinge.hyperceiler.libhook.rules.powerkeeper.DisableGetDisplayCtrlC
 import com.sevtinge.hyperceiler.libhook.rules.powerkeeper.DontKillApps;
 import com.sevtinge.hyperceiler.libhook.rules.powerkeeper.GmsDozeFix;
 import com.sevtinge.hyperceiler.libhook.rules.powerkeeper.LockMaxFps;
+import com.sevtinge.hyperceiler.libhook.rules.powerkeeper.PowerKeeperAppRestrict;
 import com.sevtinge.hyperceiler.libhook.rules.powerkeeper.PreventBatteryWitelist;
 
 @HookBase(targetPackage = "com.miui.powerkeeper")
@@ -42,5 +43,7 @@ public class PowerKeeper extends BaseLoad {
         initHook(LockMaxFps.INSTANCE, PrefsBridge.getBoolean("powerkeeper_lock_max_fps"));
         initHook(DontKillApps.INSTANCE, PrefsBridge.getBoolean("powerkeeper_do_not_kill_apps"));
         initHook(new PreventBatteryWitelist(), PrefsBridge.getBoolean("powerkeeper_prevent_recovery_of_battery_optimization_whitelist"));
+        initHook(new PowerKeeperAppRestrict(), PrefsBridge.getBoolean("powerkeeper_restrict_app"));
     }
 }
+
