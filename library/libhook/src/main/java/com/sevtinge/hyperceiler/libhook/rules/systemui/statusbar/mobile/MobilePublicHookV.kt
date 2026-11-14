@@ -124,10 +124,12 @@ class MobilePublicHookV : BaseHook() {
 
                             cellularIcon.setObjectField("isVisible", isVisibleMutable)
 
-                            MiuiStub.javaAdapter.alwaysCollectFlow(isVisibleFlow, Consumer<Boolean> {
-                                visibleStates[0] = it
-                                updateState()
-                            })
+                            if (isVisibleFlow != null) {
+                                MiuiStub.javaAdapter.alwaysCollectFlow(isVisibleFlow, Consumer<Boolean> {
+                                    visibleStates[0] = it
+                                    updateState()
+                                })
+                            }
                             if (wifiAvailableFlow != null) {
                                 MiuiStub.javaAdapter.alwaysCollectFlow(wifiAvailableFlow, Consumer<Boolean> {
                                     visibleStates[1] = it
