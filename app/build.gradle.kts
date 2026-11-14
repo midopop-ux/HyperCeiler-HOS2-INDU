@@ -107,24 +107,26 @@ android {
         DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDateTime.now())
     }
 
+    val hasSigningProperties = properties?.getProperty("storeFile")?.isNotBlank() == true
+
     signingConfigs {
-        create("hasProperties") {
-            if (properties != null) {
+        if (hasSigningProperties) {
+            create("hasProperties") {
                 storeFile = file(getString("storeFile", "STORE_FILE", "Store file"))
                 storePassword = getString("storePassword", "STORE_PASSWORD", "Store password")
                 keyAlias = getString("keyAlias", "KEY_ALIAS", "Key alias")
                 keyPassword = getString("keyPassword", "KEY_PASSWORD", "Key password")
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = true
+                enableV4Signing = true
             }
-            enableV1Signing = true
-            enableV2Signing = true
-            enableV3Signing = true
-            enableV4Signing = true
         }
     }
 
     buildTypes {
         val configSigning: ApplicationBuildType.() -> Unit = {
-            val signingConfigName = if (properties != null) "hasProperties" else "debug"
+            val signingConfigName = if (hasSigningProperties) "hasProperties" else "debug"
             signingConfig = signingConfigs.findByName(signingConfigName)
         }
 
