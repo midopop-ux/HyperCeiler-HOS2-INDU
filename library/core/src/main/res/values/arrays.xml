@@ -54,6 +54,8 @@
         <item>@string/array_global_actions_home</item>
         <item>@string/array_global_actions_screenshot</item>
         <item>@string/array_global_actions_volume</item>
+        <item>@string/array_global_actions_volume_up</item>
+        <item>@string/array_global_actions_volume_down</item>
         <item>@string/array_global_actions_super_xiaoai</item>
         <item>@string/array_global_actions_super_xiaoai_circle_search</item>
         <item>@string/array_global_actions_google_circle_to_search</item>
@@ -78,6 +80,8 @@
         <item>prefs_key_go_home</item>
         <item>prefs_key_screen_capture</item>
         <item>prefs_key_volume_dialog</item>
+        <item>prefs_key_volume_up</item>
+        <item>prefs_key_volume_down</item>
         <item>prefs_key_super_xiaoai</item>
         <item>prefs_key_super_xiaoai_circle_search</item>
         <item>prefs_key_google_circle_to_search</item>
@@ -102,6 +106,8 @@
         <item>14</item>
         <item>6</item>
         <item>8</item>
+        <item>9</item>
+        <item>10</item>
         <item>16</item>
         <item>17</item>
         <item>18</item>

@@ -43,6 +43,8 @@ public final class GlobalActionBridge {
     private static final int ACTION_ID_SCREENSHOT = 6;
     private static final int ACTION_ID_RECENTS = 7;
     private static final int ACTION_ID_VOLUME_DIALOG = 8;
+    private static final int ACTION_ID_VOLUME_UP = 9;
+    private static final int ACTION_ID_VOLUME_DOWN = 10;
     private static final int ACTION_ID_POWER_MENU = 12;
     private static final int ACTION_ID_LAUNCH_APP = 13;
     private static final int ACTION_ID_GO_HOME = 14;
@@ -124,9 +126,24 @@ public final class GlobalActionBridge {
             case ACTION_ID_CLEAR_MEMORY -> StatusBarActionBridge.clearMemory(context);
             case ACTION_ID_RECENTS -> StatusBarActionBridge.openRecents(context);
             case ACTION_ID_VOLUME_DIALOG -> StatusBarActionBridge.openVolumeDialog(context);
+            case ACTION_ID_VOLUME_UP -> adjustVolume(context, AudioManager.ADJUST_RAISE);
+            case ACTION_ID_VOLUME_DOWN -> adjustVolume(context, AudioManager.ADJUST_LOWER);
             case ACTION_ID_CONTROL_CENTER -> StatusBarActionBridge.openControlCenter(context);
             default -> false;
         };
+    }
+
+    private static boolean adjustVolume(Context context, int direction) {
+        try {
+            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                audioManager.adjustSuggestedStreamVolume(direction, AudioManager.USE_DEFAULT_STREAM_TYPE, AudioManager.FLAG_SHOW_UI);
+                return true;
+            }
+        } catch (Throwable t) {
+            AndroidLog.w("GlobalActionBridge", "system", "adjustVolume", t);
+        }
+        return false;
     }
 
     private static boolean handleHomeNativeAction(Context context, String key, int action) {
