@@ -359,7 +359,7 @@ public class MultiActionSettings extends SettingsPreferenceFragment
         try {
             android.content.pm.PackageInfo pi = pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
             if (pi.activities == null || pi.activities.length == 0) {
-                fan.miuix.appcompat.widget.Toast.show(context, "No activities found in " + packageName);
+                android.widget.Toast.makeText(context, "No activities found in " + packageName, android.widget.Toast.LENGTH_SHORT).show();
                 return;
             }
             java.util.List<String> activityNames = new java.util.ArrayList<>();
@@ -390,7 +390,7 @@ public class MultiActionSettings extends SettingsPreferenceFragment
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
         } catch (Throwable t) {
-            fan.miuix.appcompat.widget.Toast.show(context, "Failed to load activities: " + t.getMessage());
+            android.widget.Toast.makeText(context, "Failed to load activities: " + t.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
         }
     }
 
