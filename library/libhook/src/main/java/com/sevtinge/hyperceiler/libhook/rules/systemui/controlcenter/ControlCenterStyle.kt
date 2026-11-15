@@ -18,9 +18,12 @@
 */
 package com.sevtinge.hyperceiler.libhook.rules.systemui.controlcenter
 
+import com.sevtinge.hyperceiler.common.utils.PrefsBridge
 import com.sevtinge.hyperceiler.libhook.base.BaseHook
 import com.sevtinge.hyperceiler.libhook.utils.api.DeviceHelper.System.isMoreAndroidVersion
+import io.github.lingqiqi5211.ezhooktool.core.findMethod
 import io.github.lingqiqi5211.ezhooktool.core.loadClass
+import io.github.lingqiqi5211.ezhooktool.xposed.dsl.createBeforeHook
 import io.github.lingqiqi5211.ezhooktool.xposed.dsl.createHooks
 import io.github.lingqiqi5211.ezhooktool.xposed.dsl.setObjectField
 
@@ -65,15 +68,11 @@ object ControlCenterStyle : BaseHook() {
             // If freeze old is enabled, also force isUseControlCenter to return false
             if (freezeOld) {
                 runCatching {
-                    findAndHookMethod(
-                        "com.android.systemui.controlcenter.policy.ControlCenterControllerImpl",
-                        "isUseControlCenter",
-                        object : io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook() {
-                            override fun before(param: io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam) {
-                                param.result = false
-                            }
+                    loadClass("com.android.systemui.controlcenter.policy.ControlCenterControllerImpl")
+                        .findMethod { name("isUseControlCenter") }
+                        .createBeforeHook {
+                            it.result = false
                         }
-                    )
                 }
 
                 // Intercept putIntForUser so neither SystemUI nor anything else can set use_control_panel to 1
