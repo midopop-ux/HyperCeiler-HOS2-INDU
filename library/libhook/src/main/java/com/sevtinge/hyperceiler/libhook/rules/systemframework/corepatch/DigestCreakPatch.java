@@ -184,7 +184,7 @@ public class DigestCreakPatch extends CorePatchHelper {
                         // https://cs.android.com/android/platform/superproject/+/android-14.0.0_r2:frameworks/base/services/core/java/com/android/server/pm/InstallPackageHelper.java;l=1097;drc=5ea7e53c3a787e25af86b0f31933ddd68ae3514e
                         // 16: InstallPackageHelper#preparePackage
                         // https://cs.android.com/android/platform/superproject/+/android-16.0.0_r2:frameworks/base/services/core/java/com/android/server/pm/InstallPackageHelper.java;l=1459;drc=d14620262929e39a409b55d11cb542c1d1c4d2f6
-                        if (CorePatchHelper.isFeatureEnabled(CorePatchHelper.PREF_DIGEST_CREAK, true) && Arrays.stream(Thread.currentThread().getStackTrace()).anyMatch((o) -> o.getMethodName().startsWith("preparePackage"))) {
+                        if (CorePatchHelper.isFeatureEnabled(CorePatchHelper.PREF_DIGEST_CREAK, true) && Arrays.stream(Thread.currentThread().getStackTrace()).anyMatch((o) -> o.getMethodName().startsWith("preparePackage") || o.getMethodName().startsWith("reconcileInstallPackages"))) {
                             shouldBypass.set(true);
                             param.setResult(true);
                         } else {

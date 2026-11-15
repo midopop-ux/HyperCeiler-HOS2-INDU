@@ -365,6 +365,8 @@
     <string name="system_framework_hook_entry_desc">تسمح حماية قطع الملاحة باستخدامها في سيناريوهات غير الملاحة</string>
     <string name="system_framework_shortcut_title">مشاركة الاختصارات</string>
     <string name="system_framework_screen_all_rotations">تدوير الشاشة</string>
+    <string name="system_framework_disable_audio_focus">تعطيل التركيز الصوتي (Audio Focus)</string>
+    <string name="system_framework_disable_audio_focus_desc">السماح بتشغيل عدة أصوات ووسائط معاً في نفس الوقت دون إيقاف أي منها.</string>
     <string name="system_framework_allow_untrusted_touch">السماح باللمس الغير موثوق به</string>
     <string name="system_framework_clipboard_whitelist">السماح للتطبيق بقراءة الحافظة في الخلفية</string>
     <string name="system_framework_clipboard_whitelist_desc">السماح للتطبيقات بالحصول على إذن READ_LOGS (قراءة السجلات)</string>
@@ -425,7 +427,7 @@
     <string name="system_framework_bypass_force_downloadui">تجاوز فرض Download Manager عند فتح صفحة التنزيل</string>
     <string name="system_framework_bypass_force_downloadui_desc">حل مشكلة الانتقال غير الصحيح عند النقر فوق \"عرض التنزيلات\" في المشاركة السريعة</string>
     <!--Package Manager Service-->
-    <string name="system_framework_corepatch_title">خدمة مدير الحزمة</string>
+    <string name="system_framework_corepatch_title">Core Patch</string>
     <string name="system_framework_core_patch_downgr">السماح بتخفيض الاصدار</string>
     <string name="system_framework_core_patch_downgr_desc">السماح بتخفيض اصدار التطبيقات</string>
     <string name="system_framework_core_patch_auth_creak">تعطيل التحقق من التوقيع الرقمي</string>
@@ -438,8 +440,8 @@
     <string name="system_framework_core_patch_digest_creak_desc">السماح بإعادة تثبيت التطبيق بتوقيعات مختلفة</string>
     <string name="system_framework_core_patch_exact_signature_check">تعطيل تطابق التوقيع الدقيق</string>
     <string name="system_framework_core_patch_exact_signature_check_desc">تعطيل مطابقة التوقيع الدقيق بين APKs، والسماح بالتثبيت عندما يكون لكل جزء APK توقيع مختلف. قم بالتفعيل فقط عند الضرورة القصوى.</string>
-    <string name="system_framework_core_patch_use_pre_signature">إستخدم التوقيعات المثبتة</string>
-    <string name="system_framework_core_patch_use_pre_signature_desc">هذه الميزة خطيرة للغاية ويجب تمكينها فقط عند الضرورة القصوى</string>
+    <string name="system_framework_core_patch_use_pre_signature">استخدام التوقيعات السابقة (dangerous)</string>
+    <string name="system_framework_core_patch_use_pre_signature_desc">استخدام توقيعات التطبيق المثبت دائمًا أثناء التثبيت.\n\n⚠️ يجب على مستخدمي Xiaomi/Redmi عدم تفعيل هذا الخيار نهائياً، وإلا قد يتعطل إقلاع الجهاز (Bootloop).\nقد يقوم أي APK بالكتابة فوق التطبيق المثبت. لا تفعله إلا عند الضرورة القصوى.</string>
     <string name="system_framework_disable_low_api_check">تعطيل التحقق من الـ API المنخفض</string>
     <string name="system_framework_disable_low_api_check_desc">يُسمح بالتطبيقات التي تحتوي على API أقل من 23</string>
     <string name="system_framework_disable_persistent">تعطيل عمليات الفحص المستمرة</string>

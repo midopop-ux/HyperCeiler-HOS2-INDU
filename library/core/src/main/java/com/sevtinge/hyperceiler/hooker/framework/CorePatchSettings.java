@@ -96,5 +96,22 @@ public class CorePatchSettings extends DashboardFragment {
             }
             return true;
         });
+
+        mUsePreSignature.setOnPreferenceChangeListener((preference, newValue) -> {
+            if (Boolean.TRUE.equals(newValue)) {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle(R.string.system_framework_core_patch_use_pre_signature)
+                        .setMessage(R.string.system_framework_core_patch_use_pre_signature_desc)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            mUsePreSignature.setChecked(true);
+                        })
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                            mUsePreSignature.setChecked(false);
+                        })
+                        .show();
+                return false;
+            }
+            return true;
+        });
     }
 }

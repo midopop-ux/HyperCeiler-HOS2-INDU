@@ -449,6 +449,8 @@
     <string name="system_framework_hook_entry_desc">Allow navigation auto-disconnect protection to be used in non-navigation scenarios</string>
     <string name="system_framework_shortcut_title">Share shortcuts</string>
     <string name="system_framework_screen_all_rotations">Screen rotation</string>
+    <string name="system_framework_disable_audio_focus">Disable audio focus</string>
+    <string name="system_framework_disable_audio_focus_desc">Allow multiple media audio streams to play simultaneously without pausing each other.</string>
     <string name="system_framework_allow_untrusted_touch">Allow untrusted touch</string>
     <string name="system_framework_clipboard_whitelist">Allow app to read clipboard at background</string>
     <string name="system_framework_clipboard_whitelist_desc">Allow apps to get READ_LOGS permission</string>
@@ -511,7 +513,7 @@
     <string name="system_framework_bypass_force_downloadui_desc">Fixes the incorrect redirection issue when clicking \"View downloads\" in Quick Share</string>
     <!--Package Manager Service-->
     <string name="system_framework_corepatch_tip">The features under this list should be enabled selectively only after you understand them; some options carry certain risks, please be aware.\nThe normal options take effect immediately except for the master switch; extended features require a restart to take effect regardless of their switch state.</string>
-    <string name="system_framework_corepatch_title">Package manager service</string>
+    <string name="system_framework_corepatch_title">Core Patch</string>
     <string name="system_framework_core_patch_downgr">Allow downgrade apps</string>
     <string name="system_framework_core_patch_downgr_desc">Allow downgrade app when the app is at higher version</string>
     <string name="system_framework_core_patch_auth_creak">Disable digest verify</string>
@@ -524,8 +526,8 @@
     <string name="system_framework_core_patch_digest_creak_desc">Allow override app with different signatures</string>
     <string name="system_framework_core_patch_exact_signature_check">Disable exact signature match</string>
     <string name="system_framework_core_patch_exact_signature_check_desc">Disables exact signature matching between APKs, allowing installation when each APK split has a different signature. Enable only when absolutely necessary.</string>
-    <string name="system_framework_core_patch_use_pre_signature">Use installed app signatures</string>
-    <string name="system_framework_core_patch_use_pre_signature_desc">This feature is extremely dangerous and should only be enabled when absolutely necessary</string>
+    <string name="system_framework_core_patch_use_pre_signature">Use previous signatures (dangerous)</string>
+    <string name="system_framework_core_patch_use_pre_signature_desc">Always use the installed app\'s signatures during installation.\n\n⚠️ Xiaomi/Redmi users must not enable this option; otherwise, the device may fail to boot.\nAny APK may overwrite the installed app. Enable only when necessary.</string>
     <string name="system_framework_disable_low_api_check">Disable low API check</string>
     <string name="system_framework_disable_low_api_check_desc">Allow install apps with APIs lower than 23</string>
     <string name="system_framework_disable_persistent">Disable persistent checks</string>

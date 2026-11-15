@@ -38,6 +38,6 @@ public class ThemeManager extends BaseLoad {
         initHook(new ThemeServerSwitch(), PrefsBridge.getBoolean("theme_manager_china_server"));
         initHook(new DisableThemeAdNew(), PrefsBridge.getBoolean("various_theme_disable_ads"));
         initHook(UnlockAIWallPaper.INSTANCE, PrefsBridge.getBoolean("theme_manager_unlock_ai_wallpaper"));
-        initHook(new com.sevtinge.hyperceiler.libhook.rules.thememanager.AddThemeImportButton(), true);
+        initHook(new com.sevtinge.hyperceiler.libhook.rules.thememanager.AddThemeImportButton(), PrefsBridge.getBoolean("theme_manager_allow_third_theme", false));
     }
 }

@@ -58,6 +58,7 @@ import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.AutoEffectS
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.BypassForceDownloadui;
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.BypassForceMiAppStore;
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.BypassUnknownSourcesRestrictions;
+import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.DisableAudioFocus;
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.CleanOpenMenu;
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.CleanProcessTextMenu;
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.CleanShareMenu;
@@ -157,6 +158,7 @@ public class SystemFrameworkV extends BaseLoad {
 
         initHook(new BypassForceMiAppStore(), PrefsBridge.getBoolean("system_framework_bypass_force_mi_appstore") || PrefsBridge.getBoolean("system_framework_market_use_detailmini"));
         initHook(new BypassForceDownloadui(), PrefsBridge.getBoolean("system_framework_bypass_force_downloadui"));
+        initHook(new DisableAudioFocus(), PrefsBridge.getBoolean("system_framework_disable_audio_focus"));
 
         initHook(new ThermalBrightness(), PrefsBridge.getBoolean("system_framework_other_thermal_brightness"));
         initHook(DisableCleaner.INSTANCE, PrefsBridge.getBoolean("system_framework_other_disable_cleaner"));

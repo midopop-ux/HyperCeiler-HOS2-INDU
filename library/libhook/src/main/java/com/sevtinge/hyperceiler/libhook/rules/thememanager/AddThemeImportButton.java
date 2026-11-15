@@ -113,6 +113,15 @@ public class AddThemeImportButton extends BaseHook {
                 }
             }
         });
+
+        // 3. Bypass theme resource verification checks in ThemeManager to allow any imported theme to be shown
+        try {
+            hookAllMethods("com.android.thememanager.basemodule.controller.r", "g0", returnConstant(true));
+            hookAllMethods("com.android.thememanager.basemodule.controller.r", "d0", returnConstant(true));
+            hookAllMethods("com.android.thememanager.basemodule.controller.r", "f0", returnConstant(true));
+        } catch (Throwable t) {
+            XposedLog.w(TAG, getPackageName(), "Failed to hook resource checks in ThemeManager", t);
+        }
     }
 
     private void addImportButton(Activity activity) {
@@ -519,8 +528,6 @@ public class AddThemeImportButton extends BaseHook {
         Intent broadcast = new Intent("action_resource_import_complete");
         broadcast.setPackage("com.android.thememanager");
         broadcast.putExtra("extra_theme_uuid", themeUuid);
-        broadcast.putExtra("extra_resource", themeUuid);
-        broadcast.putExtra("extra_resource_id", themeUuid);
         activity.sendBroadcast(broadcast);
 
         XposedLog.i(TAG, getPackageName(), "Successfully installed theme: " + title + " (" + themeUuid + ")");
