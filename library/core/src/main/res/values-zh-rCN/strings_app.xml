@@ -1717,4 +1717,6 @@
     <string name="custom_hook_mode">选择模式</string>
     <string name="open_source">开源项目</string>
     <string name="close_source">闭源项目</string>
+    <string name="system_settings_fix_personalization_intent">修复国内主题个性化跳转</string>
+    <string name="system_settings_fix_personalization_intent_desc">点击个性化时直接打开国内主题壁纸个性化页面，避免回退到旧版空白壁纸列表</string>
 </resources>

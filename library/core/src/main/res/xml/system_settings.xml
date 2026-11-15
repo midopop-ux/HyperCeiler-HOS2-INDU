@@ -109,6 +109,12 @@
             android:key="prefs_key_system_settings_ai_image_unlock_memc"
             android:title="@string/system_settings_ai_image_unlock_memc" />
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="prefs_key_system_settings_fix_personalization_intent"
+            android:title="@string/system_settings_fix_personalization_intent"
+            android:summary="@string/system_settings_fix_personalization_intent_desc" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/system_settings_permission_title">

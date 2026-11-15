@@ -1814,4 +1814,6 @@
     <string name="toggle_dnd_off">Do Not Disturb disabled</string>
     <string name="toggle_night_on">Night mode enabled</string>
     <string name="toggle_night_off">Night mode disabled</string>
+    <string name="system_settings_fix_personalization_intent">Fix Personalization for China Theme Manager</string>
+    <string name="system_settings_fix_personalization_intent_desc">Opens China Theme Manager personalization page instead of broken wallpaper fallback</string>
 </resources>

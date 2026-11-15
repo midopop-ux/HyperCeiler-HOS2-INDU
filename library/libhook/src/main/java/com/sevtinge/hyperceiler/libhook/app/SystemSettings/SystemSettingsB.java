@@ -28,6 +28,7 @@ import com.sevtinge.hyperceiler.libhook.rules.systemsettings.AntiQues;
 import com.sevtinge.hyperceiler.libhook.rules.systemsettings.AppsFreezerEnable;
 import com.sevtinge.hyperceiler.libhook.rules.systemsettings.ControlCenterStyle;
 import com.sevtinge.hyperceiler.libhook.rules.systemsettings.EnableSpeedMode;
+import com.sevtinge.hyperceiler.libhook.rules.systemsettings.FixPersonalizationIntent;
 import com.sevtinge.hyperceiler.libhook.rules.systemsettings.HyperCeilerSettings;
 import com.sevtinge.hyperceiler.libhook.rules.systemsettings.InternationalBuild;
 import com.sevtinge.hyperceiler.libhook.rules.systemsettings.LinkTurbo;
@@ -59,6 +60,7 @@ public class SystemSettingsB extends BaseLoad {
         // 首页
         initHook(new HyperCeilerSettings(), PrefsBridge.getStringAsInt("settings_icon", 0) != 0);
         initHook(new InternationalBuild(), PrefsBridge.getBoolean("system_settings_international_build"));
+        initHook(new FixPersonalizationIntent(), PrefsBridge.getBoolean("system_settings_fix_personalization_intent", true));
         initHook(UnlockXiaomiHyperAIEntranceKt.INSTANCE, PrefsBridge.getBoolean("system_settings_unlock_xiaomihyperai_entrance"));
         initHook(new AddGoogleListHeader(), PrefsBridge.getBoolean("system_settings_unlock_google_header"));
 

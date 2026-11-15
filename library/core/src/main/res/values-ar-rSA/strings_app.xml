@@ -1661,4 +1661,6 @@
     <string name="toggle_dnd_off">تم إيقاف عدم الإزعاج</string>
     <string name="toggle_night_on">تم تشغيل الوضع الليلي</string>
     <string name="toggle_night_off">تم إيقاف الوضع الليلي</string>
+    <string name="system_settings_fix_personalization_intent">إصلاح قسم التخصيص لسمات الصين</string>
+    <string name="system_settings_fix_personalization_intent_desc">فتح واجهة التخصيص لتطبيق السمات الصيني بدلاً من صفحة الخلفيات المعطلة</string>
 </resources>
