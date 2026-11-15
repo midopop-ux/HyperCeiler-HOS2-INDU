@@ -163,7 +163,7 @@ public final class GlobalActionBridge {
 
     private static boolean handleHomeNativeAction(Context context, String key, int action) {
         return switch (action) {
-            case ACTION_ID_LOCK_SCREEN -> HomeNativeGestureActions.lockScreen(context) || sendAction(context, "LockScreen");
+            case ACTION_ID_LOCK_SCREEN -> lockScreen(context);
             case ACTION_ID_SUPER_XIAOAI -> HomeNativeGestureActions.launchSuperXiaoAi(context);
             case ACTION_ID_SUPER_XIAOAI_SCREEN_RECOGNIZER -> HomeNativeGestureActions.launchSuperXiaoAiScreenRecognizer(context);
             case ACTION_ID_GOOGLE_CIRCLE_TO_SEARCH -> launchGoogleCircleToSearch(context);
@@ -174,17 +174,98 @@ public final class GlobalActionBridge {
 
     private static boolean handleSystemFrameworkAction(Context context, int action) {
         return switch (action) {
-            case ACTION_ID_INVERT_COLORS -> sendAction(context, "ToggleColorInversion");
-            case ACTION_ID_GO_TO_SLEEP -> sendAction(context, "GoToSleep");
-            case ACTION_ID_SCREENSHOT -> sendAction(context, "ScreenCapture");
-            case ACTION_ID_POWER_MENU -> sendAction(context, "OpenPowerMenu");
-            case ACTION_ID_GO_HOME -> sendAction(context, "GoHome");
+            case ACTION_ID_INVERT_COLORS -> toggleColorInversion(context);
+            case ACTION_ID_GO_TO_SLEEP -> goToSleep(context);
+            case ACTION_ID_SCREENSHOT -> takeScreenshot(context);
+            case ACTION_ID_POWER_MENU -> openPowerMenu(context);
+            case ACTION_ID_GO_HOME -> goHome(context);
             case ACTION_ID_FORCE_STOP_TOP_APP -> sendAction(context, "ForceStopTopApp");
             case ACTION_ID_SWITCH_TO_PREV_APP -> sendAction(context, "SwitchToPrevApp");
             case ACTION_ID_GO_BACK -> sendAction(context, "GoBack");
             case ACTION_ID_SCROLL_TO_TOP -> sendAction(context, "ScrollToTop");
             default -> false;
         };
+    }
+
+    public static boolean lockScreen(Context context) {
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            if (pm != null) {
+                BaseHook.callMethod(pm, "goToSleep", android.os.SystemClock.uptimeMillis());
+            }
+            Class<?> wmgClass = BaseHook.findClass("android.view.WindowManagerGlobal", null);
+            Object wms = BaseHook.callStaticMethod(wmgClass, "getWindowManagerService");
+            if (wms != null) {
+                BaseHook.callMethod(wms, "lockNow", (Object) null);
+            }
+            return true;
+        } catch (Throwable t) {
+            return HomeNativeGestureActions.lockScreen(context) || sendAction(context, "LockScreen");
+        }
+    }
+
+    public static boolean goToSleep(Context context) {
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            if (pm != null) {
+                BaseHook.callMethod(pm, "goToSleep", android.os.SystemClock.uptimeMillis());
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return sendAction(context, "GoToSleep");
+    }
+
+    public static boolean takeScreenshot(Context context) {
+        try {
+            context.sendBroadcast(new Intent("android.intent.action.CAPTURE_SCREENSHOT"));
+            return true;
+        } catch (Throwable ignored) {
+        }
+        return sendAction(context, "ScreenCapture");
+    }
+
+    public static boolean openPowerMenu(Context context) {
+        try {
+            Class<?> wmgClass = BaseHook.findClass("android.view.WindowManagerGlobal", null);
+            Object wms = BaseHook.callStaticMethod(wmgClass, "getWindowManagerService");
+            if (wms != null) {
+                BaseHook.callMethod(wms, "showGlobalActions");
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return sendAction(context, "OpenPowerMenu");
+    }
+
+    public static boolean goHome(Context context) {
+        try {
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            homeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(homeIntent);
+            return true;
+        } catch (Throwable ignored) {
+        }
+        return sendAction(context, "GoHome");
+    }
+
+    public static boolean toggleColorInversion(Context context) {
+        try {
+            int enabled = Settings.Secure.getInt(
+                context.getContentResolver(),
+                "accessibility_display_inversion_enabled",
+                0
+            );
+            Settings.Secure.putInt(
+                context.getContentResolver(),
+                "accessibility_display_inversion_enabled",
+                enabled == 0 ? 1 : 0
+            );
+            return true;
+        } catch (Throwable ignored) {
+        }
+        return sendAction(context, "ToggleColorInversion");
     }
 
     private static boolean launchGoogleCircleToSearch(Context context) {
@@ -198,20 +279,37 @@ public final class GlobalActionBridge {
     }
 
     public static boolean launchAppIntent(Context context, String key, boolean skipLock) {
-        return launchIntent(context, getIntent(context, key, IntentType.APP, skipLock));
+        Intent intent = getIntent(context, key, IntentType.APP, skipLock);
+        return launchIntent(context, intent);
     }
 
     public static boolean launchShortcutIntent(Context context, String key, boolean skipLock) {
-        return launchIntent(context, getIntent(context, key, IntentType.SHORTCUT, skipLock));
+        Intent intent = getIntent(context, key, IntentType.SHORTCUT, skipLock);
+        return launchIntent(context, intent);
     }
 
     public static boolean launchActivityIntent(Context context, String key, boolean skipLock) {
-        return launchIntent(context, getIntent(context, key, IntentType.ACTIVITY, skipLock));
+        Intent intent = getIntent(context, key, IntentType.ACTIVITY, skipLock);
+        return launchIntent(context, intent);
     }
 
     public static boolean toggleFeature(Context context, String key) {
         String tileSpec = PrefsBridge.getString(key + "_toggle_spec", null);
         if (tileSpec != null && !tileSpec.isEmpty()) {
+            if (tileSpec.startsWith("custom(") && tileSpec.endsWith(")")) {
+                try {
+                    String compStr = tileSpec.substring(7, tileSpec.length() - 1);
+                    ComponentName component = ComponentName.unflattenFromString(compStr);
+                    if (component != null) {
+                        Object statusBarService = context.getSystemService("statusbar");
+                        if (statusBarService != null) {
+                            BaseHook.callMethod(statusBarService, "clickTile", component);
+                            return true;
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
             Intent intent = new Intent(BaseHook.ACTION_PREFIX + "ClickTile");
             intent.putExtra("spec", tileSpec);
             context.sendBroadcast(intent);
@@ -235,6 +333,9 @@ public final class GlobalActionBridge {
             default -> null;
         };
         if (spec != null) {
+            if (handleDirectBuiltInToggle(context, spec)) {
+                return true;
+            }
             Intent intent = new Intent(BaseHook.ACTION_PREFIX + "ClickTile");
             intent.putExtra("spec", spec);
             context.sendBroadcast(intent);
@@ -243,14 +344,130 @@ public final class GlobalActionBridge {
         return false;
     }
 
+    private static boolean sTorchEnabled = false;
+
+    private static boolean handleDirectBuiltInToggle(Context context, String spec) {
+        try {
+            switch (spec) {
+                case "wifi" -> {
+                    android.net.wifi.WifiManager wm = (android.net.wifi.WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                    if (wm != null) {
+                        BaseHook.callMethod(wm, "setWifiEnabled", !wm.isWifiEnabled());
+                        return true;
+                    }
+                }
+                case "bt" -> {
+                    android.bluetooth.BluetoothAdapter ba = android.bluetooth.BluetoothAdapter.getDefaultAdapter();
+                    if (ba != null) {
+                        if (ba.isEnabled()) ba.disable(); else ba.enable();
+                        return true;
+                    }
+                }
+                case "rotation" -> {
+                    int current = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+                    Settings.System.putInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, current == 1 ? 0 : 1);
+                    return true;
+                }
+                case "autobrightness" -> {
+                    int mode = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+                    int newMode = mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+                            ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                            : Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
+                    Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, newMode);
+                    return true;
+                }
+                case "flashlight" -> {
+                    android.hardware.camera2.CameraManager cm = (android.hardware.camera2.CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+                    if (cm != null) {
+                        String[] ids = cm.getCameraIdList();
+                        if (ids != null && ids.length > 0) {
+                            sTorchEnabled = !sTorchEnabled;
+                            cm.setTorchMode(ids[0], sTorchEnabled);
+                            return true;
+                        }
+                    }
+                }
+                case "mute" -> {
+                    AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                    if (am != null) {
+                        int ringer = am.getRingerMode();
+                        am.setRingerMode(ringer == AudioManager.RINGER_MODE_NORMAL ? AudioManager.RINGER_MODE_SILENT : AudioManager.RINGER_MODE_NORMAL);
+                        return true;
+                    }
+                }
+                case "night" -> {
+                    android.app.UiModeManager umm = (android.app.UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+                    if (umm != null) {
+                        int current = umm.getNightMode();
+                        umm.setNightMode(current == android.app.UiModeManager.MODE_NIGHT_YES ? android.app.UiModeManager.MODE_NIGHT_NO : android.app.UiModeManager.MODE_NIGHT_YES);
+                        return true;
+                    }
+                }
+                case "dnd" -> {
+                    android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (nm != null) {
+                        int filter = nm.getCurrentInterruptionFilter();
+                        nm.setInterruptionFilter(filter == android.app.NotificationManager.INTERRUPTION_FILTER_ALL
+                                ? android.app.NotificationManager.INTERRUPTION_FILTER_PRIORITY
+                                : android.app.NotificationManager.INTERRUPTION_FILTER_ALL);
+                        return true;
+                    }
+                }
+                case "nfc" -> {
+                    android.nfc.NfcAdapter nfc = android.nfc.NfcAdapter.getDefaultAdapter(context);
+                    if (nfc != null) {
+                        if (nfc.isEnabled()) {
+                            BaseHook.callMethod(nfc, "disable");
+                        } else {
+                            BaseHook.callMethod(nfc, "enable");
+                        }
+                        return true;
+                    }
+                }
+                case "gps" -> {
+                    int mode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF);
+                    Settings.Secure.putInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE,
+                            mode == Settings.Secure.LOCATION_MODE_OFF ? Settings.Secure.LOCATION_MODE_HIGH_ACCURACY : Settings.Secure.LOCATION_MODE_OFF);
+                    return true;
+                }
+                case "cell" -> {
+                    android.telephony.TelephonyManager tm = (android.telephony.TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                    if (tm != null) {
+                        BaseHook.callMethod(tm, "setDataEnabled", !tm.isDataEnabled());
+                        return true;
+                    }
+                }
+                case "hotspot" -> {
+                    android.net.ConnectivityManager cm = (android.net.ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    if (cm != null) {
+                        try {
+                            BaseHook.callMethod(cm, "stopTethering", 0);
+                            return true;
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            AndroidLog.w("GlobalActionBridge", "system", "handleDirectBuiltInToggle: " + spec, t);
+        }
+        return false;
+    }
+
     public static boolean launchIntent(Context context, Intent intent) {
         if (intent == null) {
             return false;
         }
-        Intent broadcastIntent = new Intent(ACTION_LAUNCH_INTENT);
-        broadcastIntent.putExtra("intent", intent);
-        context.sendBroadcast(broadcastIntent);
-        return true;
+        try {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            return true;
+        } catch (Throwable t) {
+            Intent broadcastIntent = new Intent(ACTION_LAUNCH_INTENT);
+            broadcastIntent.putExtra("intent", intent);
+            context.sendBroadcast(broadcastIntent);
+            return true;
+        }
     }
 
     public static Intent getIntent(Context context, String prefs, IntentType intentType, boolean skipLock) {
