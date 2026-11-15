@@ -88,6 +88,12 @@ public class XposedInitEntry extends XposedModule {
         }
 
         // load Third Hook
+        try {
+            com.sevtinge.hyperceiler.libhook.corepatch.CorePatchMain.onSystemServerStarting(this, lpparam);
+            XposedLog.d(TAG, "system", "CorePatch Kotlin Hooks loaded");
+        } catch (Throwable t) {
+            XposedLog.e(TAG, "system", "CorePatch Kotlin Hooks failed: " + t);
+        }
         if (PrefsBridge.getBoolean("system_framework_core_patch_enable")) {
             new CorePatch().onLoad(lpparam);
             XposedLog.d(TAG, "system", "CorePatch loaded");
