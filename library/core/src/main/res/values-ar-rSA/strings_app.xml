@@ -441,7 +441,7 @@
     <string name="system_framework_core_patch_exact_signature_check">تعطيل تطابق التوقيع الدقيق</string>
     <string name="system_framework_core_patch_exact_signature_check_desc">تعطيل مطابقة التوقيع الدقيق بين APKs، والسماح بالتثبيت عندما يكون لكل جزء APK توقيع مختلف. قم بالتفعيل فقط عند الضرورة القصوى.</string>
     <string name="system_framework_core_patch_use_pre_signature">استخدام التوقيعات السابقة (dangerous)</string>
-    <string name="system_framework_core_patch_use_pre_signature_desc">استخدام توقيعات التطبيق المثبت دائمًا أثناء التثبيت.\n\n⚠️ يجب على مستخدمي Xiaomi/Redmi عدم تفعيل هذا الخيار نهائياً، وإلا قد يتعطل إقلاع الجهاز (Bootloop).\nقد يقوم أي APK بالكتابة فوق التطبيق المثبت. لا تفعله إلا عند الضرورة القصوى.</string>
+    <string name="system_framework_core_patch_use_pre_signature_desc">استخدام توقيعات التطبيق المثبت دائمًا أثناء التثبيت.</string>
     <string name="system_framework_disable_low_api_check">تعطيل التحقق من الـ API المنخفض</string>
     <string name="system_framework_disable_low_api_check_desc">يُسمح بالتطبيقات التي تحتوي على API أقل من 23</string>
     <string name="system_framework_disable_persistent">تعطيل عمليات الفحص المستمرة</string>

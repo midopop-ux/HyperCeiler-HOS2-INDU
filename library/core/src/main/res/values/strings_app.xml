@@ -527,7 +527,7 @@
     <string name="system_framework_core_patch_exact_signature_check">Disable exact signature match</string>
     <string name="system_framework_core_patch_exact_signature_check_desc">Disables exact signature matching between APKs, allowing installation when each APK split has a different signature. Enable only when absolutely necessary.</string>
     <string name="system_framework_core_patch_use_pre_signature">Use previous signatures (dangerous)</string>
-    <string name="system_framework_core_patch_use_pre_signature_desc">Always use the installed app\'s signatures during installation.\n\n⚠️ Xiaomi/Redmi users must not enable this option; otherwise, the device may fail to boot.\nAny APK may overwrite the installed app. Enable only when necessary.</string>
+    <string name="system_framework_core_patch_use_pre_signature_desc">Always use the installed app\'s signatures during installation.</string>
     <string name="system_framework_disable_low_api_check">Disable low API check</string>
     <string name="system_framework_disable_low_api_check_desc">Allow install apps with APIs lower than 23</string>
     <string name="system_framework_disable_persistent">Disable persistent checks</string>
