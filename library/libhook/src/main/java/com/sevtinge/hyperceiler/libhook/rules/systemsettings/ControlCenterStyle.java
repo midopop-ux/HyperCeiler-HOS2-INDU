@@ -35,5 +35,21 @@ public class ControlCenterStyle extends BaseHook {
                 param.setResult(false);
             }
         });
+
+        if (com.sevtinge.hyperceiler.libhook.base.BaseHook.PrefsBridge.getBoolean("system_control_center_freeze_old")) {
+            findAndHookMethod("com.android.settings.utils.StatusBarUtils", "isUseControlPanel", Context.class, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(false);
+                }
+            });
+
+            findAndHookMethod("com.android.settings.utils.StatusBarUtils", "useControlCenter", Context.class, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(false);
+                }
+            });
+        }
     }
 }
