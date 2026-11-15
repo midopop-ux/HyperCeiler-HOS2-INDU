@@ -317,6 +317,80 @@ public class AddThemeImportButton extends BaseHook {
                     subRes.put("metaPath", JSONObject.NULL);
                     subRes.put("contentPath", JSONObject.NULL);
                     subResources.add(subRes);
+
+                    // Also generate corresponding .mrm in meta/<component>/ if it's a primary component
+                    if ("icons".equals(name) || "lockscreen".equals(name) || "wallpaper".equals(name) || "launcher".equals(name)) {
+                        try {
+                            File subMetaDir = new File(themeBaseDir, "meta/" + name);
+                            subMetaDir.mkdirs();
+                            JSONObject subMrm = new JSONObject();
+                            subMrm.put("localId", subUuid);
+                            subMrm.put("onlineId", JSONObject.NULL);
+                            subMrm.put("assemblyId", themeUuid);
+                            subMrm.put("productId", themeUuid);
+                            subMrm.put("hash", subUuid);
+                            subMrm.put("platform", 10);
+                            subMrm.put("size", subContentFile.length());
+                            subMrm.put("updatedTime", now);
+                            subMrm.put("version", version);
+
+                            JSONObject subTitles = new JSONObject();
+                            subTitles.put("fallback", title);
+                            subTitles.put("en_US", title);
+                            subMrm.put("titles", subTitles);
+
+                            JSONObject subAuthors = new JSONObject();
+                            subAuthors.put("fallback", author);
+                            subAuthors.put("en_US", author);
+                            subMrm.put("authors", subAuthors);
+
+                            JSONObject subDesigners = new JSONObject();
+                            subDesigners.put("fallback", designer);
+                            subDesigners.put("en_US", designer);
+                            subMrm.put("designers", subDesigners);
+
+                            JSONObject subDesc = new JSONObject();
+                            subDesc.put("fallback", "");
+                            subMrm.put("descriptions", subDesc);
+
+                            JSONObject subThumbs = new JSONObject();
+                            subThumbs.put("fallback", new JSONArray(builtInThumbnails));
+                            subMrm.put("builtInThumbnails", subThumbs);
+
+                            JSONObject subPrev = new JSONObject();
+                            subPrev.put("fallback", new JSONArray(builtInPreviews));
+                            subMrm.put("builtInPreviews", subPrev);
+
+                            subMrm.put("thumbnails", new JSONArray());
+                            subMrm.put("previews", new JSONArray());
+
+                            JSONArray parentArray = new JSONArray();
+                            JSONObject parentObj = new JSONObject();
+                            parentObj.put("localId", themeUuid);
+                            parentObj.put("resourceCode", "theme");
+                            parentObj.put("extraMeta", new JSONObject());
+                            parentObj.put("metaPath", JSONObject.NULL);
+                            parentObj.put("contentPath", JSONObject.NULL);
+                            parentArray.put(parentObj);
+                            subMrm.put("parentResources", parentArray);
+
+                            subMrm.put("subResources", new JSONArray());
+                            subMrm.put("extraMeta", new JSONObject());
+                            subMrm.put("metaPath", JSONObject.NULL);
+                            subMrm.put("contentPath", JSONObject.NULL);
+                            subMrm.put("rightsPath", JSONObject.NULL);
+                            subMrm.put("screenRatio", JSONObject.NULL);
+                            subMrm.put("fontWeight", JSONObject.NULL);
+                            subMrm.put("miuiAdapterVersion", 2.0);
+
+                            File subMrmFile = new File(subMetaDir, subUuid + ".mrm");
+                            try (FileOutputStream subFos = new FileOutputStream(subMrmFile)) {
+                                subFos.write(subMrm.toString(2).getBytes(StandardCharsets.UTF_8));
+                            }
+                        } catch (Throwable t) {
+                            XposedLog.w(TAG, getPackageName(), "Failed to create sub-mrm for " + name, t);
+                        }
+                    }
                 }
             }
         }
@@ -329,7 +403,7 @@ public class AddThemeImportButton extends BaseHook {
         // 3. Construct .mrm JSON descriptor
         JSONObject mrm = new JSONObject();
         mrm.put("localId", themeUuid);
-        mrm.put("onlineId", JSONObject.NULL);
+        mrm.put("onlineId", themeUuid);
         mrm.put("assemblyId", themeUuid);
         mrm.put("productId", themeUuid);
         mrm.put("hash", sha1Hash);
@@ -387,7 +461,6 @@ public class AddThemeImportButton extends BaseHook {
         mrm.put("subResourceType", JSONObject.NULL);
         mrm.put("resSubType", JSONObject.NULL);
         mrm.put("isRearScreenEditable", false);
-        mrm.put("isThirdParties", true);
         mrm.put("supportAon", false);
         mrm.put("wallpaperStyle", 0);
         mrm.put("isSingleResource", false);
@@ -397,7 +470,7 @@ public class AddThemeImportButton extends BaseHook {
         mrm.put("isBackUpVersion", false);
         mrm.put("themeType", 0);
         mrm.put("isRearScreenNeedLogin", false);
-        mrm.put("miuiAdapterVersion", "2.0");
+        mrm.put("miuiAdapterVersion", 2.0);
 
         // 4. Write .mrm file
         File mrmFile = new File(metaThemeDir, themeUuid + ".mrm");
@@ -409,10 +482,45 @@ public class AddThemeImportButton extends BaseHook {
         File mrcFile = new File(contentThemeDir, themeUuid + ".mrc");
         mrcFile.createNewFile();
 
-        // 6. Broadcast resource import complete to ThemeManager
+        // 6. Create valid dummy ODRL rights file (.mra) in rights/theme/ matching sha1Hash and themeUuid
+        String rightsXml = "<o-ex:rights xmlns:o-ex=\"http://odrl.net/1.1/ODRL-EX\" " +
+                "xmlns:o-dd=\"http://odrl.net/1.1/ODRL-DD\" " +
+                "xmlns:oma-dd=\"http://www.openmobilealliance.com/oma-dd\" " +
+                "xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\" " +
+                "xmlns:xenc=\"http://www.w3.org/2001/04/xmlenc#\" " +
+                "o-ex:id=\"hyperceiler_rights\"><o-ex:context><o-dd:version>2.1</o-dd:version>" +
+                "<o-dd:uid>" + now + "</o-dd:uid></o-ex:context><o-ex:agreement><o-ex:asset>" +
+                "<o-ex:context><o-dd:uid>" + themeUuid + "</o-dd:uid></o-ex:context><o-ex:digest>" +
+                "<ds:DigestMethod Algorithm=\"nop\"/><ds:DigestValue/></o-ex:digest><ds:KeyInfo>" +
+                "<xenc:EncryptedKey><xenc:EncryptionMethod Algorithm=\"nop\"/><ds:KeyInfo>" +
+                "<ds:RetrievalMethod URI=\"nop\"/></ds:KeyInfo><xenc:CipherData><xenc:CipherValue/>" +
+                "</xenc:CipherData></xenc:EncryptedKey></ds:KeyInfo></o-ex:asset><o-ex:permission>" +
+                "<o-dd:display><o-ex:constraint><o-dd:count>0</o-dd:count></o-ex:constraint></o-dd:display>" +
+                "<o-dd:execute><o-ex:constraint><oma-dd:individual><o-ex:context><o-dd:uid>m-1</o-dd:uid>" +
+                "</o-ex:context></oma-dd:individual></o-ex:constraint></o-dd:execute><o-dd:export/>" +
+                "</o-ex:permission></o-ex:agreement></o-ex:rights>";
+
+        try {
+            File mraFileUuid = new File(rightsThemeDir, themeUuid + ".mra");
+            try (FileOutputStream mraFos = new FileOutputStream(mraFileUuid)) {
+                mraFos.write(rightsXml.getBytes(StandardCharsets.UTF_8));
+            }
+            if (sha1Hash != null && !sha1Hash.isEmpty()) {
+                File mraFileHash = new File(rightsThemeDir, sha1Hash + ".mra");
+                try (FileOutputStream mraFos = new FileOutputStream(mraFileHash)) {
+                    mraFos.write(rightsXml.getBytes(StandardCharsets.UTF_8));
+                }
+            }
+        } catch (Throwable t) {
+            XposedLog.w(TAG, getPackageName(), "Failed to write .mra rights file", t);
+        }
+
+        // 7. Broadcast resource import complete to ThemeManager
         Intent broadcast = new Intent("action_resource_import_complete");
         broadcast.setPackage("com.android.thememanager");
         broadcast.putExtra("extra_theme_uuid", themeUuid);
+        broadcast.putExtra("extra_resource", themeUuid);
+        broadcast.putExtra("extra_resource_id", themeUuid);
         activity.sendBroadcast(broadcast);
 
         XposedLog.i(TAG, getPackageName(), "Successfully installed theme: " + title + " (" + themeUuid + ")");
