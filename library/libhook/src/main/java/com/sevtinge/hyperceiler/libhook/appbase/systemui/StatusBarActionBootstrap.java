@@ -259,21 +259,21 @@ public class StatusBarActionBootstrap extends BaseHook {
                     if (autoBrightnessController != null) {
                         boolean enabled = (boolean) getBooleanField(autoBrightnessController, "enabled");
                         callMethod(autoBrightnessController, "toggleAutoBrightness");
-                        showToast(context, modRes.getString(enabled ? com.sevtinge.hyperceiler.core.R.string.toggle_autobright_off : com.sevtinge.hyperceiler.core.R.string.toggle_autobright_on));
+                        showToast(context, modRes.getString(enabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_autobright_off : com.sevtinge.hyperceiler.libhook.R.string.toggle_autobright_on));
                     } else {
                         // Fallback
                         int mode = android.provider.Settings.System.getInt(context.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE, android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
                         boolean isAuto = mode == android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
                         android.provider.Settings.System.putInt(context.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE,
                                 isAuto ? android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL : android.provider.Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
-                        showToast(context, modRes.getString(isAuto ? com.sevtinge.hyperceiler.core.R.string.toggle_autobright_off : com.sevtinge.hyperceiler.core.R.string.toggle_autobright_on));
+                        showToast(context, modRes.getString(isAuto ? com.sevtinge.hyperceiler.libhook.R.string.toggle_autobright_off : com.sevtinge.hyperceiler.libhook.R.string.toggle_autobright_on));
                     }
                 }
                 case "rotation" -> {
                     int current = android.provider.Settings.System.getInt(context.getContentResolver(), android.provider.Settings.System.ACCELEROMETER_ROTATION, 0);
                     if (current == 0) {
                         android.provider.Settings.System.putInt(context.getContentResolver(), android.provider.Settings.System.ACCELEROMETER_ROTATION, 1);
-                        showToast(context, modRes.getString(com.sevtinge.hyperceiler.core.R.string.toggle_autorotate_on));
+                        showToast(context, modRes.getString(com.sevtinge.hyperceiler.libhook.R.string.toggle_autorotate_on));
                     } else {
                         try {
                             android.view.WindowManager wm = (android.view.WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -283,7 +283,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                         } catch (Throwable ignored) {
                         }
                         android.provider.Settings.System.putInt(context.getContentResolver(), android.provider.Settings.System.ACCELEROMETER_ROTATION, 0);
-                        showToast(context, modRes.getString(com.sevtinge.hyperceiler.core.R.string.toggle_autorotate_off));
+                        showToast(context, modRes.getString(com.sevtinge.hyperceiler.libhook.R.string.toggle_autorotate_off));
                     }
                 }
                 case "flashlight" -> {
@@ -293,7 +293,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                         if (fc != null) {
                             boolean isEnabled = (boolean) callMethod(fc, "isEnabled");
                             callMethod(fc, "setFlashlight", !isEnabled);
-                            showToast(context, modRes.getString(!isEnabled ? com.sevtinge.hyperceiler.core.R.string.toggle_flash_on : com.sevtinge.hyperceiler.core.R.string.toggle_flash_off));
+                            showToast(context, modRes.getString(!isEnabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_flash_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_flash_off));
                             handled = true;
                         }
                     } catch (Throwable ignored) {
@@ -306,7 +306,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                                 if (ids != null && ids.length > 0) {
                                     sTorchEnabled = !sTorchEnabled;
                                     cm.setTorchMode(ids[0], sTorchEnabled);
-                                    showToast(context, modRes.getString(sTorchEnabled ? com.sevtinge.hyperceiler.core.R.string.toggle_flash_on : com.sevtinge.hyperceiler.core.R.string.toggle_flash_off));
+                                    showToast(context, modRes.getString(sTorchEnabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_flash_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_flash_off));
                                 }
                             }
                         } catch (Throwable ignored) {
@@ -318,7 +318,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                     if (wm != null) {
                         boolean enabled = wm.isWifiEnabled();
                         callMethod(wm, "setWifiEnabled", !enabled);
-                        showToast(context, modRes.getString(!enabled ? com.sevtinge.hyperceiler.core.R.string.toggle_wifi_on : com.sevtinge.hyperceiler.core.R.string.toggle_wifi_off));
+                        showToast(context, modRes.getString(!enabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_wifi_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_wifi_off));
                     }
                 }
                 case "bt" -> {
@@ -326,7 +326,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                     if (ba != null) {
                         boolean enabled = ba.isEnabled();
                         if (enabled) ba.disable(); else ba.enable();
-                        showToast(context, modRes.getString(!enabled ? com.sevtinge.hyperceiler.core.R.string.toggle_bt_on : com.sevtinge.hyperceiler.core.R.string.toggle_bt_off));
+                        showToast(context, modRes.getString(!enabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_bt_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_bt_off));
                     }
                 }
                 case "gps" -> {
@@ -336,7 +336,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                         if (lc != null) {
                             boolean isEnabled = (boolean) callMethod(lc, "isLocationEnabled");
                             callMethod(lc, "setLocationEnabled", !isEnabled);
-                            showToast(context, modRes.getString(!isEnabled ? com.sevtinge.hyperceiler.core.R.string.toggle_gps_on : com.sevtinge.hyperceiler.core.R.string.toggle_gps_off));
+                            showToast(context, modRes.getString(!isEnabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_gps_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_gps_off));
                             handled = true;
                         }
                     } catch (Throwable ignored) {
@@ -346,7 +346,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                         boolean isOff = mode == android.provider.Settings.Secure.LOCATION_MODE_OFF;
                         android.provider.Settings.Secure.putInt(context.getContentResolver(), android.provider.Settings.Secure.LOCATION_MODE,
                                 isOff ? android.provider.Settings.Secure.LOCATION_MODE_HIGH_ACCURACY : android.provider.Settings.Secure.LOCATION_MODE_OFF);
-                        showToast(context, modRes.getString(isOff ? com.sevtinge.hyperceiler.core.R.string.toggle_gps_on : com.sevtinge.hyperceiler.core.R.string.toggle_gps_off));
+                        showToast(context, modRes.getString(isOff ? com.sevtinge.hyperceiler.libhook.R.string.toggle_gps_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_gps_off));
                     }
                 }
                 case "hotspot" -> {
@@ -356,13 +356,13 @@ public class StatusBarActionBootstrap extends BaseHook {
                         if (hc != null) {
                             boolean isEnabled = (boolean) callMethod(hc, "isHotspotEnabled");
                             callMethod(hc, "setHotspotEnabled", !isEnabled);
-                            showToast(context, modRes.getString(!isEnabled ? com.sevtinge.hyperceiler.core.R.string.toggle_hotspot_on : com.sevtinge.hyperceiler.core.R.string.toggle_hotspot_off));
+                            showToast(context, modRes.getString(!isEnabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_hotspot_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_hotspot_off));
                             handled = true;
                         }
                     } catch (Throwable ignored) {
                     }
                     if (!handled) {
-                        showToast(context, modRes.getString(com.sevtinge.hyperceiler.core.R.string.toggle_hotspot_off));
+                        showToast(context, modRes.getString(com.sevtinge.hyperceiler.libhook.R.string.toggle_hotspot_off));
                     }
                 }
                 case "mute" -> {
@@ -371,13 +371,13 @@ public class StatusBarActionBootstrap extends BaseHook {
                         int ringer = am.getRingerMode();
                         if (ringer == AudioManager.RINGER_MODE_NORMAL) {
                             am.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-                            showToast(context, modRes.getString(com.sevtinge.hyperceiler.core.R.string.toggle_sound_vibrate));
+                            showToast(context, modRes.getString(com.sevtinge.hyperceiler.libhook.R.string.toggle_sound_vibrate));
                         } else if (ringer == AudioManager.RINGER_MODE_VIBRATE) {
                             am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                            showToast(context, modRes.getString(com.sevtinge.hyperceiler.core.R.string.toggle_sound_silent));
+                            showToast(context, modRes.getString(com.sevtinge.hyperceiler.libhook.R.string.toggle_sound_silent));
                         } else {
                             am.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                            showToast(context, modRes.getString(com.sevtinge.hyperceiler.core.R.string.toggle_sound_normal));
+                            showToast(context, modRes.getString(com.sevtinge.hyperceiler.libhook.R.string.toggle_sound_normal));
                         }
                     }
                 }
@@ -391,7 +391,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                         } catch (Throwable t) {
                             umm.setNightMode(!nightMode ? android.app.UiModeManager.MODE_NIGHT_YES : android.app.UiModeManager.MODE_NIGHT_NO);
                         }
-                        showToast(context, modRes.getString(!nightMode ? com.sevtinge.hyperceiler.core.R.string.toggle_night_on : com.sevtinge.hyperceiler.core.R.string.toggle_night_off));
+                        showToast(context, modRes.getString(!nightMode ? com.sevtinge.hyperceiler.libhook.R.string.toggle_night_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_night_off));
                     }
                 }
                 case "dnd" -> {
@@ -404,7 +404,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                             if (zenController != null) {
                                 boolean isZen = (boolean) callMethod(zenController, "isZenModeOn");
                                 callMethod(zenController, "setZen", isZen ? 0 : 1, "DNDTile");
-                                showToast(context, modRes.getString(!isZen ? com.sevtinge.hyperceiler.core.R.string.toggle_dnd_on : com.sevtinge.hyperceiler.core.R.string.toggle_dnd_off));
+                                showToast(context, modRes.getString(!isZen ? com.sevtinge.hyperceiler.libhook.R.string.toggle_dnd_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_dnd_off));
                                 handled = true;
                             }
                         } catch (Throwable ignored) {
@@ -416,7 +416,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                             int filter = nm.getCurrentInterruptionFilter();
                             boolean isDnd = filter != android.app.NotificationManager.INTERRUPTION_FILTER_ALL;
                             nm.setInterruptionFilter(isDnd ? android.app.NotificationManager.INTERRUPTION_FILTER_ALL : android.app.NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-                            showToast(context, modRes.getString(!isDnd ? com.sevtinge.hyperceiler.core.R.string.toggle_dnd_on : com.sevtinge.hyperceiler.core.R.string.toggle_dnd_off));
+                            showToast(context, modRes.getString(!isDnd ? com.sevtinge.hyperceiler.libhook.R.string.toggle_dnd_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_dnd_off));
                         }
                     }
                 }
@@ -429,7 +429,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                         } else {
                             callMethod(nfc, "enable");
                         }
-                        showToast(context, modRes.getString(!enabled ? com.sevtinge.hyperceiler.core.R.string.toggle_nfc_on : com.sevtinge.hyperceiler.core.R.string.toggle_nfc_off));
+                        showToast(context, modRes.getString(!enabled ? com.sevtinge.hyperceiler.libhook.R.string.toggle_nfc_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_nfc_off));
                     }
                 }
                 case "cell" -> {
@@ -441,7 +441,7 @@ public class StatusBarActionBootstrap extends BaseHook {
                         } catch (Throwable t) {
                             callMethod(tm, "setDataEnabled", !isData);
                         }
-                        showToast(context, modRes.getString(!isData ? com.sevtinge.hyperceiler.core.R.string.toggle_mobiledata_on : com.sevtinge.hyperceiler.core.R.string.toggle_mobiledata_off));
+                        showToast(context, modRes.getString(!isData ? com.sevtinge.hyperceiler.libhook.R.string.toggle_mobiledata_on : com.sevtinge.hyperceiler.libhook.R.string.toggle_mobiledata_off));
                     }
                 }
             }

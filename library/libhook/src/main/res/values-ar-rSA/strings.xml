@@ -18,4 +18,29 @@
   ~ Copyright (C) 2023-2026 HyperCeiler Contributions
   --><resources>
     <string name="system_ui_statusbar_music_notification">إشعار كلمات الأغاني في الإشعارات</string>
+    <string name="toggle_wifi_on">تم تشغيل Wi-Fi</string>
+    <string name="toggle_wifi_off">تم إيقاف Wi-Fi</string>
+    <string name="toggle_bt_on">تم تشغيل Bluetooth</string>
+    <string name="toggle_bt_off">تم إيقاف Bluetooth</string>
+    <string name="toggle_gps_on">تم تشغيل الموقع (GPS)</string>
+    <string name="toggle_gps_off">تم إيقاف الموقع (GPS)</string>
+    <string name="toggle_hotspot_on">تم تشغيل نقطة الاتصال</string>
+    <string name="toggle_hotspot_off">تم إيقاف نقطة الاتصال</string>
+    <string name="toggle_nfc_on">تم تشغيل NFC</string>
+    <string name="toggle_nfc_off">تم إيقاف NFC</string>
+    <string name="toggle_sound_normal">وضع الصوت: عادي</string>
+    <string name="toggle_sound_silent">وضع الصوت: صامت</string>
+    <string name="toggle_sound_vibrate">وضع الصوت: اهتزاز</string>
+    <string name="toggle_autobright_on">تم تشغيل السطوع التلقائي</string>
+    <string name="toggle_autobright_off">تم إيقاف السطوع التلقائي</string>
+    <string name="toggle_autorotate_on">تم تشغيل التدوير التلقائي</string>
+    <string name="toggle_autorotate_off">تم إيقاف التدوير التلقائي</string>
+    <string name="toggle_flash_on">المصباح اليدوي: قيد التشغيل</string>
+    <string name="toggle_flash_off">المصباح اليدوي: متوقف</string>
+    <string name="toggle_mobiledata_on">تم تشغيل بيانات الهاتف</string>
+    <string name="toggle_mobiledata_off">تم إيقاف بيانات الهاتف</string>
+    <string name="toggle_dnd_on">تم تشغيل عدم الإزعاج</string>
+    <string name="toggle_dnd_off">تم إيقاف عدم الإزعاج</string>
+    <string name="toggle_night_on">تم تشغيل الوضع الليلي</string>
+    <string name="toggle_night_off">تم إيقاف الوضع الليلي</string>
 </resources>
