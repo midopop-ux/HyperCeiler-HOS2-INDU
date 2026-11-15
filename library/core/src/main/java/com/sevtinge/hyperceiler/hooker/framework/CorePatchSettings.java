@@ -99,7 +99,7 @@ public class CorePatchSettings extends DashboardFragment {
 
         mUsePreSignature.setOnPreferenceChangeListener((preference, newValue) -> {
             if (Boolean.TRUE.equals(newValue)) {
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                new fan.appcompat.app.AlertDialog.Builder(requireContext())
                         .setTitle(R.string.system_framework_core_patch_use_pre_signature)
                         .setMessage(R.string.system_framework_core_patch_use_pre_signature_desc)
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
