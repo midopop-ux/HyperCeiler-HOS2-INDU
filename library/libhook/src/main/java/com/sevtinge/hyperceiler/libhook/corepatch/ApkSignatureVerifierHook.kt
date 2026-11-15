@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.content.pm.Signature
 import android.os.Build
 import com.sevtinge.hyperceiler.libhook.corepatch.CorePatchConfig as Config
-import org.lsposed.corepatch.Constant
 import com.sevtinge.hyperceiler.libhook.corepatch.XposedHelper.findClassIfExists
 import com.sevtinge.hyperceiler.libhook.corepatch.XposedHelper.hookAfter
 import com.sevtinge.hyperceiler.libhook.corepatch.XposedHelper.hookBefore
@@ -186,7 +185,7 @@ object ApkSignatureVerifierHook : BaseHook() {
                             }
 
                             val signingDetailsArgs: Array<Any> = arrayOf(
-                                signaturesBefore ?: arrayOf(Signature(Constant.SIGNATURE)),
+                                signaturesBefore ?: arrayOf<Signature>(Signature(Constant.SIGNATURE)),
                                 1,
                             )
                             var newResult =
