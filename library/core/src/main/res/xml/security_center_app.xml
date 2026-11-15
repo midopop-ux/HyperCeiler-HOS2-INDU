@@ -70,5 +70,11 @@
             android:summary="@string/security_app_summary"
             android:title="@string/security_app_title" />
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="prefs_key_security_center_show_autostart_toggle"
+            android:summary="@string/security_center_show_autostart_toggle_desc"
+            android:title="@string/security_center_show_autostart_toggle" />
+
     </PreferenceCategory>
 </PreferenceScreen>

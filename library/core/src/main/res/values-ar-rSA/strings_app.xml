@@ -1665,4 +1665,6 @@
     <string name="system_settings_fix_personalization_intent_desc">فتح واجهة التخصيص لتطبيق السمات الصيني بدلاً من صفحة الخلفيات المعطلة</string>
     <string name="security_center_unlock_china_features">فتح ميزات الحماية الصينية</string>
     <string name="security_center_unlock_china_features_desc">فتح Game Turbo، وصندوق الأدوات، وأدوات الكاميرا والميزات المتقدمة المخفية في الروم العالمي</string>
+    <string name="security_center_show_autostart_toggle">إظهار مفتاح التشغيل التلقائي (Autostart)</string>
+    <string name="security_center_show_autostart_toggle_desc">إظهار مفتاح التشغيل التلقائي المباشر داخل صفحة تفاصيل التطبيق والتأثير في النظام فوراً</string>
 </resources>

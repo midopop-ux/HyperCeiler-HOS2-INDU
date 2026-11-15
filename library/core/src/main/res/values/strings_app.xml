@@ -1818,4 +1818,6 @@
     <string name="system_settings_fix_personalization_intent_desc">Opens China Theme Manager personalization page instead of broken wallpaper fallback</string>
     <string name="security_center_unlock_china_features">Unlock China Security features</string>
     <string name="security_center_unlock_china_features_desc">Unlocks Game Turbo, toolbox, camera tools and advanced options hidden on global ROM</string>
+    <string name="security_center_show_autostart_toggle">Show Autostart Toggle</string>
+    <string name="security_center_show_autostart_toggle_desc">Shows direct Autostart toggle in App Info page and instantly updates system state</string>
 </resources>
