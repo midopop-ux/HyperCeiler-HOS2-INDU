@@ -31,101 +31,159 @@ object LockOneHundredPoints : BaseHook() {
     override fun useDexKit() = true
 
     override fun initDexKit(): Boolean {
-        scoreOld
-        score
-        score3
-        addRiskApp
+        // Fallback DexKit lookup for older SecurityCenter versions
+        runCatching {
+            scoreOld
+            score
+            score3
+            addRiskApp
+        }
         return true
     }
-    private val scoreOld by lazy<Method> {
-        requiredMember("LockOneHundredPoints1") {
-            it.findClass {
-                matcher {
-                    className = "com.miui.securityscan.scanner.ScoreManager"
-                }
-            }.findMethod {
-                matcher {
-                    addUsingString("getMinusPredictScore", StringMatchType.Contains)
-                    returnType = "int"
-                }
-            }.single()
-        }
-    }
 
-    private val score by lazy<Method> {
-        requiredMember("LockOneHundredPoints2") {
-            it.findClass {
-                matcher {
-                    className = "com.miui.securityscan.scanner.ScoreManager"
-                }
-            }.findMethod {
-                matcher {
-                    usingNumbers(41, 100, 0)
-                    returnType = "int"
-                }
-            }.single()
-        }
-    }
-
-    private val score3 by lazy<Method> {
-        requiredMember("LockOneHundredPointsField") {
-            it.findClass {
-                matcher {
-                    className = "com.miui.securityscan.scanner.ScoreManager"
-                }
-            }.findMethod {
-                matcher {
-                    addUsingField {
-                        type = "java.util.Map"
+    private val scoreOld by lazy<Method?> {
+        runCatching {
+            requiredMember("LockOneHundredPoints1") {
+                it.findClass {
+                    matcher {
+                        className = "com.miui.securityscan.scanner.ScoreManager"
                     }
-                    addInvoke {
-                        addUsingField {
-                            type = "int"
-                        }
+                }.findMethod {
+                    matcher {
+                        addUsingString("getMinusPredictScore", StringMatchType.Contains)
                         returnType = "int"
                     }
-                }
-            }.single()
-        }
+                }.single()
+            }
+        }.getOrNull()
     }
 
-    private val addRiskApp by lazy<Method> {
-        requiredMember("AddRiskApp") {
-            it.findClass {
-                matcher {
-                    className = "com.miui.securityscan.scanner.ScoreManager"
-                }
-            }.findMethod {
-                matcher {
-                    addInvoke("Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z")
-                    paramCount = 1
-                    returnType = "void"
-                }
-            }.single()
-        }
+    private val score by lazy<Method?> {
+        runCatching {
+            requiredMember("LockOneHundredPoints2") {
+                it.findClass {
+                    matcher {
+                        className = "com.miui.securityscan.scanner.ScoreManager"
+                    }
+                }.findMethod {
+                    matcher {
+                        usingNumbers(41, 100, 0)
+                        returnType = "int"
+                    }
+                }.single()
+            }
+        }.getOrNull()
+    }
+
+    private val score3 by lazy<Method?> {
+        runCatching {
+            requiredMember("LockOneHundredPointsField") {
+                it.findClass {
+                    matcher {
+                        className = "com.miui.securityscan.scanner.ScoreManager"
+                    }
+                }.findMethod {
+                    matcher {
+                        addUsingField {
+                            type = "java.util.Map"
+                        }
+                        addInvoke {
+                            addUsingField {
+                                type = "int"
+                            }
+                            returnType = "int"
+                        }
+                    }
+                }.single()
+            }
+        }.getOrNull()
+    }
+
+    private val addRiskApp by lazy<Method?> {
+        runCatching {
+            requiredMember("AddRiskApp") {
+                it.findClass {
+                    matcher {
+                        className = "com.miui.securityscan.scanner.ScoreManager"
+                    }
+                }.findMethod {
+                    matcher {
+                        addInvoke("Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z")
+                        paramCount = 1
+                        returnType = "void"
+                    }
+                }.single()
+            }
+        }.getOrNull()
     }
 
     override fun init() {
-        loadClass("com.miui.securityscan.ui.main.MainContentFrame").findMethod { name("onClick"); parameterTypes(View::class.java) }.createHook {
-                returnConstant(null)
+        // Disable "Optimize" button click
+        runCatching {
+            loadClass("com.miui.securityscan.ui.main.MainContentFrame")
+                .findMethod { name("onClick"); parameterTypes(View::class.java) }
+                .createHook {
+                    returnConstant(null)
+                }
+        }
+
+        // Primary Direct Hook for HyperOS 2 / newer SecurityCenter (v13.x / v12.x)
+        val scoreManagerClass = findClassIfExists("com.miui.securityscan.scanner.ScoreManager")
+        if (scoreManagerClass != null) {
+            // Hook main score getters to always return 100
+            for (methodName in arrayOf("i", "r", "getScore", "getPredictScore")) {
+                runCatching {
+                    val m = scoreManagerClass.getDeclaredMethod(methodName)
+                    m.isAccessible = true
+                    hookMethod(m, object : io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook() {
+                        override fun before(param: io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam) {
+                            param.result = 100
+                        }
+                    })
+                }
             }
 
+            // Hook minus / penalty score getters to return 0
+            for (methodName in arrayOf("p", "k", "getMinusScore", "getMinusPredictScore")) {
+                runCatching {
+                    val m = scoreManagerClass.getDeclaredMethod(methodName)
+                    m.isAccessible = true
+                    hookMethod(m, object : io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook() {
+                        override fun before(param: io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam) {
+                            param.result = 0
+                        }
+                    })
+                }
+            }
+
+            // Hook virus / risk count getter y() to return 0
+            runCatching {
+                val m = scoreManagerClass.getDeclaredMethod("y")
+                m.isAccessible = true
+                hookMethod(m, object : io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook() {
+                    override fun before(param: io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam) {
+                        param.result = 0
+                    }
+                })
+            }
+        }
+
+        // Fallback: Legacy DexKit hook for older SecurityCenter versions
         runCatching {
-            scoreOld.createHook {
+            scoreOld?.createHook {
                 returnConstant(0)
             }
-            score.createHook {
+            score?.createHook {
                 returnConstant(100)
             }
-            score3.createHook {
+            score3?.createHook {
                 returnConstant(true)
             }
-            addRiskApp.createHook {
+            addRiskApp?.createHook {
                 returnConstant(null)
             }
         }.onFailure {
-            XposedLog.e(TAG, lpparam.packageName, "LockOneHundredPoints hook Failed: $it")
+            XposedLog.e(TAG, lpparam.packageName, "LockOneHundredPoints legacy hook Failed: $it")
         }
     }
 }
-

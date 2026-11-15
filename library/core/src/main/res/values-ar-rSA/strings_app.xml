@@ -1663,4 +1663,6 @@
     <string name="toggle_night_off">تم إيقاف الوضع الليلي</string>
     <string name="system_settings_fix_personalization_intent">إصلاح قسم التخصيص لسمات الصين</string>
     <string name="system_settings_fix_personalization_intent_desc">فتح واجهة التخصيص لتطبيق السمات الصيني بدلاً من صفحة الخلفيات المعطلة</string>
+    <string name="security_center_unlock_china_features">فتح ميزات الحماية الصينية</string>
+    <string name="security_center_unlock_china_features_desc">فتح Game Turbo، وصندوق الأدوات، وأدوات الكاميرا والميزات المتقدمة المخفية في الروم العالمي</string>
 </resources>
