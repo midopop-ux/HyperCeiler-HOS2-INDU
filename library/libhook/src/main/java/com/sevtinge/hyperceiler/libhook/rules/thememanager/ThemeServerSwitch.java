@@ -36,7 +36,7 @@ public class ThemeServerSwitch extends BaseHook {
                 Object[] args = param.getArgs();
                 if (args != null && args.length > 0 && args[0] instanceof String url) {
                     if (url.contains(GLOBAL_HOST)) {
-                        param.setArgs(new Object[]{url.replace(GLOBAL_HOST, CHINA_HOST)});
+                        args[0] = url.replace(GLOBAL_HOST, CHINA_HOST);
                     }
                 }
             }
