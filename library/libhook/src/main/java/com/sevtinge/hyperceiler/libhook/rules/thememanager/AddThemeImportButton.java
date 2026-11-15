@@ -24,35 +24,59 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.sevtinge.hyperceiler.common.log.XposedLog;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam;
 import io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook;
 
 /**
- * Adds a fixed "Import / استيراد" bottom button in ThemeTabActivity.
- * Allows picking and importing third-party .mtz theme files directly into MIUI/HyperOS ThemeManager.
+ * Adds a fixed "Import (.mtz) / استيراد" bottom button in ThemeTabActivity.
+ * Solves:
+ * 1. Overlapping with system navigation bar by applying dynamic WindowInsets navigation bar padding.
+ * 2. Real MTZ parsing and theme indexing: extracts components, generates MIUI .mrm metadata,
+ *    places sub-resources in .data/content/ and .data/preview/, and sends theme completion broadcast.
  */
 public class AddThemeImportButton extends BaseHook {
 
     private static final int REQUEST_CODE_PICK_THEME = 0x4854; // "HT"
-    private static Activity sCurrentActivity;
 
     @Override
     public void init() {
@@ -98,7 +122,6 @@ public class AddThemeImportButton extends BaseHook {
             ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
             if (decorView.findViewWithTag("hyperceiler_theme_import_btn") != null) return;
 
-            sCurrentActivity = activity;
             Context ctx = activity;
 
             Button importBtn = new Button(ctx);
@@ -108,7 +131,7 @@ public class AddThemeImportButton extends BaseHook {
             importBtn.setTextSize(16);
             importBtn.setElevation(16f);
 
-            // Modern rounded pill drawable with hyperOS blue gradient / color
+            // Modern rounded pill drawable with HyperOS accent
             GradientDrawable bg = new GradientDrawable();
             bg.setColor(Color.parseColor("#007AFF"));
             bg.setCornerRadius(60f);
@@ -116,7 +139,23 @@ public class AddThemeImportButton extends BaseHook {
 
             int btnHeight = (int) (48 * ctx.getResources().getDisplayMetrics().density);
             int marginHoriz = (int) (32 * ctx.getResources().getDisplayMetrics().density);
-            int marginBottom = (int) (24 * ctx.getResources().getDisplayMetrics().density);
+            int baseMarginBottom = (int) (24 * ctx.getResources().getDisplayMetrics().density);
+
+            // Calculate bottom inset (navigation bar height) to prevent overlapping
+            int navBarHeight = 0;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                WindowInsets insets = activity.getWindow().getDecorView().getRootWindowInsets();
+                if (insets != null) {
+                    navBarHeight = insets.getInsets(WindowInsets.Type.navigationBars()).bottom;
+                }
+            }
+
+            if (navBarHeight == 0) {
+                int resourceId = ctx.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+                if (resourceId > 0) {
+                    navBarHeight = ctx.getResources().getDimensionPixelSize(resourceId);
+                }
+            }
 
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -125,14 +164,25 @@ public class AddThemeImportButton extends BaseHook {
             lp.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
             lp.leftMargin = marginHoriz;
             lp.rightMargin = marginHoriz;
-            lp.bottomMargin = marginBottom;
+            lp.bottomMargin = baseMarginBottom + navBarHeight;
 
             importBtn.setLayoutParams(lp);
+
+            // Dynamically listen for insets changes (e.g. keyboard or nav bar mode switch)
+            ViewCompat.setOnApplyWindowInsetsListener(decorView, (v, insets) -> {
+                int bottomInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom;
+                FrameLayout.LayoutParams currentLp = (FrameLayout.LayoutParams) importBtn.getLayoutParams();
+                if (currentLp != null) {
+                    currentLp.bottomMargin = baseMarginBottom + bottomInset;
+                    importBtn.setLayoutParams(currentLp);
+                }
+                return insets;
+            });
 
             importBtn.setOnClickListener(v -> openFilePicker(activity));
 
             decorView.addView(importBtn);
-            XposedLog.i(TAG, getPackageName(), "Successfully added import button to ThemeTabActivity");
+            XposedLog.i(TAG, getPackageName(), "Successfully added import button to ThemeTabActivity with safe insets");
         } catch (Throwable t) {
             XposedLog.w(TAG, getPackageName(), "Failed to add import button", t);
         }
@@ -150,54 +200,274 @@ public class AddThemeImportButton extends BaseHook {
     }
 
     private void handlePickedThemeUri(Activity activity, Uri uri) {
-        new Thread(() -> {
-            try {
-                // Ensure import dir exists: /storage/emulated/0/Android/data/com.android.thememanager/files/MIUI/theme/.data/import/theme/
-                File extFiles = activity.getExternalFilesDir(null);
-                File themeImportDir = new File(extFiles, "MIUI/theme/.data/import/theme");
-                if (!themeImportDir.exists()) {
-                    themeImportDir.mkdirs();
-                }
+        Toast.makeText(activity, "Importing theme...", Toast.LENGTH_SHORT).show();
 
-                String fileName = "imported_" + System.currentTimeMillis() + ".mtz";
-                File destFile = new File(themeImportDir, fileName);
+        new Thread(() -> {
+            File tempMtz = null;
+            try {
+                // 1. Copy selected stream to a temp file
+                File cacheDir = activity.getCacheDir();
+                tempMtz = new File(cacheDir, "import_temp_" + System.currentTimeMillis() + ".mtz");
 
                 try (InputStream in = activity.getContentResolver().openInputStream(uri);
-                     FileOutputStream out = new FileOutputStream(destFile)) {
-                    byte[] buffer = new byte[8192];
+                     FileOutputStream out = new FileOutputStream(tempMtz)) {
+                    byte[] buffer = new byte[16384];
                     int read;
                     while ((read = in.read(buffer)) != -1) {
                         out.write(buffer, 0, read);
                     }
                 }
 
+                // 2. Perform real MIUI theme extraction & metadata generation
+                String themeTitle = processAndInstallMtz(activity, tempMtz);
+
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(activity, "Theme imported: " + destFile.getName() + "\nRestarting view...", Toast.LENGTH_LONG).show();
-                    // Refresh or trigger native import handler if present
-                    triggerNativeImport(activity, destFile);
+                    Toast.makeText(activity, "Successfully imported: " + themeTitle, Toast.LENGTH_LONG).show();
+                    // Recreate activity so ThemeTabActivity immediately lists the newly imported theme
                     activity.recreate();
                 });
             } catch (Throwable t) {
-                XposedLog.w(TAG, getPackageName(), "handlePickedThemeUri failed", t);
+                XposedLog.w(TAG, getPackageName(), "processAndInstallMtz failed", t);
                 new Handler(Looper.getMainLooper()).post(() ->
-                        Toast.makeText(activity, "Import failed: " + t.getMessage(), Toast.LENGTH_SHORT).show());
+                        Toast.makeText(activity, "Import failed: " + t.getMessage(), Toast.LENGTH_LONG).show());
+            } finally {
+                if (tempMtz != null && tempMtz.exists()) {
+                    tempMtz.delete();
+                }
             }
         }).start();
     }
 
-    private void triggerNativeImport(Activity activity, File mtzFile) {
-        try {
-            Class<?> handlerCls = findClassIfExists("com.android.thememanager.basemodule.unzip.ThemeImportHandler");
-            if (handlerCls != null) {
-                for (Method m : handlerCls.getDeclaredMethods()) {
-                    if (m.getParameterCount() >= 1 && m.getParameterTypes()[0] == File.class) {
-                        m.setAccessible(true);
-                        m.invoke(null, mtzFile);
-                        return;
+    /**
+     * Extracts .mtz archive, creates metadata .mrm, places sub-resource modules into .data/content/,
+     * extracts previews to .data/preview/, and registers the theme into ThemeManager storage.
+     */
+    private String processAndInstallMtz(Activity activity, File mtzFile) throws Exception {
+        File extFiles = activity.getExternalFilesDir(null);
+        File themeBaseDir = new File(extFiles, "MIUI/theme/.data");
+
+        File metaThemeDir = new File(themeBaseDir, "meta/theme");
+        File contentThemeDir = new File(themeBaseDir, "content/theme");
+        File previewThemeDir = new File(themeBaseDir, "preview/theme");
+        File rightsThemeDir = new File(themeBaseDir, "rights/theme");
+
+        metaThemeDir.mkdirs();
+        contentThemeDir.mkdirs();
+        previewThemeDir.mkdirs();
+        rightsThemeDir.mkdirs();
+
+        String themeUuid = UUID.randomUUID().toString();
+        long now = System.currentTimeMillis();
+
+        String title = "Imported Theme";
+        String author = "ThirdParty";
+        String designer = "ThirdParty";
+        String version = "1.0";
+        String description = "Imported via HyperCeiler";
+
+        List<JSONObject> subResources = new ArrayList<>();
+        List<String> builtInThumbnails = new ArrayList<>();
+        List<String> builtInPreviews = new ArrayList<>();
+
+        File targetPreviewDir = new File(previewThemeDir, themeUuid);
+        targetPreviewDir.mkdirs();
+
+        byte[] mtzBytes = readFully(new FileInputStream(mtzFile));
+        String sha1Hash = getSHA1(mtzBytes);
+
+        // Process archive entries
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(mtzFile))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                String name = entry.getName();
+                if (entry.isDirectory()) {
+                    continue;
+                }
+
+                if ("description.xml".equals(name)) {
+                    byte[] descBytes = readStreamBytes(zis);
+                    String xml = new String(descBytes, StandardCharsets.UTF_8);
+                    title = extractXmlTag(xml, "title", title);
+                    author = extractXmlTag(xml, "author", author);
+                    designer = extractXmlTag(xml, "designer", designer);
+                    version = extractXmlTag(xml, "version", version);
+                    description = extractXmlTag(xml, "description", description);
+                } else if (name.startsWith("preview/")) {
+                    String previewFileName = new File(name).getName();
+                    File previewOut = new File(targetPreviewDir, previewFileName);
+                    writeToFile(previewOut, zis);
+
+                    if (previewFileName.contains("small") || previewFileName.contains("thumbnail")) {
+                        builtInThumbnails.add(previewFileName);
+                    } else {
+                        builtInPreviews.add(previewFileName);
                     }
+                } else if (!name.contains("/")) {
+                    // Top-level theme module component (e.g. icons, lockscreen, wallpaper, com.android.systemui)
+                    String subUuid = UUID.randomUUID().toString();
+                    File subContentDir = new File(themeBaseDir, "content/" + name);
+                    subContentDir.mkdirs();
+                    File subContentFile = new File(subContentDir, subUuid + ".mrc");
+                    writeToFile(subContentFile, zis);
+
+                    JSONObject subRes = new JSONObject();
+                    subRes.put("localId", subUuid);
+                    subRes.put("resourceCode", name);
+                    subRes.put("extraMeta", new JSONObject());
+                    subRes.put("metaPath", JSONObject.NULL);
+                    subRes.put("contentPath", JSONObject.NULL);
+                    subResources.add(subRes);
                 }
             }
-        } catch (Throwable ignored) {
+        }
+
+        // If no explicit thumbnails found, use available previews
+        if (builtInThumbnails.isEmpty() && !builtInPreviews.isEmpty()) {
+            builtInThumbnails.add(builtInPreviews.get(0));
+        }
+
+        // 3. Construct .mrm JSON descriptor
+        JSONObject mrm = new JSONObject();
+        mrm.put("localId", themeUuid);
+        mrm.put("onlineId", JSONObject.NULL);
+        mrm.put("assemblyId", themeUuid);
+        mrm.put("productId", themeUuid);
+        mrm.put("hash", sha1Hash);
+        mrm.put("platform", 10);
+        mrm.put("size", mtzFile.length());
+        mrm.put("updatedTime", now);
+        mrm.put("version", version);
+
+        JSONObject authorsObj = new JSONObject();
+        authorsObj.put("fallback", author);
+        authorsObj.put("en_US", author);
+        authorsObj.put("zh_CN", author);
+        mrm.put("authors", authorsObj);
+
+        JSONObject designersObj = new JSONObject();
+        designersObj.put("fallback", designer);
+        designersObj.put("en_US", designer);
+        designersObj.put("zh_CN", designer);
+        mrm.put("designers", designersObj);
+
+        JSONObject titlesObj = new JSONObject();
+        titlesObj.put("fallback", title);
+        titlesObj.put("en_US", title);
+        titlesObj.put("zh_CN", title);
+        mrm.put("titles", titlesObj);
+
+        JSONObject descriptionsObj = new JSONObject();
+        descriptionsObj.put("fallback", description);
+        descriptionsObj.put("en_US", description);
+        descriptionsObj.put("zh_CN", description);
+        mrm.put("descriptions", descriptionsObj);
+
+        JSONObject builtInThumbnailsObj = new JSONObject();
+        builtInThumbnailsObj.put("fallback", new JSONArray(builtInThumbnails));
+        mrm.put("builtInThumbnails", builtInThumbnailsObj);
+
+        JSONObject builtInPreviewsObj = new JSONObject();
+        builtInPreviewsObj.put("fallback", new JSONArray(builtInPreviews));
+        mrm.put("builtInPreviews", builtInPreviewsObj);
+
+        mrm.put("thumbnails", new JSONArray());
+        mrm.put("previews", new JSONArray());
+        mrm.put("parentResources", new JSONArray());
+        mrm.put("subResources", new JSONArray(subResources));
+
+        mrm.put("extraMeta", new JSONObject());
+        mrm.put("metaPath", JSONObject.NULL);
+        mrm.put("contentPath", JSONObject.NULL);
+        mrm.put("rightsPath", JSONObject.NULL);
+        mrm.put("screenRatio", JSONObject.NULL);
+        mrm.put("supportHomeSearchBar", false);
+        mrm.put("packageVersion", version);
+        mrm.put("packageName", JSONObject.NULL);
+        mrm.put("officialIcons", false);
+        mrm.put("subResourceType", JSONObject.NULL);
+        mrm.put("resSubType", JSONObject.NULL);
+        mrm.put("isRearScreenEditable", false);
+        mrm.put("isThirdParties", true);
+        mrm.put("supportAon", false);
+        mrm.put("wallpaperStyle", 0);
+        mrm.put("isSingleResource", false);
+        mrm.put("iconsCount", JSONObject.NULL);
+        mrm.put("fontWeight", JSONObject.NULL);
+        mrm.put("price", -1);
+        mrm.put("isBackUpVersion", false);
+        mrm.put("themeType", 0);
+        mrm.put("isRearScreenNeedLogin", false);
+        mrm.put("miuiAdapterVersion", "2.0");
+
+        // 4. Write .mrm file
+        File mrmFile = new File(metaThemeDir, themeUuid + ".mrm");
+        try (FileOutputStream fos = new FileOutputStream(mrmFile)) {
+            fos.write(mrm.toString(2).getBytes(StandardCharsets.UTF_8));
+        }
+
+        // 5. Create 0-byte placeholder .mrc file in content/theme/
+        File mrcFile = new File(contentThemeDir, themeUuid + ".mrc");
+        mrcFile.createNewFile();
+
+        // 6. Broadcast resource import complete to ThemeManager
+        Intent broadcast = new Intent("action_resource_import_complete");
+        broadcast.setPackage("com.android.thememanager");
+        broadcast.putExtra("extra_theme_uuid", themeUuid);
+        activity.sendBroadcast(broadcast);
+
+        XposedLog.i(TAG, getPackageName(), "Successfully installed theme: " + title + " (" + themeUuid + ")");
+        return title;
+    }
+
+    private static String extractXmlTag(String xml, String tag, String defaultValue) {
+        Pattern pattern = Pattern.compile("<" + tag + "[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/" + tag + ">", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(xml);
+        if (matcher.find()) {
+            String val = matcher.group(1);
+            if (val != null && !val.trim().isEmpty()) {
+                return val.trim();
+            }
+        }
+        return defaultValue;
+    }
+
+    private static byte[] readStreamBytes(InputStream is) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int n;
+        while ((n = is.read(buffer)) != -1) {
+            baos.write(buffer, 0, n);
+        }
+        return baos.toByteArray();
+    }
+
+    private static byte[] readFully(InputStream is) throws Exception {
+        try (is) {
+            return readStreamBytes(is);
+        }
+    }
+
+    private static void writeToFile(File out, InputStream is) throws Exception {
+        try (FileOutputStream fos = new FileOutputStream(out)) {
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = is.read(buf)) != -1) {
+                fos.write(buf, 0, n);
+            }
+        }
+    }
+
+    private static String getSHA1(byte[] data) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            byte[] digest = md.digest(data);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return UUID.randomUUID().toString().replace("-", "");
         }
     }
 }
