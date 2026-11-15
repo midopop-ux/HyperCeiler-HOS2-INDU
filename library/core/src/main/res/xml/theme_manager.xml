@@ -22,15 +22,33 @@
     app:quick_restart="com.android.thememanager">
     <PreferenceCategory>
         <SwitchPreference
-            android:title="@string/theme_manager_diable_ads"
-            android:summary="@string/theme_manager_diable_ads_desc"
-            android:key="prefs_key_various_theme_disable_ads"
+            android:title="@string/system_framework_allow_third_theme"
+            android:summary="@string/theme_manager_allow_third_theme_desc"
+            android:key="prefs_key_theme_manager_allow_third_theme"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:title="@string/theme_manager_unlock_super_icons"
+            android:summary="@string/theme_manager_unlock_super_icons_desc"
+            android:key="prefs_key_theme_manager_unlock_super_icons"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:title="@string/theme_manager_china_server"
+            android:summary="@string/theme_manager_china_server_desc"
+            android:key="prefs_key_theme_manager_china_server"
             android:defaultValue="false" />
 
         <SwitchPreference
             android:title="@string/theme_manager_allow_download_more"
             android:summary="@string/theme_manager_allow_download_more_desc"
             android:key="prefs_key_theme_manager_allow_download_more"
+            android:defaultValue="false" />
+
+        <SwitchPreference
+            android:title="@string/theme_manager_diable_ads"
+            android:summary="@string/theme_manager_diable_ads_desc"
+            android:key="prefs_key_various_theme_disable_ads"
             android:defaultValue="false" />
 
         <SwitchPreference

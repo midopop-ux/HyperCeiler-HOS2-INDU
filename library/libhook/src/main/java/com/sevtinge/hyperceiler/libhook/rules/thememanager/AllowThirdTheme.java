@@ -43,26 +43,57 @@ public class AllowThirdTheme extends BaseHook {
 
     @Override
     protected boolean initDexKit() {
-        mCheckRightsIsLegalMethod = requiredMember("CheckRightsIsLegal", new IDexKit() {
-            @Override
-            public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
-                MethodData methodData = bridge.findMethod(FindMethod.create()
-                        .matcher(MethodMatcher.create()
-                                .usingStrings("theme", "ThemeManagerTag", "/system", "check rights isLegal: ")
-                        )).singleOrNull();
-                return methodData;
-            }
-        });
+        try {
+            mCheckRightsIsLegalMethod = requiredMember("CheckRightsIsLegal", new IDexKit() {
+                @Override
+                public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
+                    MethodData methodData = bridge.findMethod(FindMethod.create()
+                            .matcher(MethodMatcher.create()
+                                    .usingStrings("theme", "ThemeManagerTag", "/system", "check rights isLegal: ")
+                            )).singleOrNull();
+                    return methodData;
+                }
+            });
+        } catch (Throwable ignored) {
+        }
         return true;
     }
 
     @Override
     public void init() {
-        hookMethod(mCheckRightsIsLegalMethod, new IMethodHook() {
-            @Override
-            public void before(HookParam param) {
-                param.setResult(DrmManager.DrmResult.DRM_SUCCESS);
-            }
-        });
+        // 1. Hook via DexKit resolved method if available
+        if (mCheckRightsIsLegalMethod != null) {
+            hookMethod(mCheckRightsIsLegalMethod, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(DrmManager.DrmResult.DRM_SUCCESS);
+                }
+            });
+        }
+
+        // 2. Direct hook for miui.drm.DrmManager.isLegal to guarantee DRM_SUCCESS across all callers
+        try {
+            findAndHookMethod("miui.drm.DrmManager", "isLegal",
+                    android.content.Context.class, java.io.File.class, "miui.drm.DrmManager$RightObject",
+                    new IMethodHook() {
+                        @Override
+                        public void before(HookParam param) {
+                            param.setResult(DrmManager.DrmResult.DRM_SUCCESS);
+                        }
+                    });
+        } catch (Throwable ignored) {
+        }
+
+        try {
+            findAndHookMethod("miui.drm.DrmManager", "isLegal",
+                    android.content.Context.class, String.class, "miui.drm.DrmManager$RightObject",
+                    new IMethodHook() {
+                        @Override
+                        public void before(HookParam param) {
+                            param.setResult(DrmManager.DrmResult.DRM_SUCCESS);
+                        }
+                    });
+        } catch (Throwable ignored) {
+        }
     }
 }

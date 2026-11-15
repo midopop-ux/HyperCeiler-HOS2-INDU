@@ -954,6 +954,11 @@
     <string name="theme_manager_diable_ads_desc">将 \"猜你喜欢\" 的广告替换为空白卡片，其余位置的广告将完全移除</string>
     <string name="theme_manager_allow_download_more">允许在未登录的情况下下载更多内容</string>
     <string name="theme_manager_allow_download_more_desc">允许在未登录的情况下下载超过 10 个内容</string>
+    <string name="theme_manager_allow_third_theme_desc">绕过 DRM 验证以使用第三方主题 (.mtz) 并防止恢复默认</string>
+    <string name="theme_manager_unlock_super_icons">解锁大图标 (Super Icons)</string>
+    <string name="theme_manager_unlock_super_icons_desc">在主题壁纸中启用大图标专区及相关高级功能</string>
+    <string name="theme_manager_china_server">使用中国区主题服务器</string>
+    <string name="theme_manager_china_server_desc">将主题请求重定向至中国区官方服务器以获取完整主题库及 HyperOS 锁屏</string>
     <!--万能遥控-->
     <string name="remotecontroller">万能遥控</string>
     <string name="remotecontroller_disable_ad">禁用推广</string>

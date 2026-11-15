@@ -24,18 +24,20 @@ import com.sevtinge.hyperceiler.libhook.base.BaseLoad;
 import com.sevtinge.hyperceiler.libhook.rules.thememanager.AllowDownloadMore;
 import com.sevtinge.hyperceiler.libhook.rules.thememanager.AllowThirdTheme;
 import com.sevtinge.hyperceiler.libhook.rules.thememanager.DisableThemeAdNew;
+import com.sevtinge.hyperceiler.libhook.rules.thememanager.ThemeServerSwitch;
 import com.sevtinge.hyperceiler.libhook.rules.thememanager.UnlockAIWallPaper;
+import com.sevtinge.hyperceiler.libhook.rules.thememanager.UnlockSuperIcons;
 
 @HookBase(targetPackage = "com.android.thememanager")
 public class ThemeManager extends BaseLoad {
 
-
     @Override
     public void onPackageLoaded() {
-        initHook(new AllowThirdTheme(), PrefsBridge.getBoolean("system_framework_allow_third_theme"));
-        initHook(new DisableThemeAdNew(), PrefsBridge.getBoolean("various_theme_disable_ads"));
+        initHook(new AllowThirdTheme(), PrefsBridge.getBoolean("theme_manager_allow_third_theme", PrefsBridge.getBoolean("system_framework_allow_third_theme")));
+        initHook(new UnlockSuperIcons(), PrefsBridge.getBoolean("theme_manager_unlock_super_icons"));
+        initHook(new ThemeServerSwitch(), PrefsBridge.getBoolean("theme_manager_china_server"));
         initHook(new AllowDownloadMore(), PrefsBridge.getBoolean("theme_manager_allow_download_more"));
+        initHook(new DisableThemeAdNew(), PrefsBridge.getBoolean("various_theme_disable_ads"));
         initHook(UnlockAIWallPaper.INSTANCE, PrefsBridge.getBoolean("theme_manager_unlock_ai_wallpaper"));
     }
-
 }

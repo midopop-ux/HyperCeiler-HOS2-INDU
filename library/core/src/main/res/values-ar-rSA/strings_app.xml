@@ -902,6 +902,11 @@
     <string name="theme_manager_diable_ads_desc">استبدال إعلانات \"تخمين ما يعجبك\" بكروت فارغة، وإزالة باقي الإعلانات بالكامل.</string>
     <string name="theme_manager_allow_download_more">السماح بتنزيل المزيد دون تسجيل الدخول</string>
     <string name="theme_manager_allow_download_more_desc">السماح بتنزيل أكثر من 10 عناصر دون تسجيل الدخول</string>
+    <string name="theme_manager_allow_third_theme_desc">تخطي التحقق من DRM لاستخدام سمات الطرف الثالث (.mtz) دون رجوعها للافتراضية</string>
+    <string name="theme_manager_unlock_super_icons">فتح الأيقونات الضخمة (Super Icons)</string>
+    <string name="theme_manager_unlock_super_icons_desc">تمكين تبويب وميزات الأيقونات الضخمة والخيارات المتقدمة داخل تطبيق السمات</string>
+    <string name="theme_manager_china_server">استخدام سيرفر متجر الصين</string>
+    <string name="theme_manager_china_server_desc">توجيه طلبات السمات إلى سيرفر الصين الرسمي للوصول للكتالوج الكامل وشاشات قفل HyperOS</string>
     <!--remotecontroller-->
     <string name="remotecontroller">Mi Remote</string>
     <string name="remotecontroller_disable_ad">إيقاف الإعلانات</string>
