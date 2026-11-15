@@ -1,6 +1,6 @@
 package com.sevtinge.hyperceiler.libhook.corepatch
 
-import com.sevtinge.hyperceiler.libhook.base.PrefsBridge
+import com.sevtinge.hyperceiler.common.utils.PrefsBridge
 
 object CorePatchConfig {
     const val PREF_DOWNGRADE = "prefs_key_system_framework_core_patch_downgr"
@@ -16,7 +16,7 @@ object CorePatchConfig {
 
     private fun getBoolean(key: String, defValue: Boolean = false): Boolean {
         return try {
-            PrefsBridge.requireImpl().getBoolean(key, defValue)
+            PrefsBridge.getBoolean(key, defValue)
         } catch (_: Throwable) {
             defValue
         }
