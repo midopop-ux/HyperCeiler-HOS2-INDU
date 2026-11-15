@@ -21,6 +21,7 @@ package com.sevtinge.hyperceiler.libhook.rules.systemsettings;
 
 import android.content.Context;
 
+import com.sevtinge.hyperceiler.common.utils.PrefsBridge;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
 
 import io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam;
@@ -36,7 +37,7 @@ public class ControlCenterStyle extends BaseHook {
             }
         });
 
-        if (com.sevtinge.hyperceiler.libhook.base.BaseHook.PrefsBridge.getBoolean("system_control_center_freeze_old")) {
+        if (PrefsBridge.getBoolean("system_control_center_freeze_old")) {
             findAndHookMethod("com.android.settings.utils.StatusBarUtils", "isUseControlPanel", Context.class, new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
