@@ -18,12 +18,29 @@
 */
 package com.sevtinge.hyperceiler.libhook.rules.aod;
 
+import android.content.Context;
+
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
+import io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam;
+import io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook;
 
 public class UnlockAodAon extends BaseHook {
     @Override
     public void init() {
         Class<?> mAodUtils = findClassIfExists("com.miui.aod.Utils");
-        setStaticBooleanField(mAodUtils, "SUPPORT_AOD_AON", true);
+        if (mAodUtils != null) {
+            setStaticBooleanField(mAodUtils, "SUPPORT_AOD_AON", true);
+        }
+
+        // Force AttentionManager to report attention/smart mode support
+        findAndHookMethod("com.miui.aod.attention.AttentionManager", "supportAttention",
+                Context.class,
+                new IMethodHook() {
+                    @Override
+                    public void before(HookParam param) {
+                        param.setResult(true);
+                    }
+                }
+        );
     }
 }

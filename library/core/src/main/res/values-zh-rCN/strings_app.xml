@@ -995,6 +995,10 @@
     <string name="aod_unlock_always_on_display">解锁息屏显示时长限制</string>
     <string name="aod_unlock_always_on_display_more">重启系统界面以完整开启功能</string>
     <string name="aod_unlock_aon">解锁息屏智能显示</string>
+    <string name="aod_unlock_wallpaper">解锁息屏壁纸</string>
+    <string name="aod_unlock_wallpaper_desc">允许在息屏显示中设置并显示完整壁纸</string>
+    <string name="aod_unlock_clock_blur">解锁时钟背景高斯模糊与视觉特效</string>
+    <string name="aod_unlock_clock_blur_desc">为锁屏和息屏时钟启用背景模糊、景深与渐变特效</string>
     <!--传送门-->
     <string name="content_extension">传送门</string>
     <string name="content_extension_browser">使用第三方浏览器</string>

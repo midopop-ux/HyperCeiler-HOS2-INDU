@@ -1040,6 +1040,10 @@
     <string name="aod_unlock_always_on_display">Unlock the display time limit of the Always-on display</string>
     <string name="aod_unlock_always_on_display_more">Restart the System UI to fully enable the feature</string>
     <string name="aod_unlock_aon">Unlock Aod Aon</string>
+    <string name="aod_unlock_wallpaper">Unlock AOD wallpaper</string>
+    <string name="aod_unlock_wallpaper_desc">Allow setting and displaying full wallpaper in Always-on display</string>
+    <string name="aod_unlock_clock_blur">Unlock clock visual effects and blur</string>
+    <string name="aod_unlock_clock_blur_desc">Enable background blur, depth effects and gradients for lock screen and AOD clocks</string>
     <!--Taplus-->
     <string name="content_extension">Taplus</string>
     <string name="content_extension_browser">Use third-party browser</string>

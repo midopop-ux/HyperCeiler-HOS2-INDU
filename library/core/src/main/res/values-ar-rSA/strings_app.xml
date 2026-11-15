@@ -937,6 +937,10 @@
     <string name="aod_unlock_always_on_display">فتح الحد الزمني لعرض الشاشة الدائمة</string>
     <string name="aod_unlock_always_on_display_more">إعادة تشغيل واجهة النظام لتمكين الميزة بالكامل</string>
     <string name="aod_unlock_aon">فتح Aod Aon</string>
+    <string name="aod_unlock_wallpaper">فتح خلفيات الشاشة الدائمة (AOD)</string>
+    <string name="aod_unlock_wallpaper_desc">السماح بتعيين وعرض الخلفية الكاملة في ميزة الشاشة الدائمة</string>
+    <string name="aod_unlock_clock_blur">فتح تأثيرات التمويه والعمق للساعات</string>
+    <string name="aod_unlock_clock_blur_desc">تمكين التمويه وتأثيرات العمق والتدرجات لساعات شاشة القفل والشاشة الدائمة</string>
     <!--Taplus-->
     <string name="content_extension">Taplus</string>
     <string name="content_extension_browser">استخدام متصفح طرف ثالث</string>

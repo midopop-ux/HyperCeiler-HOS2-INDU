@@ -24,7 +24,10 @@ import com.hchen.database.HookBase;
 import com.sevtinge.hyperceiler.common.utils.PrefsBridge;
 import com.sevtinge.hyperceiler.libhook.base.BaseLoad;
 import com.sevtinge.hyperceiler.libhook.rules.aod.UnlockAiWallpaper;
+import com.sevtinge.hyperceiler.libhook.rules.aod.UnlockAlwaysOnDisplay;
 import com.sevtinge.hyperceiler.libhook.rules.aod.UnlockAodAon;
+import com.sevtinge.hyperceiler.libhook.rules.aod.UnlockAodWallpaper;
+import com.sevtinge.hyperceiler.libhook.rules.aod.UnlockClockBlur;
 import com.sevtinge.hyperceiler.libhook.rules.aod.UnlockShortCuts;
 
 @HookBase(targetPackage = "com.miui.aod")
@@ -33,8 +36,10 @@ public class Aod extends BaseLoad {
     @Override
     public void onPackageLoaded() {
         initHook(UnlockShortCuts.INSTANCE, isMoreSmallVersion(200, 2f));
-        // initHook(new UnlockAlwaysOnDisplay(), PrefsBridge.getBoolean("aod_unlock_always_on_display_hyper"));
+        initHook(new UnlockAlwaysOnDisplay(), PrefsBridge.getBoolean("aod_unlock_always_on_display_hyper"));
         initHook(new UnlockAodAon(), PrefsBridge.getBoolean("aod_unlock_aon"));
+        initHook(new UnlockAodWallpaper(), PrefsBridge.getBoolean("aod_unlock_wallpaper"));
+        initHook(new UnlockClockBlur(), PrefsBridge.getBoolean("aod_unlock_clock_blur"));
         initHook(UnlockAiWallpaper.INSTANCE, PrefsBridge.getBoolean("aod_unlock_ai_wallpaper"));
     }
 }
