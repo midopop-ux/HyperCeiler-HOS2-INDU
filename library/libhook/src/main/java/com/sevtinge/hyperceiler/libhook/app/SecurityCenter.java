@@ -119,7 +119,6 @@ public class SecurityCenter extends BaseLoad {
         initHook(SimplifyMainFragment.INSTANCE, PrefsBridge.getBoolean("security_center_simplify_home"));
         initHook(new InstallIntercept(), PrefsBridge.getBoolean("security_center_install_intercept"));
         initHook(new LockOneHundredPoints(), PrefsBridge.getBoolean("security_center_score"));
-        initHook(new com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.UnlockChinaFeatures(), PrefsBridge.getBoolean("security_center_unlock_china_features", true));
         initHook(new SkipCountDownLimit(), PrefsBridge.getBoolean("security_center_skip_count_down_limit"));
         initHook(DisableRootCheck.INSTANCE, PrefsBridge.getBoolean("security_center_disable_root_check"));
         initHook(FuckRiskPkg.INSTANCE, PrefsBridge.getBoolean("security_center_disable_send_malicious_app_notification"));
