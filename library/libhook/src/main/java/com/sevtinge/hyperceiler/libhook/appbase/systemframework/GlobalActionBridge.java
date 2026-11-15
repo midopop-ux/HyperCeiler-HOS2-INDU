@@ -333,126 +333,12 @@ public final class GlobalActionBridge {
             default -> null;
         };
         if (spec != null) {
-            if (handleDirectBuiltInToggle(context, spec)) {
-                return true;
-            }
-            Intent intent = new Intent(BaseHook.ACTION_PREFIX + "ClickTile");
-            intent.putExtra("spec", spec);
-            context.sendBroadcast(intent);
-            return true;
+            return com.sevtinge.hyperceiler.libhook.appbase.systemui.StatusBarActionBridge.toggleFeature(context, spec);
         }
         return false;
     }
 
-    private static boolean sTorchEnabled = false;
 
-    private static boolean handleDirectBuiltInToggle(Context context, String spec) {
-        try {
-            switch (spec) {
-                case "wifi" -> {
-                    android.net.wifi.WifiManager wm = (android.net.wifi.WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                    if (wm != null) {
-                        BaseHook.callMethod(wm, "setWifiEnabled", !wm.isWifiEnabled());
-                        return true;
-                    }
-                }
-                case "bt" -> {
-                    android.bluetooth.BluetoothAdapter ba = android.bluetooth.BluetoothAdapter.getDefaultAdapter();
-                    if (ba != null) {
-                        if (ba.isEnabled()) ba.disable(); else ba.enable();
-                        return true;
-                    }
-                }
-                case "rotation" -> {
-                    int current = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
-                    Settings.System.putInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, current == 1 ? 0 : 1);
-                    return true;
-                }
-                case "autobrightness" -> {
-                    int mode = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-                    int newMode = mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
-                            ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
-                            : Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
-                    Settings.System.putInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, newMode);
-                    return true;
-                }
-                case "flashlight" -> {
-                    android.hardware.camera2.CameraManager cm = (android.hardware.camera2.CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-                    if (cm != null) {
-                        String[] ids = cm.getCameraIdList();
-                        if (ids != null && ids.length > 0) {
-                            sTorchEnabled = !sTorchEnabled;
-                            cm.setTorchMode(ids[0], sTorchEnabled);
-                            return true;
-                        }
-                    }
-                }
-                case "mute" -> {
-                    AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                    if (am != null) {
-                        int ringer = am.getRingerMode();
-                        am.setRingerMode(ringer == AudioManager.RINGER_MODE_NORMAL ? AudioManager.RINGER_MODE_SILENT : AudioManager.RINGER_MODE_NORMAL);
-                        return true;
-                    }
-                }
-                case "night" -> {
-                    android.app.UiModeManager umm = (android.app.UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
-                    if (umm != null) {
-                        int current = umm.getNightMode();
-                        umm.setNightMode(current == android.app.UiModeManager.MODE_NIGHT_YES ? android.app.UiModeManager.MODE_NIGHT_NO : android.app.UiModeManager.MODE_NIGHT_YES);
-                        return true;
-                    }
-                }
-                case "dnd" -> {
-                    android.app.NotificationManager nm = (android.app.NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    if (nm != null) {
-                        int filter = nm.getCurrentInterruptionFilter();
-                        nm.setInterruptionFilter(filter == android.app.NotificationManager.INTERRUPTION_FILTER_ALL
-                                ? android.app.NotificationManager.INTERRUPTION_FILTER_PRIORITY
-                                : android.app.NotificationManager.INTERRUPTION_FILTER_ALL);
-                        return true;
-                    }
-                }
-                case "nfc" -> {
-                    android.nfc.NfcAdapter nfc = android.nfc.NfcAdapter.getDefaultAdapter(context);
-                    if (nfc != null) {
-                        if (nfc.isEnabled()) {
-                            BaseHook.callMethod(nfc, "disable");
-                        } else {
-                            BaseHook.callMethod(nfc, "enable");
-                        }
-                        return true;
-                    }
-                }
-                case "gps" -> {
-                    int mode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF);
-                    Settings.Secure.putInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE,
-                            mode == Settings.Secure.LOCATION_MODE_OFF ? Settings.Secure.LOCATION_MODE_HIGH_ACCURACY : Settings.Secure.LOCATION_MODE_OFF);
-                    return true;
-                }
-                case "cell" -> {
-                    android.telephony.TelephonyManager tm = (android.telephony.TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-                    if (tm != null) {
-                        BaseHook.callMethod(tm, "setDataEnabled", !tm.isDataEnabled());
-                        return true;
-                    }
-                }
-                case "hotspot" -> {
-                    android.net.ConnectivityManager cm = (android.net.ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                    if (cm != null) {
-                        try {
-                            BaseHook.callMethod(cm, "stopTethering", 0);
-                            return true;
-                        } catch (Throwable ignored) {
-                        }
-                    }
-                }
-            }
-        } catch (Throwable t) {
-            AndroidLog.w("GlobalActionBridge", "system", "handleDirectBuiltInToggle: " + spec, t);
-        }
-        return false;
-    }
 
     public static boolean launchIntent(Context context, Intent intent) {
         if (intent == null) {

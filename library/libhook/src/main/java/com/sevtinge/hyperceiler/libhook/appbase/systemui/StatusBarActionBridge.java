@@ -34,9 +34,17 @@ public final class StatusBarActionBridge {
     public static final String ACTION_OPEN_VOLUME_DIALOG = BaseHook.ACTION_PREFIX + "OpenVolumeDialog";
     public static final String ACTION_CLEAR_MEMORY = BaseHook.ACTION_PREFIX + "ClearMemory";
     public static final String ACTION_RESTART_SYSTEM_UI = BaseHook.ACTION_PREFIX + "RestartSystemUI";
+    public static final String ACTION_TOGGLE_FEATURE = BaseHook.ACTION_PREFIX + "ToggleFeature";
+    public static final String EXTRA_SPEC = "spec";
     private static final String EXTRA_EXPAND_ONLY = "expand_only";
 
     private StatusBarActionBridge() {
+    }
+
+    public static boolean toggleFeature(Context context, String spec) {
+        Intent intent = new Intent(ACTION_TOGGLE_FEATURE);
+        intent.putExtra(EXTRA_SPEC, spec);
+        return sendBroadcast(context, intent);
     }
 
     public static boolean openNotificationCenter(Context context) {
