@@ -84,8 +84,8 @@ object DoubleTapToSleep : BaseHook() {
     private fun handleDoubleTap(context: Context, viewWidth: Int, touchX: Float) {
         val width = if (viewWidth > 0) viewWidth.toFloat() else context.resources.displayMetrics.widthPixels.toFloat()
         val actionKey = when {
-            touchX < width / 3f -> "prefs_key_system_statusbarcontrols_dt_left"
-            touchX > (width * 2f / 3f) -> "prefs_key_system_statusbarcontrols_dt_right"
+            touchX < width * 0.25f -> "prefs_key_system_statusbarcontrols_dt_left"
+            touchX > width * 0.75f -> "prefs_key_system_statusbarcontrols_dt_right"
             else -> "prefs_key_system_statusbarcontrols_dt"
         }
 
