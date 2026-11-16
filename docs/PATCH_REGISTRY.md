@@ -275,3 +275,50 @@ Timestamp Registered: 2026-11-16 12:45:00 EET
   - Signed via `apksigner` with `permanent_release.keystore` (CN=MIDO, alias `mido`).
   - Saved to `/storage/emulated/0/Download/HyperCeiler-2.10.166-20261116-release_signed.apk`.
   - Installed successfully on device via root/pm.
+
+================================================================================
+MODULE 4 [TAG: Suki Splash]: SukiSU Nova (com.sukisu.nova) Splash Screen Removal
+Source Origin: com.sukisu.nova (v3.0.0 / classes.dex)
+Target App / Package: com.sukisu.nova
+Target Activity: com.sukisu.nova.ui.mqptwwwhxutActivity (Launcher Target)
+Target Smali Files:
+  - apk_smali/smali/wv6.smali (Root Compose Content Layout & Splash Trigger)
+  - apk_smali/smali/pk6.smali (In-App Splash Composable Renderer: method `d`)
+Timestamp Registered: 2026-11-16 13:16:33 EET
+================================================================================
+
+--- [PATCH: SUKI-01] [TAG: Suki Splash] BYPASS IN-APP WHITE SPLASH SCREEN ---
+[TIMESTAMP]: 2026-11-16 13:16:33 EET
+- Root Cause:
+  1. `mqptwwwhxutActivity` loads root Compose tree via `wc5` -> `wv6`.
+  2. Inside `wv6`, a `MutableState<Boolean>` (`dl3Var5`) tracks `splashFinished`, initialized to `Boolean.FALSE` (`sget-object v7, Ljava/lang/Boolean;->FALSE`).
+  3. When `dl3Var5.getValue()` is false, `wv6` calls `Lpk6;->d(ZJLyz1;Lmv0;I)V`, which renders a hardcoded white background Compose overlay containing the anime avatar (`b41.r`), "SukiSU Nova", "Kernel-based Root Solution", and quote texts, completely ignoring the system dark mode.
+- Bytecode Modification:
+  1. In `wv6.smali`:
+     - Line ~794: In the remember factory block of `dl3Var5`, change:
+       ```smali
+       sget-object v7, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;
+       ```
+       to:
+       ```smali
+       sget-object v7, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
+       ```
+     - Line ~1618: At the splash display gate:
+       ```smali
+       invoke-virtual {v3}, Ljava/lang/Boolean;->booleanValue()Z
+       move-result v3
+       if-nez v3, :cond_18
+       ```
+       Change `if-nez v3, :cond_18` to:
+       ```smali
+       goto :cond_18
+       ```
+       This forces Compose to completely bypass calling `Lpk6;->d` and follow the `splashFinished` block (`0x53672e68`), ensuring smooth composition directly to the main screen.
+- Packaging & Status:
+  - Assembled via `apktool b`.
+  - Aligned via `zipalign -p -f 4`.
+  - Signed via `apksigner` with `permanent_release.keystore` (Alias: `mido`, pass: `000000`, v2+v3 scheme).
+  - Saved to `/storage/emulated/0/Download/SukiSU_Nova_NoSplash.apk`.
+  - Installed via root: `cat <apk> | su -c "pm install -r -S <size>"`.
+  - Tested and verified: Splash completely gone, dark mode opens instantly.
+

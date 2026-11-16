@@ -84,12 +84,15 @@ public class DashboardFragment extends SettingsPreferenceFragment {
             mQuickRestartPackageName = sQuickRestartCache.get(xmlResId);
         } else {
             // 缓存未命中，后台解析，不阻塞主线程
+            Context appContext = requireContext().getApplicationContext();
             ThreadUtils.postOnBackgroundThread(() -> {
-                String pkg = getQuickRestartPackageName(requireContext(), xmlResId);
+                String pkg = getQuickRestartPackageName(appContext, xmlResId);
                 sQuickRestartCache.put(xmlResId, pkg != null ? pkg : "");
-                ThreadUtils.postOnMainThread(() -> {
+                runOnUiThreadIfAlive(() -> {
                     mQuickRestartPackageName = pkg;
-                    requireActivity().invalidateOptionsMenu();
+                    if (isAdded() && isActivityAlive()) {
+                        requireActivity().invalidateOptionsMenu();
+                    }
                 });
             });
         }
