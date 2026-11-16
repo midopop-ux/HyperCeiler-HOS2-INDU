@@ -95,10 +95,7 @@ public class XposedInitEntry extends XposedModule {
         } catch (Throwable t) {
             XposedLog.e(TAG, "system", "CorePatch Kotlin Hooks failed: " + t);
         }
-        if (PrefsBridge.getBoolean("system_framework_core_patch_enable")) {
-            new CorePatch().onLoad(lpparam);
-            XposedLog.d(TAG, "system", "CorePatch loaded");
-        }
+        // CorePatch hooks are handled by CorePatchMain above
         if (PrefsBridge.getBoolean("system_other_flag_secure")) {
             new FlagSecure().onLoad(lpparam);
             XposedLog.d(TAG, "system", "FlagSecure loaded");
