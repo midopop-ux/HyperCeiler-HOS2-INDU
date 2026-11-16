@@ -1,140 +1,144 @@
-# سجل التعديلات الميدانية والمطابقة الفورية (Patch Registry)
+# AGENT INTERNAL PATCH REGISTRY & SMALI-TO-SOURCE REVERSE COMPILER DIRECTIVES
+# Target Project: HyperCeiler-HOS2
+# Agent Role: Autonomous Patch Translator & Upstream Synchronizer
 
-> وثيقة هندسية تتبع وتوثق كل تعديل تم تنفيذه في طبقة البايت كود (Smali/DEX) وما يقابله في الكود المصدري الأصلي (Kotlin / Java) داخل مشروع HyperCeiler.
+[AGENT_DIRECTIVE]
+Whenever user states: "تمام إحنا نجحنا بأكواد سمايلي اللي معانا، عايزك بقى تطبق الكلام ده على السورس اللي على جيت هاب":
+1. Read this file immediately to retrieve all active bytecode modifications.
+2. For each registered patch, inspect the corresponding Target Source File.
+3. Verify signature matching, hook lifecycle in XposedInitEntry, and preference key mappings.
+4. Execute exact Java/Kotlin implementation, compile verification, and push cleanly to main.
 
----
+================================================================================
+MODULE 1: CorePatch Modern Integration (v4.5 Engine)
+Source Origin: org.lsposed.corepatch / Root DEX classes (a.smali .. r0.smali)
+Target Source Package: com.sevtinge.hyperceiler.libhook.corepatch.*
+UI Destination: com.sevtinge.hyperceiler.hooker.framework.CorePatchSettings.java
+Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
+================================================================================
 
-## 📌 دليل ومنهجية التوثيق المعتمدة (Registry Specification & Schema)
+--- [PATCH: CP-01] BYPASS DOWNGRADE ---
+- Smali Target:
+  * Lcom/android/server/pm/PackageManagerService;->checkDowngrade (Android <= 12 / SDK <= 32)
+  * Lcom/android/server/pm/PackageManagerServiceUtils;->checkDowngrade (Android >= 13 / SDK >= 33)
+  * Flyme 9: Lcom/android/server/pm/PackageManagerService;->checkDowngrade (return boolean)
+- Logic Inversion:
+  * On SDK <= 29 (Q and below): zero out reflection fields 'mVersionCode' and 'mVersionCodeMajor' on beforePackage object.
+  * Return/skip with null for void methods, return true for boolean methods.
+- Kotlin Implementation:
+  * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/PackageManagerServiceHook.kt
+  * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/PackageManagerServiceUtilsHook.kt
+- Pref Key: prefs_key_system_framework_core_patch_downgr
 
-يسير هذا السجل وفق نظام هندسي صارم وموحد لتوثيق أي تعديل، سواء كان تعديلاً تم تطويره محلياً أو ميزة تم سحب كلاساتها من تطبيق خارجي:
+--- [PATCH: CP-02] BYPASS VERIFICATION & DIGEST ---
+- Smali Target:
+  * Landroid/util/apk/ApkSignatureVerifier;->verify / verifyV1Signature / verifyV2Signature / verifyV3Signature
+  * Landroid/util/apk/ApkSigningBlockUtils;->verifySignatureDigest
+  * Lcom/android/server/pm/PackageManagerServiceUtils;->verifySignatures
+  * Lcom/android/server/pm/ScanPackageUtils;->assertPackageIsValid
+  * Ljava/security/MessageDigest;->isEqual([B[B)Z
+  * Lcom/android/server/pm/StrictJarVerifier;->verify / readFullyAtOffset
+- Logic Inversion:
+  * ApkSignatureVerifier: return dummy constant signature (Constant.SIGNATURE).
+  * ApkSigningBlockUtils: slice byte array to first 32 bytes to fake digest match.
+  * PackageManagerServiceUtils.verifySignatures: return false (no mismatch found).
+  * MessageDigest.isEqual: return true.
+  * ScanPackageUtils.assertPackageIsValid: skip exception throwing (return null).
+- Kotlin Implementation:
+  * Target Files: ApkSignatureVerifierHook.kt, ApkSigningBlockUtilsHook.kt, PackageManagerServiceUtilsHook.kt, MessageDigestHook.kt, ScanPackageUtilsHook.kt, StrictJarVerifierHook.kt
+- Pref Key: prefs_key_system_framework_core_patch_auth_creak
 
-### 1. في حالة التعديل المحلي المباشر (Direct Modifications):
-لكل ميزة يتم توثيق:
-- **المعرف والمفتاح البرمجي:** الكود المميز للميزة ومفتاح الربط مع الإعدادات (`PrefsBridge`).
-- **الهدف الوظيفي:** الفائدة المباشرة للتعديل وسلوك النظام قبله وبعده.
-- **كود Smali المستهدف:** المسار الدقيق للكلاس والدالة في طبقة البايت كود.
-- **الكود المصدري المقابل:** الكلاس والدالة وسطور التنفيذ في الكود المصدري (`Kotlin / Java`).
+--- [PATCH: CP-03] BYPASS RESOURCES.ARSC 4-BYTE ALIGNMENT ---
+- Smali Target:
+  * Landroid/content/res/AssetManager;->nativeLoadResourceBag / loadApkAssets
+  * Landroid/content/res/ApkAssets;->loadFromPath
+- Logic Inversion:
+  * Force bypass 4-byte alignment restriction for uncompressed resources.arsc on Android 11+.
+- Kotlin Implementation:
+  * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/AssetManagerHook.kt
+- Pref Key: prefs_key_system_framework_bypass_resource_arsc
 
-### 2. في حالة سحب واقتباس كلاسات من تطبيق خارجي (Imported Smali Modules):
-عند اقتباس كلاسات من تطبيق خارجي، يتم تطبيق معيار **"المنبع والمطابقة" (Source & Mutation Tracking)** عبر تسجيل:
-1. **بيانات المنبع (Origin Header):** اسم التطبيق المصدر، إصداره، والـ Package الأصلية قبل التعديل.
-2. **فهرس الكلاسات (Class Inventory):**
-   - **كلاسات سليمة (Untouched Logic):** كلاسات تم نقلها كما هي 1:1 دون أي تعديل لتعمل كـ Core Logic.
-   - **كلاسات خضعت للتعديل (Mutated Classes):** الكلاسات الحساسة التي تم التدخل فيها لإعادة توجيهها (مثلاً: استبدال الـ SharedPreferences الأصلية بـ `PrefsBridge` أو ربط دورة حياة الموديول بـ `XposedInitEntry`).
-3. **تفاصيل التغيير (The Mutation Diff):** بيان السطور الدقيقة التي تغيرت وما يقابلها في السورس كود النظيف لتسهيل مراجعتها أو تحديثها مستقبلاً عند صدور إصدارات أحدث من التطبيق المصدر.
+--- [PATCH: CP-04] BYPASS DIGEST & SIGNATURE LINEAGE ---
+- Smali Target:
+  * Landroid/content/pm/PackageParser$SigningDetails;->checkCapability
+  * Landroid/content/pm/SigningDetails;->hasCommonAncestor
+- Logic Inversion:
+  * Force hasCommonAncestor to return true when verifySignatures is in current stack trace.
+  * Bypass signature lineage divergence errors.
+- Kotlin Implementation:
+  * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/SigningDetailsHook.kt
+- Pref Key: prefs_key_system_framework_core_patch_digest_creak
 
----
+--- [PATCH: CP-05] BYPASS EXACT SIGNATURE MATCH ---
+- Smali Target:
+  * Landroid/content/pm/PackageParser$SigningDetails;->signaturesMatchExactly
+  * Landroid/content/pm/SigningDetails;->signaturesMatchExactly
+- Logic Inversion:
+  * Intercept signaturesMatchExactly and return true unconditionally. Allows split APKs with different certs.
+- Kotlin Implementation:
+  * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/SigningDetailsHook.kt
+- Pref Key: prefs_key_system_framework_core_patch_exact_signature_check
 
-## 1. منظومة CorePatch الحديثة (10 خيارات متكاملة)
+--- [PATCH: CP-06] USE PREVIOUS SIGNATURES (DANGEROUS) ---
+- Smali Target:
+  * Lcom/android/server/pm/InstallPackageHelper;->checkPackageSignature
+  * Lcom/android/server/pm/PackageManagerService;->doesSignatureMatchForPermissions
+- Logic Inversion:
+  * When package names match between incoming and existing app, override callback result to true.
+  * UI includes explicit safety warning dialog for Xiaomi/Redmi HyperOS devices.
+- Kotlin & Java Implementation:
+  * Target Files: InstallPackageHelperHook.kt, PackageManagerServiceHook.kt, CorePatchSettings.java
+- Pref Key: prefs_key_system_framework_core_patch_use_pre_signature
 
-### [COREPATCH-01] تخطي الرجوع لإصدار أقدم (Bypass Downgrade)
-- **المفتاح البرمجي:** `prefs_key_system_framework_core_patch_downgr`
-- **الهدف:** السماح بتثبيت تطبيق بإصدار أقدم فوق تطبيق مثبت بإصدار أحدث دون قيود.
-- **كود Smali المستهدف:**
-  - `com/android/server/pm/PackageManagerService;->checkDowngrade` (Android <= 12)
-  - `com/android/server/pm/PackageManagerServiceUtils;->checkDowngrade` (Android >= 13)
-- **الكود المصدري المقابل:**
-  - `PackageManagerServiceHook.kt` (تصفير `mVersionCode` و `mVersionCodeMajor` على Android Q والأقدم، والعودة بـ `null`).
-  - `PackageManagerServiceUtilsHook.kt` (اعتراض `checkDowngrade` والعودة بـ `null`).
+--- [PATCH: CP-07] ALLOW HIDDEN APIS FOR SYSTEM APPS ---
+- Smali Target:
+  * Landroid/content/pm/ApplicationInfo;->isAllowedToUseHiddenApis
+- Logic Inversion:
+  * Return true if app is system or matches target criteria, granting unrestricted hidden API access.
+- Kotlin Implementation:
+  * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/ApplicationInfoHook.kt
+- Pref Key: prefs_key_system_framework_allow_hidden_apis
 
----
+--- [PATCH: CP-08] BYPASS SHARED USER SIGNATURE MATCH ---
+- Smali Target:
+  * Lcom/android/server/pm/SharedUserSetting;->signaturesMatch
+  * Lcom/android/server/pm/ReconcilePackageUtils;->reconcilePackages
+- Logic Inversion:
+  * Allow packages sharing the same sharedUserId to install even if signing certs differ.
+- Kotlin Implementation:
+  * Target Files: SharedUserSettingHook.kt, ReconcilePackageUtilsHook.kt
+- Pref Key: prefs_key_system_framework_core_patch_shared_user
 
-### [COREPATCH-02] تخطي التحقق من التوقيع والتجزئة (Bypass Verification)
-- **المفتاح البرمجي:** `prefs_key_system_framework_core_patch_auth_creak`
-- **الهدف:** السماح بتثبيت التطبيقات المعدلة أو ذات التوقيعات غير المتطابقة.
-- **كود Smali المستهدف:**
-  - `android/util/apk/ApkSignatureVerifier;->verify`
-  - `android/util/apk/ApkSigningBlockUtils;->verifySignatureDigest`
-  - `com/android/server/pm/PackageManagerServiceUtils;->verifySignatures`
-  - `com/android/server/pm/ScanPackageUtils;->assertPackageIsValid`
-  - `java/security/MessageDigest;->isEqual`
-- **الكود المصدري المقابل:**
-  - `ApkSignatureVerifierHook.kt`: إعادة كائن التوقيع الافتراضي.
-  - `ApkSigningBlockUtilsHook.kt`: استبدال التجزئة المعطوبة بتجزئة متطابقة.
-  - `PackageManagerServiceUtilsHook.kt`: اعتراض `verifySignatures` وإرجاع `false` (أي لا يوجد تعارض).
-  - `MessageDigestHook.kt`: إعادة `true` دائماً عند مقارنة التوقيع.
+--- [PATCH: CP-09] DISABLE PACKAGE VERIFICATION AGENT ---
+- Smali Target:
+  * Lcom/android/server/pm/PackageManagerService;->isVerificationEnabled
+  * Lcom/android/server/pm/VerificationParams;->getVerificationState
+  * Lcom/android/server/pm/VerifyingSession;->handleStartCopy
+- Logic Inversion:
+  * Intercept isVerificationEnabled and return false.
+  * Strip Google Play Protect and external verification agents from package install flow.
+- Kotlin Implementation:
+  * Target Files: PackageManagerServiceHook.kt, VerificationParamsHook.kt, VerifyingSessionHook.kt
+- Pref Key: prefs_key_system_framework_disable_verification_agent
 
----
+--- [PATCH: CP-10] BYPASS OEM INSTALLATION BLOCKLIST ---
+- Smali Target:
+  * Lcom/android/server/pm/NtConfigListServiceImpl;->isPackageInBlockList
+- Logic Inversion:
+  * Return false for blocklist checks (specifically for Nothing OS and OEM-specific installation blacklists).
+- Kotlin Implementation:
+  * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/NtConfigListServiceImplHook.kt
+- Pref Key: prefs_key_system_framework_bypass_block
 
-### [COREPATCH-03] تخطي قيود محاذاة resources.arsc
-- **المفتاح البرمجي:** `prefs_key_system_framework_bypass_resource_arsc`
-- **الهدف:** السماح بتثبيت التطبيقات التي يكون فيها ملف `resources.arsc` مضغوطاً أو غير محاذى على 4-byte (بدءاً من Android 11).
-- **كود Smali المستهدف:**
-  - `android/content/res/AssetManager;->nativeLoadResourceBag` أو دوال فحص المحاذاة الداخلية.
-- **الكود المصدري المقابل:**
-  - `AssetManagerHook.kt`: فك قيد التحقق من ضغط ومحاذاة ملف الموارد.
+================================================================================
+BOOTSTRAP & LIFECYCLE WIRING DIRECTIVES
+================================================================================
+1. Hook Lifecycle Entry:
+   - File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/base/XposedInitEntry.java
+   - In onModuleLoaded: must call `com.sevtinge.hyperceiler.libhook.corepatch.CorePatchMain.onModuleLoaded(this);`
+   - In onSystemServerStarting: must call `com.sevtinge.hyperceiler.libhook.corepatch.CorePatchMain.onSystemServerStarting(this, lpparam);`
+   - STRICT PROHIBITION: Never call legacy `new CorePatch().onLoad(lpparam)` to avoid dual PMS hook collisions.
 
----
-
-### [COREPATCH-04] تخطي فحص تطابق التجزئة (Bypass Digest)
-- **المفتاح البرمجي:** `prefs_key_system_framework_core_patch_digest_creak`
-- **الهدف:** السماح بتحديث وتثبيت التطبيقات بتوقيع مختلف تماماً عن المثبت مسبقاً.
-- **كود Smali المستهدف:**
-  - `android/content/pm/PackageParser$SigningDetails;->checkCapability`
-  - `android/content/pm/SigningDetails;->hasCommonAncestor`
-- **الكود المصدري المقابل:**
-  - `SigningDetailsHook.kt`: إرجاع `true` في توابع فحص السلف المشترك والقدرات.
-
----
-
-### [COREPATCH-05] تخطي التطابق التام للتوقيعات (Bypass Exact Signature Match)
-- **المفتاح البرمجي:** `prefs_key_system_framework_core_patch_exact_signature_check`
-- **الهدف:** السماح لحزم Split APKs والـ App Bundles باستخدام توقيعات مختلفة دون رفض النظام.
-- **كود Smali المستهدف:**
-  - `android/content/pm/PackageParser$SigningDetails;->signaturesMatchExactly`
-- **الكود المصدري المقابل:**
-  - `SigningDetailsHook.kt`: اعتراض دالة `signaturesMatchExactly` وإرجاع `true`.
-
----
-
-### [COREPATCH-06] استخدام التوقيعات السابقة (Use Previous Signatures - Dangerous)
-- **المفتاح البرمجي:** `prefs_key_system_framework_core_patch_use_pre_signature`
-- **الهدف:** اعتماد توقيع التطبيق المثبت مسبقاً أثناء عملية التحديث تلقائياً.
-- **كود Smali المستهدف:**
-  - `com/android/server/pm/InstallPackageHelper;->checkPackageSignature`
-- **الكود المصدري المقابل:**
-  - `InstallPackageHelperHook.kt` و `PackageManagerServiceHook.kt`.
-  - واجهة المستخدم في `CorePatchSettings.java`: تضمين نافذة تحذيرية لمستخدمي Xiaomi/Redmi.
-
----
-
-### [COREPATCH-07] السماح بالـ Hidden APIs لتطبيقات النظام (Allow Hidden APIs)
-- **المفتاح البرمجي:** `prefs_key_system_framework_allow_hidden_apis`
-- **الهدف:** السماح لتطبيقات النظام التي تم تعديل توقيعها بالوصول الكامل للـ Hidden APIs دون قيود.
-- **كود Smali المستهدف:**
-  - `android/content/pm/ApplicationInfo;->isAllowedToUseHiddenApis`
-- **الكود المصدري المقابل:**
-  - `ApplicationInfoHook.kt`: إرجاع `true` عند طلب صلاحية استخدام الدوال المخفية.
-
----
-
-### [COREPATCH-08] تخطي فحص توقيع المستخدم المشترك (Bypass Shared User Verification)
-- **المفتاح البرمجي:** `prefs_key_system_framework_core_patch_shared_user`
-- **الهدف:** السماح للتطبيقات التي تشترك في نفس `sharedUserId` بالعمل معاً حتى لو اختلفت توقيعاتها.
-- **كود Smali المستهدف:**
-  - `com/android/server/pm/SharedUserSetting;->signaturesMatch`
-  - `com/android/server/pm/ReconcilePackageUtils;->reconcilePackages`
-- **الكود المصدري المقابل:**
-  - `SharedUserSettingHook.kt` و `ReconcilePackageUtilsHook.kt`.
-
----
-
-### [COREPATCH-09] تعطيل وكيل التحقق من الحزم (Disable Verification Agent)
-- **المفتاح البرمجي:** `prefs_key_system_framework_disable_verification_agent`
-- **الهدف:** منع خدمات الفحص الخارجية (مثل Google Play Protect) من حظر أو فحص تثبيت التطبيقات.
-- **كود Smali المستهدف:**
-  - `com/android/server/pm/PackageManagerService;->isVerificationEnabled`
-  - `com/android/server/pm/VerificationParams;->getVerificationState`
-  - `com/android/server/pm/VerifyingSession;->handleStartCopy`
-- **الكود المصدري المقابل:**
-  - `PackageManagerServiceHook.kt`, `VerificationParamsHook.kt`, `VerifyingSessionHook.kt`.
-
----
-
-### [COREPATCH-10] تخطي قائمة الحظر النظامية (Bypass Installation Blocklist)
-- **المفتاح البرمجي:** `prefs_key_system_framework_bypass_block`
-- **الهدف:** تخطي قوائم الحظر التي تفرضها بعض واجهات النظام والشركات المصنعة (مثل هواتف Nothing).
-- **كود Smali المستهدف:**
-  - `com/android/server/pm/NtConfigListServiceImpl;->isPackageInBlockList`
-- **الكود المصدري المقابل:**
-  - `NtConfigListServiceImplHook.kt`: إرجاع `false` لتجاوز الحظر فوراً.
+2. R8 / ProGuard Keep Directives:
+   - File: library/libhook/src/main/keepRules/rules.keep
+   - Must contain: `-keep class com.sevtinge.hyperceiler.libhook.corepatch.** { *; }`
