@@ -38,12 +38,16 @@ jobs:
         shell: bash
         run: |
           touch signing.properties
-          if [ -n "${{ secrets.SIGNING_KEY }}" ]; then
-            echo storePassword=${{ secrets.KEY_STORE_PASSWORD }} >> signing.properties
-            echo keyAlias=${{ secrets.ALIAS }} >> signing.properties
-            echo keyPassword='${{ secrets.KEY_STORE_PASSWORD }}' >> signing.properties
+          KEYSTORE_B64="${{ secrets.RELEASE_KEYSTORE_BASE64 || secrets.SIGNING_KEY }}"
+          if [ -n "$KEYSTORE_B64" ]; then
+            STORE_PASS="${{ secrets.RELEASE_KEYSTORE_PASSWORD || secrets.KEY_STORE_PASSWORD || 'mpmanager123' }}"
+            ALIAS="${{ secrets.RELEASE_KEY_ALIAS || secrets.ALIAS || 'mpmanager' }}"
+            KEY_PASS="${{ secrets.RELEASE_KEY_PASSWORD || secrets.KEY_STORE_PASSWORD || 'mpmanager123' }}"
+            echo storePassword=$STORE_PASS >> signing.properties
+            echo keyAlias=$ALIAS >> signing.properties
+            echo keyPassword=$KEY_PASS >> signing.properties
             echo storeFile=../key.jks >> signing.properties
-            echo ${{ secrets.SIGNING_KEY }} | base64 --decode > key.jks
+            echo "$KEYSTORE_B64" | base64 --decode > key.jks
           fi
           echo "GIT_ACTOR=${{ secrets.GIT_ACTOR || github.actor }}" >> $GITHUB_ENV
           echo "GIT_TOKEN=${{ secrets.GIT_TOKEN || github.token }}" >> $GITHUB_ENV
