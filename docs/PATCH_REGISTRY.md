@@ -1,6 +1,7 @@
 # AGENT INTERNAL PATCH REGISTRY & SMALI-TO-SOURCE REVERSE COMPILER DIRECTIVES
 # Target Project: HyperCeiler-HOS2
 # Agent Role: Autonomous Patch Translator & Upstream Synchronizer
+# Timestamp Standard: Device Local Time (EET / Asia-Cairo)
 
 [AGENT_DIRECTIVE]
 Whenever user states: "تمام إحنا نجحنا بأكواد سمايلي اللي معانا، عايزك بقى تطبق الكلام ده على السورس اللي على جيت هاب":
@@ -9,15 +10,20 @@ Whenever user states: "تمام إحنا نجحنا بأكواد سمايلي ا
 3. Verify signature matching, hook lifecycle in XposedInitEntry, and preference key mappings.
 4. Execute exact Java/Kotlin implementation, compile verification, and push cleanly to main.
 
+Whenever user queries: "كل التعديلات اللي عملناها آخر ساعتين، ابعتها":
+- Parse all [TIMESTAMP] headers below and return the patches registered within the requested window.
+
 ================================================================================
 MODULE 1: CorePatch Modern Integration (v4.5 Engine)
 Source Origin: org.lsposed.corepatch / Root DEX classes (a.smali .. r0.smali)
 Target Source Package: com.sevtinge.hyperceiler.libhook.corepatch.*
 UI Destination: com.sevtinge.hyperceiler.hooker.framework.CorePatchSettings.java
 Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
+Timestamp Registered: 2026-11-16 05:05:00 EET
 ================================================================================
 
 --- [PATCH: CP-01] BYPASS DOWNGRADE ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/PackageManagerService;->checkDowngrade (Android <= 12 / SDK <= 32)
   * Lcom/android/server/pm/PackageManagerServiceUtils;->checkDowngrade (Android >= 13 / SDK >= 33)
@@ -31,6 +37,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_core_patch_downgr
 
 --- [PATCH: CP-02] BYPASS VERIFICATION & DIGEST ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/util/apk/ApkSignatureVerifier;->verify / verifyV1Signature / verifyV2Signature / verifyV3Signature
   * Landroid/util/apk/ApkSigningBlockUtils;->verifySignatureDigest
@@ -49,6 +56,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_core_patch_auth_creak
 
 --- [PATCH: CP-03] BYPASS RESOURCES.ARSC 4-BYTE ALIGNMENT ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/res/AssetManager;->nativeLoadResourceBag / loadApkAssets
   * Landroid/content/res/ApkAssets;->loadFromPath
@@ -59,6 +67,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_bypass_resource_arsc
 
 --- [PATCH: CP-04] BYPASS DIGEST & SIGNATURE LINEAGE ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/pm/PackageParser$SigningDetails;->checkCapability
   * Landroid/content/pm/SigningDetails;->hasCommonAncestor
@@ -70,6 +79,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_core_patch_digest_creak
 
 --- [PATCH: CP-05] BYPASS EXACT SIGNATURE MATCH ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/pm/PackageParser$SigningDetails;->signaturesMatchExactly
   * Landroid/content/pm/SigningDetails;->signaturesMatchExactly
@@ -80,6 +90,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_core_patch_exact_signature_check
 
 --- [PATCH: CP-06] USE PREVIOUS SIGNATURES (DANGEROUS) ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/InstallPackageHelper;->checkPackageSignature
   * Lcom/android/server/pm/PackageManagerService;->doesSignatureMatchForPermissions
@@ -91,6 +102,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_core_patch_use_pre_signature
 
 --- [PATCH: CP-07] ALLOW HIDDEN APIS FOR SYSTEM APPS ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/pm/ApplicationInfo;->isAllowedToUseHiddenApis
 - Logic Inversion:
@@ -100,6 +112,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_allow_hidden_apis
 
 --- [PATCH: CP-08] BYPASS SHARED USER SIGNATURE MATCH ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/SharedUserSetting;->signaturesMatch
   * Lcom/android/server/pm/ReconcilePackageUtils;->reconcilePackages
@@ -110,6 +123,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_core_patch_shared_user
 
 --- [PATCH: CP-09] DISABLE PACKAGE VERIFICATION AGENT ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/PackageManagerService;->isVerificationEnabled
   * Lcom/android/server/pm/VerificationParams;->getVerificationState
@@ -122,6 +136,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 - Pref Key: prefs_key_system_framework_disable_verification_agent
 
 --- [PATCH: CP-10] BYPASS OEM INSTALLATION BLOCKLIST ---
+[TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/NtConfigListServiceImpl;->isPackageInBlockList
 - Logic Inversion:
@@ -133,6 +148,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 ================================================================================
 BOOTSTRAP & LIFECYCLE WIRING DIRECTIVES
 ================================================================================
+[TIMESTAMP]: 2026-11-16 05:13:00 EET
 1. Hook Lifecycle Entry:
    - File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/base/XposedInitEntry.java
    - In onModuleLoaded: must call `com.sevtinge.hyperceiler.libhook.corepatch.CorePatchMain.onModuleLoaded(this);`
