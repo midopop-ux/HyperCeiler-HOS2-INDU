@@ -1,41 +1,33 @@
 /*
  * This file is part of HyperCeiler.
-
+ *
  * HyperCeiler is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
-
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+ *
  * Copyright (C) 2023-2026 HyperCeiler Contributions
  */
 package com.sevtinge.hyperceiler.hooker.framework;
 
-import static com.sevtinge.hyperceiler.libhook.utils.api.DeviceHelper.System.isMoreAndroidVersion;
-
+import android.content.Context;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreference;
 
 import com.sevtinge.hyperceiler.core.R;
 import com.sevtinge.hyperceiler.dashboard.DashboardFragment;
 
 public class CorePatchSettings extends DashboardFragment {
-
-    SwitchPreference mDownGr;
-    SwitchPreference mDisableCreak;
-    SwitchPreference mDisableIntegrity;
-    SwitchPreference mSharedUser;
-    SwitchPreference mDigestCreak;
-    SwitchPreference mExactSignatureCheck;
-    SwitchPreference mUsePreSignature;
-
-    SwitchPreference mLossFingerprint;
 
     @Override
     public int getPreferenceScreenResId() {
@@ -44,74 +36,104 @@ public class CorePatchSettings extends DashboardFragment {
 
     @Override
     public void initPrefs() {
-        boolean mCreak = getSharedPreferences().getBoolean("prefs_key_system_framework_core_patch_auth_creak", false);
-        boolean mEnable = getSharedPreferences().getBoolean("prefs_key_system_framework_core_patch_enable", false);
-        mDownGr = findPreference("prefs_key_system_framework_core_patch_downgr");
-        mDisableCreak = findPreference("prefs_key_system_framework_core_patch_auth_creak");
-        mDisableIntegrity = findPreference("prefs_key_system_framework_core_patch_disable_integrity");
-        mSharedUser = findPreference("prefs_key_system_framework_core_patch_shared_user");
-        mDigestCreak = findPreference("prefs_key_system_framework_core_patch_digest_creak");
-        mExactSignatureCheck = findPreference("prefs_key_system_framework_core_patch_exact_signature_check");
-        mUsePreSignature = findPreference("prefs_key_system_framework_core_patch_use_pre_signature");
+        setTitle("Core Patch");
 
-        mLossFingerprint = findPreference("prefs_key_system_framework_core_patch_unloss_fingerprint");
+        PreferenceScreen screen = getPreferenceScreen();
+        if (screen == null) {
+            return;
+        }
 
-        mDownGr.setVisible(mEnable);
-        mDisableCreak.setVisible(mEnable);
-        mDisableIntegrity.setVisible(mEnable && !mCreak);
-        mSharedUser.setVisible(mEnable);
-        mDigestCreak.setVisible(mEnable);
-        mExactSignatureCheck.setVisible(mEnable);
-        mUsePreSignature.setVisible(mEnable);
+        screen.removeAll();
 
-        setPreVisible(mLossFingerprint, isMoreAndroidVersion(36));
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
 
-        findPreference("prefs_key_system_framework_core_patch_enable").setOnPreferenceChangeListener((preference, o) -> {
-            if ((boolean) o) {
-                mDownGr.setVisible(true);
-                mDisableCreak.setVisible(true);
-                mDisableIntegrity.setVisible(!mCreak);
-                mSharedUser.setVisible(true);
-                mDigestCreak.setVisible(true);
-                mExactSignatureCheck.setVisible(true);
-                mUsePreSignature.setVisible(true);
-            } else {
-                mDownGr.setVisible(false);
-                mDisableCreak.setVisible(false);
-                mDisableIntegrity.setVisible(false);
-                mSharedUser.setVisible(false);
-                mDigestCreak.setVisible(false);
-                mExactSignatureCheck.setVisible(false);
-                mUsePreSignature.setVisible(false);
-            }
-            return true;
-        });
+        String[][] options = new String[][]{
+                {
+                        "prefs_key_system_framework_core_patch_downgr",
+                        "Bypass downgrade",
+                        "Allow installing an older version over a newer version."
+                },
+                {
+                        "prefs_key_system_framework_core_patch_auth_creak",
+                        "Bypass verification",
+                        "Allow installing APKs with invalid or modified signatures."
+                },
+                {
+                        "prefs_key_system_framework_bypass_resource_arsc",
+                        "Bypass resources.arsc alignment restriction",
+                        "Allow installing APKs whose resources.arsc is compressed or not 4-byte aligned on Android 11 and later."
+                },
+                {
+                        "prefs_key_system_framework_core_patch_digest_creak",
+                        "Bypass digest",
+                        "Allow reinstalling an app with a different signature."
+                },
+                {
+                        "prefs_key_system_framework_core_patch_exact_signature_check",
+                        "Bypass exact signature match",
+                        "Allow split APKs to use different signatures."
+                },
+                {
+                        "prefs_key_system_framework_core_patch_use_pre_signature",
+                        "Use previous signatures (dangerous)",
+                        "Always use the installed app's signatures during installation."
+                },
+                {
+                        "prefs_key_system_framework_allow_hidden_apis",
+                        "Allow hidden APIs for system apps",
+                        "Allow system apps with signatures that do not match the platform signature to use hidden APIs without restriction."
+                },
+                {
+                        "prefs_key_system_framework_core_patch_shared_user",
+                        "Bypass shared user verification",
+                        "Allow packages with a different shared-user signature."
+                },
+                {
+                        "prefs_key_system_framework_disable_verification_agent",
+                        "Disable Package Verification Agent",
+                        "For example, Google Play Protect."
+                },
+                {
+                        "prefs_key_system_framework_bypass_block",
+                        "Bypass installation blocklist",
+                        "Bypass blocklists on devices such as Nothing Phone."
+                }
+        };
 
-        mDisableCreak.setOnPreferenceChangeListener((preference, o) -> {
-            if ((boolean) o) {
-                mDisableIntegrity.setChecked(false);
-                mDisableIntegrity.setVisible(false);
-            } else {
-                mDisableIntegrity.setVisible(true);
-            }
-            return true;
-        });
+        PreferenceCategory category = new PreferenceCategory(context);
+        screen.addPreference(category);
 
-        mUsePreSignature.setOnPreferenceChangeListener((preference, newValue) -> {
-            if (Boolean.TRUE.equals(newValue)) {
-                new fan.appcompat.app.AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.system_framework_core_patch_use_pre_signature)
-                        .setMessage(R.string.system_framework_core_patch_use_pre_signature_desc)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            mUsePreSignature.setChecked(true);
-                        })
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                            mUsePreSignature.setChecked(false);
-                        })
-                        .show();
-                return false;
-            }
-            return true;
-        });
+        for (int i = 0; i < options.length; i++) {
+            String[] opt = options[i];
+            SwitchPreference pref = new SwitchPreference(context);
+            pref.setKey(opt[0]);
+            pref.setTitle(opt[1]);
+            pref.setSummary(opt[2]);
+            pref.setOrder(i);
+            category.addPreference(pref);
+        }
+
+        Preference preSigPref = screen.findPreference("prefs_key_system_framework_core_patch_use_pre_signature");
+        if (preSigPref != null) {
+            preSigPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (Boolean.TRUE.equals(newValue)) {
+                    new fan.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("Use previous signatures (dangerous)")
+                            .setMessage("Always use the installed app's signatures during installation.\n\n⚠️ Xiaomi/Redmi users must not enable this option; otherwise, the device may fail to boot.\nAny APK may overwrite the installed app. Enable only when necessary.")
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                ((SwitchPreference) preference).setChecked(true);
+                            })
+                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                                ((SwitchPreference) preference).setChecked(false);
+                            })
+                            .show();
+                    return false;
+                }
+                return true;
+            });
+        }
     }
 }
