@@ -1,17 +1,6 @@
 name: CI Build
 
 on:
-  push:
-    branches: [main, os2]
-    paths-ignore:
-      - ".github/**"
-      - "!.github/workflows/**"
-      - ".idea/"
-      - "doc/*"
-      - "*.md"
-      - "imgs/*"
-      - "app/src/assets/**"
-      - "crowdin.yml"
   workflow_dispatch:
     inputs:
       build_type:
