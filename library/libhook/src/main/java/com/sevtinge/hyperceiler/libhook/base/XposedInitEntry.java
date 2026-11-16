@@ -68,6 +68,7 @@ public class XposedInitEntry extends XposedModule {
 
         EzXposed.initOnModuleLoaded(this, param);
         BaseLoad.init(this);
+        com.sevtinge.hyperceiler.libhook.corepatch.CorePatchMain.onModuleLoaded(this);
     }
 
     @Override
