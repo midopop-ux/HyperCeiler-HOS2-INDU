@@ -25,32 +25,5 @@ import com.sevtinge.hyperceiler.libhook.base.BaseHook;
 public class NavigationCustom extends BaseHook {
     @Override
     public void init() {
-
-        float mNavigationHeight = ((float) PrefsBridge.getInt("system_ui_navigation_custom_height", 100) / 10);
-        float mNavigationHeightLand = ((float) PrefsBridge.getInt("system_ui_navigation_custom_height_land", 100) / 10);
-        float mNavigationFrameHeight = ((float) PrefsBridge.getInt("system_ui_navigation_frame_custom_height", 100) / 10);
-        float mNavigationFrameHeightLand = ((float) PrefsBridge.getInt("system_ui_navigation_frame_custom_height_land", 100) / 10);
-
-        try {
-            setDensityReplacement("*", "dimen", "navigation_bar_height", mNavigationHeight);
-        } catch (Exception e) {
-            XposedLog.e(TAG, getPackageName(), "navigation_bar_height error", e);
-        }
-        try {
-            setDensityReplacement("*", "dimen", "navigation_bar_height_landscape", mNavigationHeightLand);
-        } catch (Exception e) {
-            XposedLog.e(TAG, getPackageName(), "navigation_bar_height_landscape error", e);
-        }
-        try {
-            setDensityReplacement("*", "dimen", "navigation_bar_frame_height", mNavigationFrameHeight);
-        } catch (Exception e) {
-            XposedLog.e(TAG, getPackageName(), "navigation_bar_frame_height error", e);
-        }
-        try {
-            setDensityReplacement("*", "dimen", "navigation_bar_frame_height_landscape", mNavigationFrameHeightLand);
-        } catch (Exception e) {
-            XposedLog.e(TAG, getPackageName(), "navigation_bar_frame_height_landscape error", e);
-        }
-
     }
 }

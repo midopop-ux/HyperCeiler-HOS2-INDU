@@ -147,6 +147,7 @@ public class SystemFrameworkV extends BaseLoad {
         initHook(NoAccessDeviceLogsRequest.INSTANCE, PrefsBridge.getBoolean("various_disable_access_device_logs"));
         initHook(new DisableMiuiLite(), PrefsBridge.getBoolean("system_framework_disablt_miuilite_check"));
         initHook(new HookEntry(), PrefsBridge.getBoolean("system_framework_hook_entry"));
+        initHook(new com.sevtinge.hyperceiler.libhook.rules.systemframework.navbar.NavigationButtonLongPress(), PrefsBridge.getBoolean("system_ui_navigation_custom"));
         initHook(new PstedClipboard(), PrefsBridge.getBoolean("system_framework_posted_clipboard"));
         initHook(new MiuiImeUnlockSystem(), InputMethodConfig.shouldHookMiuiImeListInSystem());
         initHook(new MiAospImeSystem(), InputMethodConfig.shouldHookAospImeInSystem());

@@ -158,3 +158,38 @@ BOOTSTRAP & LIFECYCLE WIRING DIRECTIVES
 2. R8 / ProGuard Keep Directives:
    - File: library/libhook/src/main/keepRules/rules.keep
    - Must contain: `-keep class com.sevtinge.hyperceiler.libhook.corepatch.** { *; }`
+
+================================================================================
+MODULE 2: Navigation Bar 3-Button Long Press Custom Actions
+Source Origin: Pengeek H2 / ij.smali, u8.smali, pf.smali
+Target Source Package: com.sevtinge.hyperceiler.libhook.rules.systemframework.navbar.*
+UI Destination: library/core/src/main/res/xml/system_ui_navigation.xml
+Hook Registration: SystemFrameworkV.java & SystemFrameworkB.java
+Timestamp Registered: 2026-11-16 07:40:00 EET
+================================================================================
+
+--- [PATCH: NB-01] 3-BUTTON LONG PRESS ACTION INTERCEPTION & SYSTEM OVERRIDE ---
+[TIMESTAMP]: 2026-11-16 07:40:00 EET
+- Smali Target:
+  * Lcom/android/server/policy/MiuiSingleKeyRule;->getFunction(Ljava/lang/String;)Ljava/lang/String;
+  * Lcom/miui/server/input/util/ShortCutActionsUtils;->triggerFunction(Ljava/lang/String;Ljava/lang/String;Landroid/os/Bundle;Z)Z
+- Logic & Precedence:
+  * In `MiuiSingleKeyRule.getFunction(action)`:
+    - If `action == "long_press_back_key"` and `prefs_key_navigation_bar_back_long_press_action > 0`, return `"custom_nav_back_long"`.
+    - If `action == "long_press_home_key"` and `prefs_key_navigation_bar_home_long_press_action > 0`, return `"custom_nav_home_long"`.
+    - If `action == "long_press_menu_key"` and `prefs_key_navigation_bar_menu_long_press_action > 0`, return `"custom_nav_menu_long"`.
+  * In `ShortCutActionsUtils.triggerFunction(action, ...)`:
+    - Intercept `"custom_nav_back_long"`, `"custom_nav_home_long"`, and `"custom_nav_menu_long"`.
+    - Retrieve system framework context from `param.getThisObject().mContext`.
+    - Call `GlobalActionBridge.handleAction(context, prefKey)` to execute the assigned MultiActionSettings option.
+    - Set result to `Boolean.TRUE` to consume the event and strictly override default MIUI/HyperOS settings.
+- UI & Preferences:
+  * Replaced 4 obsolete seekbars under `prefs_key_system_ui_navigation_custom` in `system_ui_navigation.xml` with:
+    - Back Long Press: `prefs_key_navigation_bar_back_long_press` -> `MultiActionSettings`
+    - Home Long Press: `prefs_key_navigation_bar_home_long_press` -> `MultiActionSettings`
+    - Menu Long Press: `prefs_key_navigation_bar_menu_long_press` -> `MultiActionSettings`
+- Target Files:
+  * `library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/rules/systemframework/navbar/NavigationButtonLongPress.java`
+  * `library/core/src/main/res/xml/system_ui_navigation.xml`
+  * `library/core/src/main/res/values/strings_app.xml`
+  * Registered in: `SystemFrameworkV.java` & `SystemFrameworkB.java`

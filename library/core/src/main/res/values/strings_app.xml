@@ -653,11 +653,10 @@
     <string name="system_ui_navigation_handle_custom_thickness">Thickness</string>
     <string name="system_ui_navigation_handle_custom_color">Color on Light mode</string>
     <string name="system_ui_navigation_handle_custom_color_dark">Color on Dark mode</string>
-    <string name="system_ui_navigation_custom">Custom navigation</string>
-    <string name="system_ui_navigation_custom_height">Vertical navigation height</string>
-    <string name="system_ui_navigation_custom_height_land">Horizontal navigation height</string>
-    <string name="system_ui_navigation_frame_custom_height">Vertical navigation frame height</string>
-    <string name="system_ui_navigation_frame_custom_height_land">Horizontal navigation frame height</string>
+    <string name="system_ui_navigation_custom">Custom navigation bar actions</string>
+    <string name="system_ui_navigation_back_long_press">Back button long press</string>
+    <string name="system_ui_navigation_home_long_press">Home button long press</string>
+    <string name="system_ui_navigation_menu_long_press">Menu/Recents button long press</string>
     <string name="system_ui_statusbar_title">Status bar</string>
     <string name="system_ui_statusbar_iconmanage_title">Manage icons</string>
     <string name="system_ui_statusbar_network_speed_indicator_title">Manage network speed indicator</string>
