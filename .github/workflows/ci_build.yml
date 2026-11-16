@@ -40,9 +40,9 @@ jobs:
           touch signing.properties
           KEYSTORE_B64="${{ secrets.RELEASE_KEYSTORE_BASE64 || secrets.SIGNING_KEY }}"
           if [ -n "$KEYSTORE_B64" ]; then
-            STORE_PASS="${{ secrets.RELEASE_KEYSTORE_PASSWORD || secrets.KEY_STORE_PASSWORD || '000000' }}"
-            ALIAS="${{ secrets.RELEASE_KEY_ALIAS || secrets.ALIAS || 'mido' }}"
-            KEY_PASS="${{ secrets.RELEASE_KEY_PASSWORD || secrets.KEY_STORE_PASSWORD || '000000' }}"
+            STORE_PASS="${{ secrets.RELEASE_KEYSTORE_PASSWORD || secrets.KEY_STORE_PASSWORD }}"
+            ALIAS="${{ secrets.RELEASE_KEY_ALIAS || secrets.ALIAS }}"
+            KEY_PASS="${{ secrets.RELEASE_KEY_PASSWORD || secrets.KEY_STORE_PASSWORD }}"
             echo storePassword=$STORE_PASS >> signing.properties
             echo keyAlias=$ALIAS >> signing.properties
             echo keyPassword=$KEY_PASS >> signing.properties
