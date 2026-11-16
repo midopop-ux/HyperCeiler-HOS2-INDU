@@ -3,6 +3,11 @@
 # Agent Role: Autonomous Patch Translator & Upstream Synchronizer
 # Timestamp Standard: Device Local Time (EET / Asia-Cairo)
 
+# REGISTRY STATUS CONVENTION:
+# - [STATUS: MERGED_TO_FORK]: Successfully verified locally and committed/pushed to fork repository main branch.
+# - [STATUS: PENDING_MERGE]: Active in local smali bytecode / tested on device, NOT yet merged or pushed to fork.
+# - [STATUS: REVERTED]: Patch was cancelled or undone per user instruction.
+
 [AGENT_DIRECTIVE]
 Whenever user states: "تمام إحنا نجحنا بأكواد سمايلي اللي معانا، عايزك بقى تطبق الكلام ده على السورس اللي على جيت هاب":
 1. Read this file immediately to retrieve all active bytecode modifications.
@@ -22,7 +27,7 @@ Bootstrap Hook: com.sevtinge.hyperceiler.libhook.base.XposedInitEntry.java
 Timestamp Registered: 2026-11-16 05:05:00 EET
 ================================================================================
 
---- [PATCH: CP-01] BYPASS DOWNGRADE ---
+--- [PATCH: CP-01] [STATUS: MERGED_TO_FORK] BYPASS DOWNGRADE ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/PackageManagerService;->checkDowngrade (Android <= 12 / SDK <= 32)
@@ -36,7 +41,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/PackageManagerServiceUtilsHook.kt
 - Pref Key: prefs_key_system_framework_core_patch_downgr
 
---- [PATCH: CP-02] BYPASS VERIFICATION & DIGEST ---
+--- [PATCH: CP-02] [STATUS: MERGED_TO_FORK] BYPASS VERIFICATION & DIGEST ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/util/apk/ApkSignatureVerifier;->verify / verifyV1Signature / verifyV2Signature / verifyV3Signature
@@ -55,7 +60,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target Files: ApkSignatureVerifierHook.kt, ApkSigningBlockUtilsHook.kt, PackageManagerServiceUtilsHook.kt, MessageDigestHook.kt, ScanPackageUtilsHook.kt, StrictJarVerifierHook.kt
 - Pref Key: prefs_key_system_framework_core_patch_auth_creak
 
---- [PATCH: CP-03] BYPASS RESOURCES.ARSC 4-BYTE ALIGNMENT ---
+--- [PATCH: CP-03] [STATUS: MERGED_TO_FORK] BYPASS RESOURCES.ARSC 4-BYTE ALIGNMENT ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/res/AssetManager;->nativeLoadResourceBag / loadApkAssets
@@ -66,7 +71,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/AssetManagerHook.kt
 - Pref Key: prefs_key_system_framework_bypass_resource_arsc
 
---- [PATCH: CP-04] BYPASS DIGEST & SIGNATURE LINEAGE ---
+--- [PATCH: CP-04] [STATUS: MERGED_TO_FORK] BYPASS DIGEST & SIGNATURE LINEAGE ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/pm/PackageParser$SigningDetails;->checkCapability
@@ -78,7 +83,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/SigningDetailsHook.kt
 - Pref Key: prefs_key_system_framework_core_patch_digest_creak
 
---- [PATCH: CP-05] BYPASS EXACT SIGNATURE MATCH ---
+--- [PATCH: CP-05] [STATUS: MERGED_TO_FORK] BYPASS EXACT SIGNATURE MATCH ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/pm/PackageParser$SigningDetails;->signaturesMatchExactly
@@ -89,7 +94,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/SigningDetailsHook.kt
 - Pref Key: prefs_key_system_framework_core_patch_exact_signature_check
 
---- [PATCH: CP-06] USE PREVIOUS SIGNATURES (DANGEROUS) ---
+--- [PATCH: CP-06] [STATUS: MERGED_TO_FORK] USE PREVIOUS SIGNATURES (DANGEROUS) ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/InstallPackageHelper;->checkPackageSignature
@@ -101,7 +106,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target Files: InstallPackageHelperHook.kt, PackageManagerServiceHook.kt, CorePatchSettings.java
 - Pref Key: prefs_key_system_framework_core_patch_use_pre_signature
 
---- [PATCH: CP-07] ALLOW HIDDEN APIS FOR SYSTEM APPS ---
+--- [PATCH: CP-07] [STATUS: MERGED_TO_FORK] ALLOW HIDDEN APIS FOR SYSTEM APPS ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Landroid/content/pm/ApplicationInfo;->isAllowedToUseHiddenApis
@@ -111,7 +116,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target File: library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/corepatch/ApplicationInfoHook.kt
 - Pref Key: prefs_key_system_framework_allow_hidden_apis
 
---- [PATCH: CP-08] BYPASS SHARED USER SIGNATURE MATCH ---
+--- [PATCH: CP-08] [STATUS: MERGED_TO_FORK] BYPASS SHARED USER SIGNATURE MATCH ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/SharedUserSetting;->signaturesMatch
@@ -122,7 +127,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target Files: SharedUserSettingHook.kt, ReconcilePackageUtilsHook.kt
 - Pref Key: prefs_key_system_framework_core_patch_shared_user
 
---- [PATCH: CP-09] DISABLE PACKAGE VERIFICATION AGENT ---
+--- [PATCH: CP-09] [STATUS: MERGED_TO_FORK] DISABLE PACKAGE VERIFICATION AGENT ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/PackageManagerService;->isVerificationEnabled
@@ -135,7 +140,7 @@ Timestamp Registered: 2026-11-16 05:05:00 EET
   * Target Files: PackageManagerServiceHook.kt, VerificationParamsHook.kt, VerifyingSessionHook.kt
 - Pref Key: prefs_key_system_framework_disable_verification_agent
 
---- [PATCH: CP-10] BYPASS OEM INSTALLATION BLOCKLIST ---
+--- [PATCH: CP-10] [STATUS: MERGED_TO_FORK] BYPASS OEM INSTALLATION BLOCKLIST ---
 [TIMESTAMP]: 2026-11-16 05:05:00 EET
 - Smali Target:
   * Lcom/android/server/pm/NtConfigListServiceImpl;->isPackageInBlockList
@@ -168,7 +173,7 @@ Hook Registration: SystemFrameworkV.java & SystemFrameworkB.java
 Timestamp Registered: 2026-11-16 07:40:00 EET
 ================================================================================
 
---- [PATCH: NB-01] 3-BUTTON LONG PRESS ACTION INTERCEPTION & SYSTEM OVERRIDE ---
+--- [PATCH: NB-01] [STATUS: MERGED_TO_FORK] 3-BUTTON LONG PRESS ACTION INTERCEPTION & SYSTEM OVERRIDE ---
 [TIMESTAMP]: 2026-11-16 07:40:00 EET
 - Smali Target:
   * Lcom/android/server/policy/MiuiSingleKeyRule;->getFunction(Ljava/lang/String;)Ljava/lang/String;
@@ -194,7 +199,7 @@ Timestamp Registered: 2026-11-16 07:40:00 EET
   * `library/core/src/main/res/values/strings_app.xml`
   * Registered in: `SystemFrameworkV.java` & `SystemFrameworkB.java`
 
---- [PATCH: NB-02] FORCE HOME KEY LONG PRESS SUPPORT (NOVA LAUNCHER COMPATIBILITY) ---
+--- [PATCH: NB-02] [STATUS: MERGED_TO_FORK] FORCE HOME KEY LONG PRESS SUPPORT (NOVA LAUNCHER COMPATIBILITY) ---
 [TIMESTAMP]: 2026-11-16 11:35:00 EET
 - Smali Target:
   * Lcom/android/server/policy/MiuiSingleKeyRule;->supportLongPress()Z
@@ -226,14 +231,14 @@ Target Source Package:
 Timestamp Registered: 2026-11-16 12:08:00 EET
 ================================================================================
 
---- [PATCH: NAV-01] HOME LONG PRESS ACTION REDIRECTION & TRIGGER ---
+--- [PATCH: NAV-01] [STATUS: MERGED_TO_FORK] HOME LONG PRESS ACTION REDIRECTION & TRIGGER ---
 - Root Cause: HyperOS routes Home key through HomeKeyRule with action "long_press_home_key_no_ui". Original hook only matched "long_press_home_key". Furthermore, supportAOSPTriggerFunction(3) in MiuiShortcutTriggerHelper checked assist_long_press_home_enabled setting which is null or disabled.
 - Fix:
   1. NavigationButtonLongPress$1: matches action.contains("home"), returns "custom_nav_home_long".
   2. NavigationButtonLongPress$2: matches action.contains("home"), executes GlobalActionBridge.handleAction(context, "prefs_key_navigation_bar_home_long_press").
   3. NavigationButtonLongPress & NavigationButtonLongPress$3: hooks MiuiShortcutTriggerHelper.supportAOSPTriggerFunction(int), forcing return TRUE when keyCode == 3.
 
---- [PATCH: UI-01] POCO LAUNCHER (com.mi.android.globallauncher) VISIBILITY FIX [REVERTED] ---
+--- [PATCH: UI-01] [STATUS: REVERTED] POCO LAUNCHER (com.mi.android.globallauncher) VISIBILITY FIX ---
 - Status: REVERTED per user request (2026-11-16 12:53:00 EET).
 - Original Cause: HeaderManager.isHeaderAvailable called PackagesUtils.checkAppStatus("com.miui.home"). While isUninstall had a fallback for "com.mi.android.globallauncher", isHidden threw NameNotFoundException on "com.miui.home" and returned true, marking POCO Launcher as hidden and removing it from all UI lists.
 - Revert Action:
@@ -250,7 +255,7 @@ Target Source Package:
 Timestamp Registered: 2026-11-16 12:45:00 EET
 ================================================================================
 
---- [PATCH: CTS-01] CIRCLE TO SEARCH NATIVE INTEGRATION & UI VISIBILITY ---
+--- [PATCH: CTS-01] [STATUS: MERGED_TO_FORK] CIRCLE TO SEARCH NATIVE INTEGRATION & UI VISIBILITY ---
 [TIMESTAMP]: 2026-11-16 12:45:00 EET
 - Root Cause:
   1. In HyperOS, triggering Google Voice Assistant or OEM search delegates to `IOverviewProxy`, which fails silently when Nova Launcher (or any non-stock launcher) is active.
