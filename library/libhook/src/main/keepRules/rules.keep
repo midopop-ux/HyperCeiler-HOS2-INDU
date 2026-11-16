@@ -34,6 +34,7 @@
 # --- HyperCeiler Core ---
 -keep class com.sevtinge.hyperceiler.libhook.app.** { *; }
 -keep class com.sevtinge.hyperceiler.libhook.rules.** { *; }
+-keep class com.sevtinge.hyperceiler.libhook.corepatch.** { *; }
 -keep class com.sevtinge.hyperceiler.libhook.safecrash.** { *; }
 -keep class * extends com.sevtinge.hyperceiler.libhook.base.BaseHook { <init>(...); }
 

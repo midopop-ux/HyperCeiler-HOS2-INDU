@@ -13,6 +13,15 @@ on:
       - "app/src/assets/**"
       - "crowdin.yml"
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
 
 jobs:
   build_app:
@@ -50,11 +59,17 @@ jobs:
           echo "GIT_ACTOR=${{ secrets.GIT_ACTOR || github.actor }}" >> $GITHUB_ENV
           echo "GIT_TOKEN=${{ secrets.GIT_TOKEN || github.token }}" >> $GITHUB_ENV
 
-      - name: Build with Gradle (Debug)
+      - name: Build with Gradle
         shell: bash
         run: |
-          ./gradlew assembleDebug
-          echo "IS_DEBUG=true" >> $GITHUB_ENV
+          BUILD_TYPE="${{ inputs.build_type || 'release' }}"
+          if [ "$BUILD_TYPE" = "debug" ]; then
+            ./gradlew assembleDebug
+            echo "IS_DEBUG=true" >> $GITHUB_ENV
+          else
+            ./gradlew assembleRelease
+            echo "IS_DEBUG=false" >> $GITHUB_ENV
+          fi
 
       - name: Find APKs
         run: |
