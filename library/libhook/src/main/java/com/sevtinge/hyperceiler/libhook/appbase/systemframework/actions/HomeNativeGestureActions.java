@@ -127,6 +127,7 @@ public final class HomeNativeGestureActions {
             Bundle bundle = new Bundle();
             bundle.putLong("invocation_time_ms", SystemClock.elapsedRealtime());
             bundle.putInt("omni.entry_point", CTS_ENTRY_POINT_GESTURE);
+            bundle.putBoolean("micts_trigger", true);
 
             Class<?> serviceManagerClass = loadClass("android.os.ServiceManager", ClassLoader.getSystemClassLoader());
             IBinder binder = (IBinder) findMethodExactIfExists(serviceManagerClass, "getService", String.class)

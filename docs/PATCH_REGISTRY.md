@@ -193,3 +193,80 @@ Timestamp Registered: 2026-11-16 07:40:00 EET
   * `library/core/src/main/res/xml/system_ui_navigation.xml`
   * `library/core/src/main/res/values/strings_app.xml`
   * Registered in: `SystemFrameworkV.java` & `SystemFrameworkB.java`
+
+--- [PATCH: NB-02] FORCE HOME KEY LONG PRESS SUPPORT (NOVA LAUNCHER COMPATIBILITY) ---
+[TIMESTAMP]: 2026-11-16 11:35:00 EET
+- Smali Target:
+  * Lcom/android/server/policy/MiuiSingleKeyRule;->supportLongPress()Z
+  * Helper class: `NavigationButtonLongPress$3.smali`
+- Problem & Discovery:
+  * When using third-party launchers (e.g. Nova Launcher) or when Circle to Search is bound to Home in OEM settings without POCO Launcher set as default, Xiaomi's `MiuiSingleKeyRule.supportLongPress()` returns `false` for KEYCODE_HOME (3).
+  * This prevented the system from ever waiting for the long press timer or calling `getFunction("long_press_home_key")`.
+- Logic & Fix:
+  * Hook `MiuiSingleKeyRule.supportLongPress()`.
+  * Inspect `mKeyCode` via `getIntField(this, "mKeyCode")`.
+  * If `mKeyCode == 3` (KeyEvent.KEYCODE_HOME):
+    - Call `param.setResult(Boolean.TRUE)` directly and unconditionally (identical to MiCTS architecture).
+  * Forces the Android System Server framework to always listen to and activate Home key long press timer regardless of launcher default status.
+- Source Update Status:
+  * Bytecode applied, zipalign-verified, and signed with `CN=MIDO` keystore in `/storage/emulated/0/Download/HyperCeiler-2.10.166-20261116-release_signed.apk`.
+  * Successfully installed on device over previous package via root.
+
+================================================================================
+MODULE 2: Home Long Press & POCO Launcher UI Visibility Fix
+Source Files: 
+  - smali/com/sevtinge/hyperceiler/libhook/rules/systemframework/navbar/NavigationButtonLongPress$1.smali
+  - smali/com/sevtinge/hyperceiler/libhook/rules/systemframework/navbar/NavigationButtonLongPress$2.smali
+  - smali/com/sevtinge/hyperceiler/libhook/rules/systemframework/navbar/NavigationButtonLongPress$3.smali
+  - smali/com/sevtinge/hyperceiler/libhook/rules/systemframework/navbar/NavigationButtonLongPress.smali
+  - smali/ts.smali (PackagesUtils / HeaderManager)
+Target Source Package:
+  - com.sevtinge.hyperceiler.libhook.rules.systemframework.navbar.NavigationButtonLongPress.java
+  - com.sevtinge.hyperceiler.utils.PackagesUtils.java
+Timestamp Registered: 2026-11-16 12:08:00 EET
+================================================================================
+
+--- [PATCH: NAV-01] HOME LONG PRESS ACTION REDIRECTION & TRIGGER ---
+- Root Cause: HyperOS routes Home key through HomeKeyRule with action "long_press_home_key_no_ui". Original hook only matched "long_press_home_key". Furthermore, supportAOSPTriggerFunction(3) in MiuiShortcutTriggerHelper checked assist_long_press_home_enabled setting which is null or disabled.
+- Fix:
+  1. NavigationButtonLongPress$1: matches action.contains("home"), returns "custom_nav_home_long".
+  2. NavigationButtonLongPress$2: matches action.contains("home"), executes GlobalActionBridge.handleAction(context, "prefs_key_navigation_bar_home_long_press").
+  3. NavigationButtonLongPress & NavigationButtonLongPress$3: hooks MiuiShortcutTriggerHelper.supportAOSPTriggerFunction(int), forcing return TRUE when keyCode == 3.
+
+--- [PATCH: UI-01] POCO LAUNCHER (com.mi.android.globallauncher) VISIBILITY FIX [REVERTED] ---
+- Status: REVERTED per user request (2026-11-16 12:53:00 EET).
+- Original Cause: HeaderManager.isHeaderAvailable called PackagesUtils.checkAppStatus("com.miui.home"). While isUninstall had a fallback for "com.mi.android.globallauncher", isHidden threw NameNotFoundException on "com.miui.home" and returned true, marking POCO Launcher as hidden and removing it from all UI lists.
+- Revert Action:
+  - Removed `move-object p1, v4` from `ts.smali`, restoring original isHeaderAvailable package resolution behavior exactly as it was.
+
+================================================================================
+MODULE 3: Circle to Search (CTS) Trigger & UI Renaming (Offline / Non-Stock Launcher)
+Source Files:
+  - smali/com/sevtinge/hyperceiler/sub/MultiActionSettings.smali
+  - smali/rr.smali (GlobalActionBridge)
+Target Source Package:
+  - com.sevtinge.hyperceiler.sub.MultiActionSettings.java
+  - com.sevtinge.hyperceiler.libhook.appbase.systemframework.GlobalActionBridge.java
+Timestamp Registered: 2026-11-16 12:45:00 EET
+================================================================================
+
+--- [PATCH: CTS-01] CIRCLE TO SEARCH NATIVE INTEGRATION & UI VISIBILITY ---
+[TIMESTAMP]: 2026-11-16 12:45:00 EET
+- Root Cause:
+  1. In HyperOS, triggering Google Voice Assistant or OEM search delegates to `IOverviewProxy`, which fails silently when Nova Launcher (or any non-stock launcher) is active.
+  2. HyperCeiler previously only allowed "Circle to Search" to show up under specific gestures (`supportsAssistantGestureAction()`).
+  3. Action ID 20 (`prefs_key_google_voice_assistant`) dispatched to `SystemUiProxyWrapper` which is disconnected when stock launcher isn't default.
+  4. The Voice Interaction Manager Service (`VIMS`) hooker expects `bundle.putBoolean("micts_trigger", true)` to hook `Resources.getString` for Contextual Search.
+- Fix & Bytecode Implementation:
+  1. In `MultiActionSettings.smali`:
+     - Modified `supportsAssistantGestureAction()` to return `true` unconditionally, allowing Circle to Search (`prefs_key_google_circle_to_search`) to be selected for Navigation Bar actions.
+     - In `generateScreenColorPreference()`, added key check for `prefs_key_google_voice_assistant` to display its title as "Circle to Search" in the UI.
+  2. In `rr.smali` (`GlobalActionBridge`):
+     - Action ID 20 (`prefs_key_google_voice_assistant`) was redirected from the broken `SystemUiProxyWrapper` directly into the Voice Interaction CTS pipeline (jumped to `:pswitch_4`).
+     - In the CTS voice interaction Bundle preparation, added `bundle.putBoolean("micts_trigger", true)`. This activates the VIMS contextual search hook in LSPosed, enabling Google Circle to Search to pop up instantly and reliably even when Nova Launcher is the default launcher.
+- Status:
+  - Bytecode assembled via `apktool b`.
+  - Aligned via `zipalign -p 4`.
+  - Signed via `apksigner` with `permanent_release.keystore` (CN=MIDO, alias `mido`).
+  - Saved to `/storage/emulated/0/Download/HyperCeiler-2.10.166-20261116-release_signed.apk`.
+  - Installed successfully on device via root/pm.

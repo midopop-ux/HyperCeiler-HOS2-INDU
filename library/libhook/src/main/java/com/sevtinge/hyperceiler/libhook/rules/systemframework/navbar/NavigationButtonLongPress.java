@@ -24,15 +24,15 @@ public class NavigationButtonLongPress extends BaseHook {
                 String action = (String) param.getArgs()[0];
                 if (action == null) return;
 
-                if ("long_press_back_key".equals(action)) {
+                if (action.contains("back")) {
                     if (PrefsBridge.getInt("prefs_key_navigation_bar_back_long_press_action", 0) > 0) {
                         param.setResult("custom_nav_back_long");
                     }
-                } else if ("long_press_home_key".equals(action)) {
+                } else if (action.contains("home")) {
                     if (PrefsBridge.getInt("prefs_key_navigation_bar_home_long_press_action", 0) > 0) {
                         param.setResult("custom_nav_home_long");
                     }
-                } else if ("long_press_menu_key".equals(action)) {
+                } else if (action.contains("menu")) {
                     if (PrefsBridge.getInt("prefs_key_navigation_bar_menu_long_press_action", 0) > 0) {
                         param.setResult("custom_nav_menu_long");
                     }
@@ -62,6 +62,29 @@ public class NavigationButtonLongPress extends BaseHook {
                         GlobalActionBridge.handleAction(context, prefKey);
                         param.setResult(Boolean.TRUE);
                     }
+                }
+            }
+        });
+
+        findAndHookMethod("com.android.server.policy.MiuiShortcutTriggerHelper", "supportAOSPTriggerFunction", int.class, new IMethodHook() {
+            @Override
+            public void before(HookParam param) {
+                int keyCode = (int) param.getArgs()[0];
+                if (keyCode == 3) {
+                    param.setResult(Boolean.TRUE);
+                }
+            }
+        });
+
+        findAndHookMethod("com.android.server.policy.MiuiSingleKeyRule", "supportLongPress", new IMethodHook() {
+            @Override
+            public void before(HookParam param) {
+                try {
+                    int keyCode = getIntField(param.getThisObject(), "mKeyCode");
+                    if (keyCode == 3) {
+                        param.setResult(Boolean.TRUE);
+                    }
+                } catch (Throwable ignored) {
                 }
             }
         });

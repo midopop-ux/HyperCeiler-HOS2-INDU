@@ -166,8 +166,7 @@ public final class GlobalActionBridge {
             case ACTION_ID_LOCK_SCREEN -> lockScreen(context);
             case ACTION_ID_SUPER_XIAOAI -> HomeNativeGestureActions.launchSuperXiaoAi(context);
             case ACTION_ID_SUPER_XIAOAI_SCREEN_RECOGNIZER -> HomeNativeGestureActions.launchSuperXiaoAiScreenRecognizer(context);
-            case ACTION_ID_GOOGLE_CIRCLE_TO_SEARCH -> launchGoogleCircleToSearch(context);
-            case ACTION_ID_GOOGLE_VOICE_ASSISTANT -> HomeNativeGestureActions.launchGoogleVoiceAssistant(context);
+            case ACTION_ID_GOOGLE_CIRCLE_TO_SEARCH, ACTION_ID_GOOGLE_VOICE_ASSISTANT -> launchGoogleCircleToSearch(context);
             default -> false;
         };
     }

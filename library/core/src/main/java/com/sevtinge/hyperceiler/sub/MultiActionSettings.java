@@ -240,7 +240,11 @@ public class MultiActionSettings extends SettingsPreferenceFragment
             } else {
                 RadioButtonPreference radioButtonPreference = new RadioButtonPreference(getThemedContext());
                 radioButtonPreference.setKey(mMultiActionKeys[i]);
-                radioButtonPreference.setTitle(multiActionTitles[i]);
+                if ("prefs_key_google_voice_assistant".equals(mMultiActionKeys[i])) {
+                    radioButtonPreference.setTitle("Circle to Search");
+                } else {
+                    radioButtonPreference.setTitle(multiActionTitles[i]);
+                }
                 radioButtonPreference.setPersistent(false);
                 radioButtonPreference.setLayoutResource(fan.preference.R.layout.miuix_preference_radiobutton_two_state_background);
                 radioButtonPreference.setOnPreferenceChangeListener(this);
@@ -281,10 +285,7 @@ public class MultiActionSettings extends SettingsPreferenceFragment
     }
 
     private boolean supportsAssistantGestureAction() {
-        return "prefs_key_home_gesture_line_long_press".equals(mKey)
-            || "prefs_key_home_gesture_line_double_click".equals(mKey)
-            || "prefs_key_home_navigation_assist_left_slide".equals(mKey)
-            || "prefs_key_home_navigation_assist_right_slide".equals(mKey);
+        return true;
     }
 
     private PreferenceCategory generateCategory() {
