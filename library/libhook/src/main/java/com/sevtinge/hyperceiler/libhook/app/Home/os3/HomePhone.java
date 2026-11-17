@@ -1,4 +1,3 @@
-import com.sevtinge.hyperceiler.libhook.rules.home.gesture.GestureLine;
 /*
  * This file is part of HyperCeiler.
 
@@ -19,6 +18,7 @@ import com.sevtinge.hyperceiler.libhook.rules.home.gesture.GestureLine;
  */
 package com.sevtinge.hyperceiler.libhook.app.Home.os3;
 
+import com.sevtinge.hyperceiler.libhook.rules.home.gesture.GestureLine;
 import com.hchen.database.HookBase;
 import com.sevtinge.hyperceiler.common.utils.PrefsBridge;
 import com.sevtinge.hyperceiler.libhook.base.BaseLoad;
