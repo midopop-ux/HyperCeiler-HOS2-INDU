@@ -175,9 +175,9 @@ public class PackagesUtils {
      * @return 状态
      */
     public static boolean isHidden(Context context, String pkg) {
+        if (context == null) return false;
+        PackageManager packageManager = context.getPackageManager();
         try {
-            if (context == null) return false;
-            PackageManager packageManager = context.getPackageManager();
             packageManager.getApplicationInfo(pkg, 0);
             return false;
         } catch (PackageManager.NameNotFoundException e) {
