@@ -23,6 +23,13 @@ SECTION 0: REGISTRY DIRECTIVES & OPERATIONAL CONTRACT
    - Offline Smali Lock: When working locally/offline, never trigger GitHub Actions API dispatches, never push to remote repositories, and keep all operations strictly local.
    - Filesystem Safety Lock: Strictly prohibit destructive operations (`rm`, `mv`) outside the local scratch/workspace directory.
 
+5. Strict Anti-Obfuscation Directive (Compulsory Structural Heuristics):
+   - [FATAL PROHIBITION]: Strictly prohibited from documenting or indexing patches using obfuscated short names (e.g. `a.smali`, `wv6.smali`, `mqptwwwhxutActivity`), as R8/ProGuard reshuffles all identifiers across builds.
+   - [MANDATORY STANDARD]: Every smali/bytecode patch MUST be anchored using permanent invariants:
+     1. Unobfuscated string constants (UI texts, preference keys, system action strings).
+     2. Android Framework / Jetpack API signatures (`setContent`, `Activity` lifecycle, `mutableStateOf`).
+     3. Opcode execution patterns and bytecode structural logic.
+
 ================================================================================
 SECTION 1 [PINNED TOP ANCHOR]: SukiSU Nova Splash Screen Removal (Universal Heuristic)
 Target App / Package: com.sukisu.nova
