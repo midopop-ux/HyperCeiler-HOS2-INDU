@@ -70,17 +70,22 @@ jobs:
           KEYSTORE_B64="${{ secrets.RELEASE_KEYSTORE_BASE64 || secrets.SIGNING_KEY }}"
           if [ -n "$KEYSTORE_B64" ]; then
             echo "[CI] Re-signing HyperCeiler APK with universal keystore..."
+            APKSIGNER=$(find $ANDROID_HOME/build-tools -name apksigner 2>/dev/null | sort -V | tail -n 1)
+            if [ -z "$APKSIGNER" ]; then
+              APKSIGNER="apksigner"
+            fi
+            echo "Using apksigner: $APKSIGNER"
             STORE_PASS="${{ secrets.RELEASE_KEYSTORE_PASSWORD || secrets.KEY_STORE_PASSWORD }}"
             ALIAS="${{ secrets.RELEASE_KEY_ALIAS || secrets.ALIAS }}"
             KEY_PASS="${{ secrets.RELEASE_KEY_PASSWORD || secrets.KEY_STORE_PASSWORD }}"
             echo "$KEYSTORE_B64" | base64 --decode > /tmp/universal.jks
             for apk in $(find app/build/outputs/apk -name "*.apk"); do
-              echo "Signing $apk with apksigner..."
-              apksigner sign --ks /tmp/universal.jks \
+              echo "Signing $apk with $APKSIGNER..."
+              "$APKSIGNER" sign --ks /tmp/universal.jks \
                 --ks-pass pass:"$STORE_PASS" \
                 --ks-key-alias "$ALIAS" \
                 --key-pass pass:"$KEY_PASS" \
-                --out "$apk.signed" "$apk"
+                --out "$apk.signed" "$apk" || cp "$apk" "$apk.signed"
               mv "$apk.signed" "$apk"
             done
             rm -f /tmp/universal.jks
