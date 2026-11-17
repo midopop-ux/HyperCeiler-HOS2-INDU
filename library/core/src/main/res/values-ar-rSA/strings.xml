@@ -75,7 +75,7 @@
     <!--System UI-->
     <string name="system_ui">واجهة مستخدم النظام</string>
     <!--System launcher-->
-    <string name="mihome">مشغل النظام</string>
+    <string name="mihome">POCO Launcher</string>
     <!--Settings-->
     <string name="system_settings">الإعدادات</string>
     <!--Security/Tablet security center-->
