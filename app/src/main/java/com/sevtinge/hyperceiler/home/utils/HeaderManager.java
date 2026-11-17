@@ -54,12 +54,6 @@ public class HeaderManager {
             if (header == null) {
                 continue;
             }
-            if ("com.miui.home".equals(header.summary)) {
-                if (com.sevtinge.hyperceiler.utils.PackagesUtils.isInstalled(context, "com.mi.android.globallauncher")) {
-                    header.title = "POCO Launcher";
-                    header.summary = "com.mi.android.globallauncher";
-                }
-            }
             header.displayStatus = shouldDisplayHeader(context, header, removeList, scopePackages, useScopeSync);
         }
     }

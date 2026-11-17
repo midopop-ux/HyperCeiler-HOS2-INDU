@@ -235,6 +235,13 @@
 
     <header
         android:icon="@drawable/ic_default"
+        android:id="@+id/poco_home"
+        android:summary="com.mi.android.globallauncher"
+        android:title="POCO Launcher"
+        android:fragment="com.sevtinge.hyperceiler.hooker.PocoLauncherFragment"/>
+
+    <header
+        android:icon="@drawable/ic_default"
         android:id="@+id/huanji"
         android:summary="com.miui.huanji"
         android:title="@string/huanji"
