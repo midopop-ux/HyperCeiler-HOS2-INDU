@@ -91,7 +91,6 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
         } catch (Throwable t) {
             XposedLog.w(TAG, "Failed to hook OverviewComponentObserver.updateOverviewTargets: " + t.getMessage());
         }
-    }
 
         // 4. Hook NavStubView for instant Home (0ms), Hold for Recents (0.5s), and gesture support
         try {
@@ -132,4 +131,5 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
             XposedLog.w(TAG, "Failed to hook NavStubView: " + t.getMessage());
         }
 
+    }
 }
