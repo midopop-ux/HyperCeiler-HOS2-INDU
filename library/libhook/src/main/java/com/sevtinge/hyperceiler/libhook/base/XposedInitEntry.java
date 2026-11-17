@@ -157,8 +157,9 @@ public class XposedInitEntry extends XposedModule {
 
     private ModuleMatcher.MatchContext buildMatchContext(String packageName, HashMap<String, DataBase> dataMap) {
         boolean isSystemServer = BaseLoad.SYSTEM_SERVER.equals(packageName);
+        String targetLookup = "com.mi.android.globallauncher".equals(packageName) ? "com.miui.home" : packageName;
         boolean hasExactMatch = dataMap.values().stream()
-            .anyMatch(data -> packageName.equals(data.targetPackage));
+            .anyMatch(data -> packageName.equals(data.targetPackage) || (data.targetPackage != null && data.targetPackage.equals(targetLookup)));
 
         return ModuleMatcher.MatchContext.builder()
             .systemServer(isSystemServer)

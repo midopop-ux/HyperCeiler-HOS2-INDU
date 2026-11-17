@@ -165,6 +165,10 @@ public class HeaderManager {
         for (String packageName : scopePackages) {
             if (homePackages.contains(packageName)) {
                 currentPackages.add(packageName);
+            } else if ("com.mi.android.globallauncher".equals(packageName) && homePackages.contains("com.miui.home")) {
+                currentPackages.add(packageName);
+            } else if ("com.miui.home".equals(packageName) && homePackages.contains("com.mi.android.globallauncher")) {
+                currentPackages.add(packageName);
             }
         }
         return currentPackages;

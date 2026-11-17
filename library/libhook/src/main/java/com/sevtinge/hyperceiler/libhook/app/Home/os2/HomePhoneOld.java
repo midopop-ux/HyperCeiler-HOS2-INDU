@@ -76,6 +76,7 @@ import com.sevtinge.hyperceiler.libhook.rules.home.navigation.BackGestureAreaHei
 import com.sevtinge.hyperceiler.libhook.rules.home.navigation.BackGestureAreaWidth;
 import com.sevtinge.hyperceiler.libhook.rules.home.navigation.DisableFullScreenBackGesture;
 import com.sevtinge.hyperceiler.libhook.rules.home.navigation.HideNavigationBar;
+import com.sevtinge.hyperceiler.libhook.rules.home.navigation.ThirdPartyLauncherGestureFix;
 import com.sevtinge.hyperceiler.libhook.rules.home.other.AllowShareApk;
 import com.sevtinge.hyperceiler.libhook.rules.home.other.AlwaysBlurWallpaper;
 import com.sevtinge.hyperceiler.libhook.rules.home.other.BlurRadius;
@@ -160,6 +161,7 @@ public class HomePhoneOld extends BaseLoad {
         initHook(new DisableFullScreenBackGesture(), PrefsBridge.getBoolean("home_navigation_disable_full_screen_back_gesture"));
         initHook(new BackGestureAreaHeight(), PrefsBridge.getInt("home_navigation_back_area_height", 60) != 60);
         initHook(new BackGestureAreaWidth(), PrefsBridge.getInt("home_navigation_back_area_width", 100) != 100);
+        initHook(new ThirdPartyLauncherGestureFix(), true);
 
         // 布局
         initHook(LayoutRules.INSTANCE, PrefsBridge.getBoolean("home_layout_unlock_grids_new") ||

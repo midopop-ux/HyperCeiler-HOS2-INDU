@@ -144,6 +144,17 @@ public class PackagesUtils {
                 return true;
             }
         } catch (PackageManager.NameNotFoundException e) {
+            if ("com.miui.home".equals(pkg)) {
+                try {
+                    ApplicationInfo result = packageManager.getApplicationInfo("com.mi.android.globallauncher", 0);
+                    return !result.enabled;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            } else if ("com.android.fileexplorer".equals(pkg)) {
+                try {
+                    ApplicationInfo result = packageManager.getApplicationInfo("com.mi.android.globalFileexplorer", 0);
+                    return !result.enabled;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            }
             return false;
         }
         return false;
@@ -170,6 +181,17 @@ public class PackagesUtils {
             packageManager.getApplicationInfo(pkg, 0);
             return false;
         } catch (PackageManager.NameNotFoundException e) {
+            if ("com.miui.home".equals(pkg)) {
+                try {
+                    packageManager.getApplicationInfo("com.mi.android.globallauncher", 0);
+                    return false;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            } else if ("com.android.fileexplorer".equals(pkg)) {
+                try {
+                    packageManager.getApplicationInfo("com.mi.android.globalFileexplorer", 0);
+                    return false;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            }
             return true;
         }
     }

@@ -134,7 +134,23 @@ object ScopeManager {
     @JvmStatic
     fun containsScopePackage(scopePackages: Collection<String>?, packageName: String?): Boolean {
         val normalizedPackage = normalizeScopePackageName(packageName) ?: return false
-        return normalizeScopePackages(scopePackages).contains(normalizedPackage)
+        val normalizedSet = normalizeScopePackages(scopePackages)
+        if (normalizedSet.contains(normalizedPackage)) {
+            return true
+        }
+        if (normalizedPackage == "com.miui.home" && normalizedSet.contains("com.mi.android.globallauncher")) {
+            return true
+        }
+        if (normalizedPackage == "com.mi.android.globallauncher" && normalizedSet.contains("com.miui.home")) {
+            return true
+        }
+        if (normalizedPackage == "com.android.fileexplorer" && normalizedSet.contains("com.mi.android.globalfileexplorer")) {
+            return true
+        }
+        if (normalizedPackage == "com.mi.android.globalfileexplorer" && normalizedSet.contains("com.android.fileexplorer")) {
+            return true
+        }
+        return false
     }
 
     /**

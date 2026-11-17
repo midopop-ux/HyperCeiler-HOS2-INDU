@@ -322,3 +322,55 @@ Timestamp Registered: 2026-11-16 13:16:33 EET
   - Installed via root: `cat <apk> | su -c "pm install -r -S <size>"`.
   - Tested and verified: Splash completely gone, dark mode opens instantly.
 
+================================================================================
+MODULE 5: Third-Party Launcher Full Screen Gestures Unlock (POCO Launcher / MIUI Home)
+Source Origin: com.mi.android.globallauncher / com.miui.home
+Target Source Package: com.sevtinge.hyperceiler.libhook.rules.home.navigation.ThirdPartyLauncherGestureFix
+Target Smali Files:
+  - smali/com/sevtinge/hyperceiler/libhook/rules/home/navigation/ThirdPartyLauncherGestureFix.smali
+  - smali/com/sevtinge/hyperceiler/libhook/rules/home/navigation/ThirdPartyLauncherGestureFix$TrueReplacer.smali
+  - smali/com/sevtinge/hyperceiler/libhook/rules/home/navigation/ThirdPartyLauncherGestureFix$BaseRecentsImplHooker.smali
+  - smali/com/sevtinge/hyperceiler/libhook/rules/home/navigation/ThirdPartyLauncherGestureFix$OverviewComponentHooker.smali
+  - smali/com/sevtinge/hyperceiler/libhook/app/Home/os2/HomePhoneOld.smali
+  - smali/com/sevtinge/hyperceiler/libhook/base/XposedInitEntry.smali
+Timestamp Registered: 2026-11-16 22:23:00 EET
+================================================================================
+
+--- [PATCH: GESTURE-01] [STATUS: MERGED_TO_FORK] THIRD-PARTY LAUNCHER FULL SCREEN GESTURES UNLOCK ---
+[TIMESTAMP]: 2026-11-17 05:28:00 EET
+- Root Cause:
+  1. UI Warning Lock: When non-stock launcher (e.g. Nova Launcher) is default, opening "System navigation" and tapping "Gestures" calls `BuildConfigUtils.isUsePocoHomeAsCurrentDefaultHome()` / `isUseMiuiHomeAsDefaultHome()`. If neither is default home, it triggers an AlertDialog blocking gesture selection.
+  2. Runtime Touch & Stub Dismantle: If `force_fsg_nav_bar` is enabled, `OverviewComponentObserver.updateOverviewTargets()` detects `mIsHomeAndOverviewSame == false` and calls `BaseRecentsImpl.setIsUseMiuiHomeAsDefaultHome(false)`. This in turn causes `updateFsgWindowState()` to invoke `removeNavStubView()` and `clearBackStubWindow()`, effectively killing edge swipes (Back) and bottom swipes (Home / Recents) after the first event.
+- Fix & Source Code Implementation:
+  1. Created `ThirdPartyLauncherGestureFix.java`:
+     - Intercepts `BuildConfigUtils` methods (`isUsePocoHomeAsCurrentDefaultHome`, `isUsePocoHomeAsDefaultHome(Context)`, `isUseMiuiHomeAsDefaultHome(Context)`) to return `Boolean.TRUE` unconditionally.
+     - Hooks `BaseRecentsImpl.setIsUseMiuiHomeAsDefaultHome(boolean)` to always replace argument 0 with `Boolean.TRUE`.
+     - Hooks `OverviewComponentObserver.updateOverviewTargets()` (after): sets `mIsHomeAndOverviewSame = true` and reinforces `BaseRecentsImpl.setIsUseMiuiHomeAsDefaultHome(true)` to keep gesture windows and touch stubs permanently alive.
+  2. Registered hook in:
+     - `HomePhoneOld.java` (OS 2)
+     - `HomePhone.java` (OS 3)
+  3. In `XposedInitEntry.java`:
+     - Added package alias mapping for `com.mi.android.globallauncher` -> `com.miui.home` to ensure exact match detection during module bootstrap.
+
+================================================================================
+MODULE 6: POCO Launcher UI Visibility & Header Support
+Source Origin: com.mi.android.globallauncher / com.miui.home
+Target Source Package:
+  - com.sevtinge.hyperceiler.utils.PackagesUtils.java
+  - com.sevtinge.hyperceiler.utils.ScopeManager.kt
+  - com.sevtinge.hyperceiler.home.utils.HeaderManager.java
+Timestamp Registered: 2026-11-17 05:28:00 EET
+================================================================================
+
+--- [PATCH: UI-02] [STATUS: MERGED_TO_FORK] POCO LAUNCHER HYPERCEILER HOME LIST VISIBILITY ---
+[TIMESTAMP]: 2026-11-17 05:28:00 EET
+- Root Cause:
+  1. HyperCeiler defines its Home header with summary `com.miui.home`.
+  2. On POCO devices where `com.mi.android.globallauncher` is installed instead of `com.miui.home`, `PackagesUtils.isHidden(context, "com.miui.home")` threw `NameNotFoundException` and returned `true`, causing `HeaderManager.isHeaderAvailable` to evaluate to `false` and hiding the Home category from the main dashboard.
+  3. `ScopeManager.containsScopePackage` did not treat `com.mi.android.globallauncher` and `com.miui.home` as interchangeable aliases.
+- Fix & Implementation:
+  1. In `PackagesUtils.java`: Added fallback to `com.mi.android.globallauncher` inside `isDisable()` and `isHidden()`.
+  2. In `ScopeManager.kt`: Updated `containsScopePackage` to match `com.miui.home` <-> `com.mi.android.globallauncher` interchangeably.
+  3. In `HeaderManager.java`: Enhanced `getCurrentScopeManagedPackages` to recognize active scope for `com.mi.android.globallauncher` mapped to `com.miui.home`.
+
+
