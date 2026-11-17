@@ -233,12 +233,6 @@
         android:title="@string/mihome"
         android:fragment="com.sevtinge.hyperceiler.hooker.HomeFragment"/>
 
-    <header
-        android:icon="@drawable/ic_default"
-        android:id="@+id/poco_home"
-        android:summary="com.mi.android.globallauncher"
-        android:title="POCO Launcher"
-        android:fragment="com.sevtinge.hyperceiler.hooker.PocoLauncherFragment"/>
 
     <header
         android:icon="@drawable/ic_default"

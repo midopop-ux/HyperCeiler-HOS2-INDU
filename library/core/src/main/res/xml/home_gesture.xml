@@ -33,6 +33,12 @@
             android:summary="@string/home_navigation_third_party_launcher_desc"
             android:title="@string/home_navigation_third_party_launcher" />
 
+        <Preference
+            android:dependency="prefs_key_home_navigation_third_party_launcher"
+            android:key="prefs_key_home_gesture_bar_long_press_action_info"
+            android:title="Long press on Gesture Bar"
+            android:summary="Trigger Circle to Search matching Home button setting in Framework" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:key="prefs_key_home_navigation_quick_back"

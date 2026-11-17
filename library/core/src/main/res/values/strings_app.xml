@@ -1823,6 +1823,6 @@
     <string name="security_center_unlock_china_features_desc">Unlocks Game Turbo, toolbox, camera tools and advanced options hidden on global ROM</string>
     <string name="security_center_show_autostart_toggle">Show Autostart Toggle</string>
     <string name="security_center_show_autostart_toggle_desc">Shows direct Autostart toggle in App Info page and instantly updates system state</string>
-    <string name="home_navigation_third_party_launcher">إيماءات التنقل مع اللانشرات الخارجية</string>
-    <string name="home_navigation_third_party_launcher_desc">تفعيل إيماءات ملء الشاشة (الرجوع للهوم والريسنت) عند استخدام لانشر خارجي مثل Nova Launcher</string>
+    <string name="home_navigation_third_party_launcher">Gestures with 3rd-party launchers</string>
+    <string name="home_navigation_third_party_launcher_desc">Enable full screen gestures (Home & Recents) when using third-party launchers like Nova</string>
 </resources>

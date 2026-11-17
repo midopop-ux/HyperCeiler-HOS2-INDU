@@ -92,8 +92,40 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
             XposedLog.w(TAG, "Failed to hook OverviewComponentObserver.updateOverviewTargets: " + t.getMessage());
         }
 
-        // 4. Hook NavStubView for instant Home (0ms), Hold for Recents (0.5s), and gesture support
+        // 4. Hook NavStubView for instant Home (0ms), Hold for Recents, and gesture support
         try {
+            // Hook actionUpResolution: when user releases swipe up, immediately perform Home (0ms instant)
+            findAndHookMethod("com.miui.home.recents.NavStubView", "commonAppTouchFromDown", boolean.class, new IMethodHook() {
+                @Override
+                public void after(HookParam param) {
+                    try {
+                        Object navStub = param.getThisObject();
+                        Object stateMachine = getObjectField(navStub, "mStateMachine");
+                        if (stateMachine != null) {
+                            callMethod(stateMachine, "sendMessage", 11);
+                        }
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, "Error in commonAppTouchFromDown hook: " + t.getMessage());
+                    }
+                }
+            });
+
+            findAndHookMethod("com.miui.home.recents.NavStubView", "actionUpResolution", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    try {
+                        Object navStub = param.getThisObject();
+                        boolean isAppHold = getBooleanField(navStub, "mIsAppHold");
+                        int keyCode = isAppHold ? 187 : 3;
+                        callMethod(navStub, "injectKeyEventDownAndUp", keyCode);
+                        callMethod(navStub, "finishRecentsActivityDirectly");
+                        param.setResult(null);
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, "Error in actionUpResolution hook: " + t.getMessage());
+                    }
+                }
+            });
+
             // Force isAllowToAppHoldState to return TRUE so swipe-and-hold transitions to Recents
             findAndHookMethodReplace("com.miui.home.recents.NavStubView", "isAllowToAppHoldState", boolean.class, returnTrueHook);
 
