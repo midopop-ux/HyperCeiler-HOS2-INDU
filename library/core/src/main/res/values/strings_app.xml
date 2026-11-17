@@ -1824,5 +1824,5 @@
     <string name="security_center_show_autostart_toggle">Show Autostart Toggle</string>
     <string name="security_center_show_autostart_toggle_desc">Shows direct Autostart toggle in App Info page and instantly updates system state</string>
     <string name="home_navigation_third_party_launcher">Gestures with 3rd-party launchers</string>
-    <string name="home_navigation_third_party_launcher_desc">Enable full screen gestures (Home & Recents) when using third-party launchers like Nova</string>
+    <string name="home_navigation_third_party_launcher_desc">Enable full screen gestures (Home &amp; Recents) when using third-party launchers like Nova</string>
 </resources>
