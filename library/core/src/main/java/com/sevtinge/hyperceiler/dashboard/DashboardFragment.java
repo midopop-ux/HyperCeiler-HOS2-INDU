@@ -41,6 +41,7 @@ import com.sevtinge.hyperceiler.dashboard.DashboardFuncHintHelper.FuncHintRule;
 import com.sevtinge.hyperceiler.dashboard.DashboardFuncHintHelper.VersionRange;
 import com.sevtinge.hyperceiler.libhook.utils.pkg.CheckModifyUtils;
 import com.sevtinge.hyperceiler.utils.DialogHelper;
+import com.sevtinge.hyperceiler.utils.PackagesUtils;
 import com.sevtinge.hyperceiler.utils.ThreadUtils;
 
 import org.xmlpull.v1.XmlPullParser;
