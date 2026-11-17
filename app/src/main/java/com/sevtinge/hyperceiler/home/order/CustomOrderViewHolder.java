@@ -35,8 +35,10 @@ public class CustomOrderViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(Header header) {
-        titleTextView.setText(header.titleRes);
-        checkBox.setChecked(header.displayStatus);
+        if (header != null) {
+            titleTextView.setText(header.getTitle(itemView.getResources()));
+            checkBox.setChecked(header.displayStatus);
+        }
         setBackground(mRootView);
     }
 
