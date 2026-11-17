@@ -65,10 +65,17 @@ object GestureLine : HomeBaseHookNew() {
     override fun initBase() {
         val navStubGestureEventManagerClass =
             findClass("com.miui.home.recents.gesture.NavStubGestureEventManager")
+        navStubGestureEventManagerClass.findAllMethods { name("onLongPress") }.createBeforeHooks {
+                callMethod(it.thisObject, "handleLongPressEvent")
+                it.result = null
+        }
         navStubGestureEventManagerClass.findAllMethods { name("handleLongPressEvent") }.createBeforeHooks {
                 if (GlobalActionBridge.handleAction(
                         appContext,
                         "home_gesture_line_long_press"
+                    ) || GlobalActionBridge.handleAction(
+                        appContext,
+                        "prefs_key_navigation_bar_home_long_press"
                     )
                 ) {
                     it.result = null

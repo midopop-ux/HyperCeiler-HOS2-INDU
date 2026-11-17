@@ -207,6 +207,15 @@ public class PackagesUtils {
         try {
             if (context == null) return null;
             PackageManager packageManager = context.getPackageManager();
+            if ("com.miui.home".equals(pkg)) {
+                try {
+                    ApplicationInfo info = packageManager.getApplicationInfo(pkg, 0);
+                    return (String) info.loadLabel(packageManager);
+                } catch (PackageManager.NameNotFoundException ignored) {
+                    ApplicationInfo info = packageManager.getApplicationInfo("com.mi.android.globallauncher", 0);
+                    return (String) info.loadLabel(packageManager);
+                }
+            }
             ApplicationInfo info = packageManager.getApplicationInfo(pkg, 0);
             return (String) info.loadLabel(packageManager);
         } catch (PackageManager.NameNotFoundException e) {

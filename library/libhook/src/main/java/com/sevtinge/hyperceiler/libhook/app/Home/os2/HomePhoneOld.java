@@ -155,13 +155,14 @@ public class HomePhoneOld extends BaseLoad {
         initHook(new DoubleTap(), gesturesEnabled && PrefsBridge.getInt("home_gesture_double_tap_action", 0) > 0);
         initHook(new ScreenSwipe(), gesturesEnabled && hasScreenSwipeAction);
         initHook(new ShakeDevice(), gesturesEnabled && PrefsBridge.getInt("home_gesture_shake_action", 0) > 0);
-        initHook(GestureLine.INSTANCE, gesturesEnabled && hasGestureLineAction);
+        boolean hasHomeLongPress = PrefsBridge.getInt("prefs_key_navigation_bar_home_long_press_action", 0) > 0;
+        initHook(GestureLine.INSTANCE, (gesturesEnabled && hasGestureLineAction) || hasHomeLongPress);
         // initHook(new SwipeAndStop(), PrefsBridge.getInt("home_gesture_swipe_and_stop_action" ,0) > 0);
 
         initHook(new DisableFullScreenBackGesture(), PrefsBridge.getBoolean("home_navigation_disable_full_screen_back_gesture"));
         initHook(new BackGestureAreaHeight(), PrefsBridge.getInt("home_navigation_back_area_height", 60) != 60);
         initHook(new BackGestureAreaWidth(), PrefsBridge.getInt("home_navigation_back_area_width", 100) != 100);
-        initHook(new ThirdPartyLauncherGestureFix(), true);
+        initHook(new ThirdPartyLauncherGestureFix(), PrefsBridge.getBoolean("home_navigation_third_party_launcher", true));
 
         // 布局
         initHook(LayoutRules.INSTANCE, PrefsBridge.getBoolean("home_layout_unlock_grids_new") ||

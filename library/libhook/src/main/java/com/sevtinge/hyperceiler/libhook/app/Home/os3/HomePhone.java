@@ -1,3 +1,4 @@
+import com.sevtinge.hyperceiler.libhook.rules.home.gesture.GestureLine;
 /*
  * This file is part of HyperCeiler.
 
@@ -115,7 +116,7 @@ public class HomePhone extends BaseLoad {
         initHook(new ShakeDevice(), PrefsBridge.getInt("home_gesture_shake_action", 0) > 0);
         initHook(new BackGestureAreaHeight(), PrefsBridge.getInt("home_navigation_back_area_height", 60) != 60);
         initHook(new BackGestureAreaWidth(), PrefsBridge.getInt("home_navigation_back_area_width", 100) != 100);
-        initHook(new ThirdPartyLauncherGestureFix(), true);
+        initHook(new ThirdPartyLauncherGestureFix(), PrefsBridge.getBoolean("home_navigation_third_party_launcher", true));
 
         // 布局
         initHook(new SeekPoints(), PrefsBridge.getStringAsInt("home_other_seek_points", 0) > 0);
@@ -154,6 +155,12 @@ public class HomePhone extends BaseLoad {
             PrefsBridge.getBoolean("home_drawer_editor"));
         initHook(new AllAppsContainerViewSuperBlur(), PrefsBridge.getBoolean("home_drawer_blur_super"));
         initHook(new PinyinArrangement(), PrefsBridge.getBoolean("home_drawer_pinyin"));
+
+                // 手势线长按
+        boolean hasGestureLineAction = PrefsBridge.getInt("home_gesture_line_long_press_action", 0) > 0
+            || PrefsBridge.getInt("home_gesture_line_double_click_action", 0) > 0;
+        boolean hasHomeLongPress = PrefsBridge.getInt("prefs_key_navigation_bar_home_long_press_action", 0) > 0;
+        initHook(GestureLine.INSTANCE, hasGestureLineAction || hasHomeLongPress);
 
         // 最近任务
         initHook(new BackgroundBlur(), PrefsBridge.getBoolean("home_recent_blur"));

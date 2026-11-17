@@ -92,4 +92,44 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
             XposedLog.w(TAG, "Failed to hook OverviewComponentObserver.updateOverviewTargets: " + t.getMessage());
         }
     }
+
+        // 4. Hook NavStubView for instant Home (0ms), Hold for Recents (0.5s), and gesture support
+        try {
+            // Force isAllowToAppHoldState to return TRUE so swipe-and-hold transitions to Recents
+            findAndHookMethodReplace("com.miui.home.recents.NavStubView", "isAllowToAppHoldState", boolean.class, returnTrueHook);
+
+            // Hook enterAppHoldState to immediately inject KEYCODE_APP_SWITCH (187) and finish
+            findAndHookMethod("com.miui.home.recents.NavStubView", "enterAppHoldState", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    try {
+                        Object navStub = param.getThisObject();
+                        callMethod(navStub, "injectKeyEventDownAndUp", 187);
+                        callMethod(navStub, "finishRecentsActivityDirectly");
+                        param.setResult(null);
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, "Error in enterAppHoldState hook: " + t.getMessage());
+                    }
+                }
+            });
+
+            // Hook performAppToHome to immediately inject KEYCODE_HOME (3) with 0ms delay
+            findAndHookMethod("com.miui.home.recents.NavStubView", "performAppToHome", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    try {
+                        Object navStub = param.getThisObject();
+                        callMethod(navStub, "injectKeyEventDownAndUp", 3);
+                        callMethod(navStub, "finishRecentsActivityDirectly");
+                        param.setResult(null);
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, "Error in performAppToHome hook: " + t.getMessage());
+                    }
+                }
+            });
+            XposedLog.d(TAG, "Hooked NavStubView gesture triggers successfully");
+        } catch (Throwable t) {
+            XposedLog.w(TAG, "Failed to hook NavStubView: " + t.getMessage());
+        }
+
 }

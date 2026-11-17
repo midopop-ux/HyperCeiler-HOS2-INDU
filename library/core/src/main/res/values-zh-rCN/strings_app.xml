@@ -1725,4 +1725,6 @@
     <string name="security_center_unlock_china_features_desc">解锁国际版隐藏的 Game Turbo、工具箱、相机辅助工具等高级功能</string>
     <string name="security_center_show_autostart_toggle">显示自启动开关</string>
     <string name="security_center_show_autostart_toggle_desc">在应用详情页直接显示自启动控制开关并即时生效</string>
+    <string name="home_navigation_third_party_launcher">第三方桌面手势导航</string>
+    <string name="home_navigation_third_party_launcher_desc">使用第三方桌面（如 Nova Launcher）时启用全屏手势导航（返回桌面与最近任务）</string>
 </resources>

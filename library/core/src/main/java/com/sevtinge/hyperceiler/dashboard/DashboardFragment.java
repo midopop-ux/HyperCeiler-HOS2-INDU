@@ -140,7 +140,11 @@ public class DashboardFragment extends SettingsPreferenceFragment {
                     if ("system".equals(mQuickRestartPackageName)) {
                         DialogHelper.showRestartSystemDialog(getContext());
                     } else {
-                        DialogHelper.showRestartDialog(getContext(), mQuickRestartPackageName);
+                        String targetPkg = mQuickRestartPackageName;
+                        if ("com.miui.home".equals(targetPkg) && PackagesUtils.isInstalled(getContext(), "com.mi.android.globallauncher")) {
+                            targetPkg = "com.mi.android.globallauncher";
+                        }
+                        DialogHelper.showRestartDialog(getContext(), targetPkg);
                     }
                     return true;
                 }
