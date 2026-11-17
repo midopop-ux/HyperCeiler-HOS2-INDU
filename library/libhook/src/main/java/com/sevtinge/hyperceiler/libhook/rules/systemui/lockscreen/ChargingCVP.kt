@@ -68,20 +68,18 @@ object ChargingCVP : BaseHook() {
                     isSingleLine = false
                     textSize = 8.2f
                 }
-                if (showSpacingValue) {
-                    // 是否更改刷新频率
-                    setShowSpacing(clazzDependency, clazzKeyguardIndicationController, param)
-                }
             }
         }
 
 
         // 修改底部文本信息
-        findClassIfExists("com.miui.charge.ChargeUtils")?: findClass("com.android.keyguard.charge.ChargeUtils").findMethod { name("getChargingHintText"); paramCount(3) }
-            .createHook {
+        val clazzChargeUtils = findClassIfExists("com.miui.charge.ChargeUtils")
+            ?: findClassIfExists("com.android.keyguard.charge.ChargeUtils")
+        clazzChargeUtils?.findMethod { name("getChargingHintText"); paramCount(3) }
+            ?.createHook {
                 after { param ->
                     param.result = param.result?.let {
-                        "${getTemp()}$it\n${getCVP()}"
+                        "${getTemp()}${getCVP()}"
                     }
                 }
             }
@@ -206,9 +204,6 @@ object ChargingCVP : BaseHook() {
         runCatching {
             var current = 0.0
             var voltage = 0.0
-            val watt: Double by lazy {
-                current * voltage
-            }
 
             current = FileReader("/sys/class/power_supply/battery/current_now").use { fileReader ->
                 BufferedReader(fileReader).use { bufferedReader ->
@@ -221,22 +216,22 @@ object ChargingCVP : BaseHook() {
                 }
             }
 
-            // 计算功率信息
-            val power = String.format("%.2f", watt)
+            // 计算功率信息 (Dynamic watt calculation)
+            val watt = abs(current * voltage)
+            val power = String.format("%.1f", watt)
 
             // 电流展示逻辑设置
             val mCurrent = if (isShowMoreC) {
-                "${(current * 1000).toInt()} mA"
+                "${abs(current * 1000).toInt()} mA"
             } else {
                 "${String.format("%.1f", abs(current))} A"
             }
-            val mVoltage = "${String.format("%.1f", voltage)} V"
 
             // 判断充满信息是否归零
             val showBattery = if (current == 0.0) {
                 ""
             } else {
-                "$mCurrent · $mVoltage · $power W"
+                "$mCurrent ($power W)"
             }
 
             // 输出展示信息
