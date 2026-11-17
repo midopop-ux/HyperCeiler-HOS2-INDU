@@ -121,6 +121,10 @@ public class PackagesUtils {
         }
     }
 
+    public static boolean isInstalled(Context context, String pkg) {
+        return !isUninstall(context, pkg);
+    }
+
     /**
      * 同下，只不过不需要上下文。
      */
