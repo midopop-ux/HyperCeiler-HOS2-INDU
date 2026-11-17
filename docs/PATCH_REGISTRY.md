@@ -24,50 +24,75 @@ SECTION 0: REGISTRY DIRECTIVES & OPERATIONAL CONTRACT
    - Filesystem Safety Lock: Strictly prohibit destructive operations (`rm`, `mv`) outside the local scratch/workspace directory.
 
 ================================================================================
-SECTION 1 [PINNED TOP ANCHOR]: SukiSU Nova (com.sukisu.nova) Splash Screen Removal
-Source Origin: com.sukisu.nova (v3.0.0 / classes.dex)
+SECTION 1 [PINNED TOP ANCHOR]: SukiSU Nova Splash Screen Removal (Universal Heuristic)
 Target App / Package: com.sukisu.nova
-Target Activity: com.sukisu.nova.ui.mqptwwwhxutActivity (Launcher Target)
-Target Smali Files:
-  - apk_smali/smali/wv6.smali (Root Compose Content Layout & Splash Trigger)
-  - apk_smali/smali/pk6.smali (In-App Splash Composable Renderer: method `d`)
-Timestamp Registered: 2026-11-16 13:16:33 EET
+Primary Heuristic Anchor: String literal "Kernel-based Root Solution" (Persistent across all builds & R8 obfuscation)
+Timestamp Registered: 2026-11-16 (Initial) | 2026-11-17 (Updated with Universal Heuristics)
 ================================================================================
 
 --- [PATCH: SUKI-01] [TAG: Suki Splash] BYPASS IN-APP WHITE SPLASH SCREEN ---
-[TIMESTAMP]: 2026-11-16 13:16:33 EET
-- Root Cause:
-  1. `mqptwwwhxutActivity` loads root Compose tree via `wc5` -> `wv6`.
-  2. Inside `wv6`, a `MutableState<Boolean>` (`dl3Var5`) tracks `splashFinished`, initialized to `Boolean.FALSE` (`sget-object v7, Ljava/lang/Boolean;->FALSE`).
-  3. When `dl3Var5.getValue()` is false, `wv6` calls `Lpk6;->d(ZJLyz1;Lmv0;I)V`, which renders a hardcoded white background Compose overlay containing the anime avatar (`b41.r`), "SukiSU Nova", "Kernel-based Root Solution", and quote texts, completely ignoring system dark mode.
-- Bytecode Modification:
-  1. In `wv6.smali`:
-     - Line ~794: In the remember factory block of `dl3Var5`, changed:
+[CRITICAL LESSON LEARNED]:
+  * R8 obfuscation generates random class names (e.g. `mqptwwwhxutActivity`, `wv6`, `pk6` in Build X vs `gzdzdezpwsmActivity`, `vv6`, `bu0` in Build 35004).
+  * NEVER search by obfuscated class names. ALWAYS use the structural heuristic anchors below.
+
+[UNIVERSAL HEURISTIC IDENTIFICATION (FAST 2-STEP LOOKUP)]:
+  1. Root Activity Detection:
+     - Manifest Query: `aapt2 dump xmltree --file AndroidManifest.xml <apk> | grep -B 2 -A 5 "theme_trial"`
+     - Or search `.smali` files for string `"theme_trial"`. The Activity holding this is the Compose Launcher.
+  2. Root Compose & Splash Detection:
+     - Search for string `"Kernel-based Root Solution"` across all `.smali` files.
+       Command: `grep -rn "Kernel-based Root Solution" smali*/`
+     - That `.smali` file contains the Splash Composable rendering block.
+     - Look for the parent Compose tree layout calling it (the `setContent` delegate).
+     - In that parent file, locate:
+       a) The remember factory initializing the splash boolean state to `Boolean.FALSE`:
+          ```smali
+          sget-object v7, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;
+          invoke-static {v7}, Ll43;->M(Ljava/lang/Object;)Lwz3;
+          ```
+       b) The splash visibility gate:
+          ```smali
+          invoke-virtual {v3}, Ljava/lang/Boolean;->booleanValue()Z
+          move-result v3
+          if-nez v3, :cond_xx
+          ```
+
+[BYTECODE MODIFICATIONS (TWO-POINT BYPASS)]:
+  1. Point A (Initial State Bypass):
+     - Change:
        ```smali
        sget-object v7, Ljava/lang/Boolean;->FALSE:Ljava/lang/Boolean;
        ```
-       to:
+       To:
        ```smali
        sget-object v7, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
        ```
-     - Line ~1618: At the splash display gate:
+  2. Point B (Composable Gate Bypass):
+     - Change:
        ```smali
-       invoke-virtual {v3}, Ljava/lang/Boolean;->booleanValue()Z
-       move-result v3
-       if-nez v3, :cond_18
+       if-nez v3, :cond_xx
        ```
-       Changed `if-nez v3, :cond_18` to:
+       To:
        ```smali
-       goto :cond_18
+       goto :cond_xx
        ```
-       Forces Compose to completely bypass calling `Lpk6;->d` and follow the `splashFinished` block (`0x53672e68`), ensuring instant dark mode rendering directly to the dashboard.
-- Packaging & Status:
-  - Assembled via `apktool b`.
-  - Aligned via `zipalign -p -f 4`.
-  - Signed via `apksigner` with `permanent_release.keystore` (Alias: `mido`, pass: `000000`, v2+v3 scheme).
-  - Saved to `/storage/emulated/0/Download/SukiSU_Nova_NoSplash.apk`.
-  - Installed via root: `cat <apk> | su -c "pm install -r -S <size>"`.
-  - Tested and verified: Splash completely gone, dark mode opens instantly.
+     - Effect: Forces the Compose runtime to skip rendering the white splash overlay and transition directly to the main dashboard in system dark mode.
+
+[BUILD-SPECIFIC MAPPINGS FOR REFERENCE]:
+  * Build 35004 (v3.0.0):
+    - Activity: `com/sukisu/nova/ui/gzdzdezpwsmActivity.smali`
+    - Parent Compose Layout: `vv6.smali` (Line 794 & Line 1618)
+    - Splash Text Holder: `bu0.smali` (Line 4135)
+  * Historical Build (~35000):
+    - Activity: `mqptwwwhxutActivity.smali`
+    - Parent Compose Layout: `wv6.smali` (Line 794 & Line 1618)
+    - Splash Renderer: `pk6.smali` (method `d`)
+
+[PACKAGING & SIGNING PIPELINE]:
+  1. `apktool b <dir> -o unsigned.apk`
+  2. `zipalign -p -f 4 unsigned.apk aligned.apk`
+  3. `apksigner sign --ks /data/user/0/com.agy/files/.gemini/keystore/permanent_release.keystore --ks-key-alias mido --ks-pass pass:000000 --out <dest_apk> aligned.apk`
+  4. Verified with: `apksigner verify --verbose <dest_apk>` (v2 & v3 active)
 
 ================================================================================
 SECTION 2: DESCENDING AUDIT HISTORY (NEWEST FIRST)
