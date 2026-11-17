@@ -228,8 +228,8 @@
 
     <header
         android:icon="@drawable/ic_default"
-        android:id="@+id/home"
-        android:summary="com.miui.home"
+        android:id="@+id/poco_home"
+        android:summary="com.mi.android.globallauncher"
         android:title="@string/mihome"
         android:fragment="com.sevtinge.hyperceiler.hooker.HomeFragment"/>
 

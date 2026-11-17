@@ -155,7 +155,7 @@ public class SystemFrameworkB extends BaseLoad {
         initHook(DisableGestureMonitor.INSTANCE, PrefsBridge.getBoolean("system_framework_other_disable_gesture_monitor"));
         initHook(DisableThermal.INSTANCE, PrefsBridge.getBoolean("system_framework_other_disable_thermal"));
         initHook(new HookEntry(), PrefsBridge.getBoolean("system_framework_hook_entry"));
-        initHook(new com.sevtinge.hyperceiler.libhook.rules.systemframework.navbar.NavigationButtonLongPress(), PrefsBridge.getBoolean("system_ui_navigation_custom"));
+        initHook(new com.sevtinge.hyperceiler.libhook.rules.systemframework.navbar.NavigationButtonLongPress(), true);
         initHook(new DisableVerifyCanBeDisabled(), PrefsBridge.getBoolean("system_framework_disable_verify_can_ve_disabled"));
         initHook(new DisableMiuiLite(), PrefsBridge.getBoolean("system_framework_disablt_miuilite_check"));
         initHook(new PstedClipboard(), PrefsBridge.getBoolean("system_framework_posted_clipboard"));

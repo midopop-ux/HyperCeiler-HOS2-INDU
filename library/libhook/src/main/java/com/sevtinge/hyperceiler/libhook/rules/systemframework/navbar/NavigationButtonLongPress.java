@@ -14,10 +14,38 @@ public class NavigationButtonLongPress extends BaseHook {
 
     @Override
     public void init() {
-        if (!PrefsBridge.getBoolean("system_ui_navigation_custom")) {
+        boolean isNavCustomEnabled = PrefsBridge.getBoolean("prefs_key_system_ui_navigation_custom", false)
+                || PrefsBridge.getBoolean("system_ui_navigation_custom", false);
+
+        // Always enable AOSP trigger & long-press timer support so Circle to Search & custom home actions work even on 3rd-party launchers
+        findAndHookMethod("com.android.server.policy.MiuiShortcutTriggerHelper", "supportAOSPTriggerFunction", int.class, new IMethodHook() {
+            @Override
+            public void before(HookParam param) {
+                int keyCode = (int) param.getArgs()[0];
+                if (keyCode == 3) {
+                    param.setResult(Boolean.TRUE);
+                }
+            }
+        });
+
+        findAndHookMethod("com.android.server.policy.MiuiSingleKeyRule", "supportLongPress", new IMethodHook() {
+            @Override
+            public void before(HookParam param) {
+                try {
+                    int keyCode = getIntField(param.getThisObject(), "mKeyCode");
+                    if (keyCode == 3) {
+                        param.setResult(Boolean.TRUE);
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        });
+
+        if (!isNavCustomEnabled) {
             return;
         }
 
+        // 1. Intercept long press keys in MiuiSingleKeyRule before MIUI system assigns function
         findAndHookMethod("com.android.server.policy.MiuiSingleKeyRule", "getFunction", String.class, new IMethodHook() {
             @Override
             public void before(HookParam param) {
@@ -40,6 +68,7 @@ public class NavigationButtonLongPress extends BaseHook {
             }
         });
 
+        // 2. Intercept triggerFunction in ShortCutActionsUtils to execute our MultiAction and consume the event
         findAndHookMethod("com.miui.server.input.util.ShortCutActionsUtils", "triggerFunction",
                 String.class, String.class, Bundle.class, boolean.class, new IMethodHook() {
             @Override
@@ -62,29 +91,6 @@ public class NavigationButtonLongPress extends BaseHook {
                         GlobalActionBridge.handleAction(context, prefKey);
                         param.setResult(Boolean.TRUE);
                     }
-                }
-            }
-        });
-
-        findAndHookMethod("com.android.server.policy.MiuiShortcutTriggerHelper", "supportAOSPTriggerFunction", int.class, new IMethodHook() {
-            @Override
-            public void before(HookParam param) {
-                int keyCode = (int) param.getArgs()[0];
-                if (keyCode == 3) {
-                    param.setResult(Boolean.TRUE);
-                }
-            }
-        });
-
-        findAndHookMethod("com.android.server.policy.MiuiSingleKeyRule", "supportLongPress", new IMethodHook() {
-            @Override
-            public void before(HookParam param) {
-                try {
-                    int keyCode = getIntField(param.getThisObject(), "mKeyCode");
-                    if (keyCode == 3) {
-                        param.setResult(Boolean.TRUE);
-                    }
-                } catch (Throwable ignored) {
                 }
             }
         });

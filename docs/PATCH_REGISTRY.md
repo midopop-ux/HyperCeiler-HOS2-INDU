@@ -106,6 +106,36 @@ SECTION 2: DESCENDING AUDIT HISTORY (NEWEST FIRST)
 ================================================================================
 
 ================================================================================
+MODULE 10: Navigation Button Long-Press Priority & POCO Launcher UI Consolidation
+Source Origin: com.android.server.policy / com.sevtinge.hyperceiler
+Target Source Package:
+  - app/src/main/res/xml/settings_header.xml
+  - library/core/src/main/res/values/strings.xml
+  - library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/rules/systemframework/navbar/NavigationButtonLongPress.java
+  - library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/app/SystemFramework/SystemFrameworkV.java
+  - library/libhook/src/main/java/com/sevtinge/hyperceiler/libhook/app/SystemFramework/SystemFrameworkB.java
+Timestamp Registered: 2026-11-17 21:00:00 EET
+================================================================================
+
+--- [PATCH: NAV-02] [STATUS: PENDING_MERGE] NAVIGATION BUTTON LONG-PRESS PRIORITY OVERRIDE & KEY MISMATCH FIX ---
+[TIMESTAMP]: 2026-11-17 21:00:00 EET
+- Root Cause:
+  1. Key Mismatch in SystemFramework: `system_ui_navigation.xml` toggled `prefs_key_system_ui_navigation_custom`, but `NavigationButtonLongPress.java` and `SystemFramework*.java` checked `system_ui_navigation_custom` without prefix, causing the hook to evaluate false and never execute inside `system_server`.
+  2. Loss of Priority: MIUI OEM defaults and `MiuiSingleKeyRule` took precedence because the hook was bypassed.
+  3. CTS/3rd-Party Launcher Bypass: `MiuiSingleKeyRule.supportLongPress()` and `MiuiShortcutTriggerHelper.supportAOSPTriggerFunction(3)` were placed inside the custom check, meaning if custom navigation was disabled, non-stock launchers (Nova Launcher) lost Circle to Search and Home key long-press support.
+- Fix & Source Code Implementation:
+  1. `NavigationButtonLongPress.java`:
+     - Made `supportAOSPTriggerFunction(3)` and `supportLongPress()` (mKeyCode == 3) unconditional, guaranteeing Circle to Search and Home key responsiveness with 3rd-party launchers.
+     - Dual-check preference keys: checks both `prefs_key_system_ui_navigation_custom` and `system_ui_navigation_custom`.
+     - `MiuiSingleKeyRule.getFunction()` intercepts back, home, and menu actions (`action.contains(...)`) and assigns custom actions.
+     - `ShortCutActionsUtils.triggerFunction()` routes execution to `GlobalActionBridge.handleAction()` and returns `Boolean.TRUE` to consume event.
+  2. `SystemFrameworkV.java` & `SystemFrameworkB.java`:
+     - Initialized `NavigationButtonLongPress` with `true` to ensure framework-level responsiveness is always active.
+  3. UI Header Consolidation (`settings_header.xml` & `strings.xml`):
+     - Removed `com.miui.home` header. Replaced with `poco_home` targeting `com.mi.android.globallauncher` titled "POCO Launcher" (`@string/mihome`) and pointing to `HomeFragment`.
+     - Preserved full launcher settings including 3rd-party gesture toggle and long-press actions under POCO Launcher.
+
+================================================================================
 MODULE 9: Dedicated POCO Launcher Tab & Independent Header Architecture
 Source Origin: com.mi.android.globallauncher
 Target Source Package:
