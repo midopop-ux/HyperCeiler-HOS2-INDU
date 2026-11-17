@@ -74,6 +74,26 @@ SECTION 2: DESCENDING AUDIT HISTORY (NEWEST FIRST)
 ================================================================================
 
 ================================================================================
+MODULE 9: Dedicated POCO Launcher Tab & Independent Header Architecture
+Source Origin: com.mi.android.globallauncher
+Target Source Package:
+  - app/src/main/res/xml/settings_header.xml
+  - library/core/src/main/res/xml/poco_launcher.xml
+  - library/core/src/main/java/com/sevtinge/hyperceiler/hooker/PocoLauncherFragment.java
+  - app/src/main/java/com/sevtinge/hyperceiler/home/utils/HeaderManager.java
+Timestamp Registered: 2026-11-17 07:45:00 EET
+================================================================================
+
+--- [PATCH: UI-04] [STATUS: MERGED_TO_FORK (bf0a7d1ec)] DEDICATED POCO LAUNCHER TAB & CLEAN SEPARATION ---
+[TIMESTAMP]: 2026-11-17 07:45:00 EET
+- Architecture & Source Implementation:
+  1. Created dedicated `poco_launcher.xml` with target `app:quick_restart="com.mi.android.globallauncher"` and third-party gesture toggle.
+  2. Created dedicated `PocoLauncherFragment.java` bound to `R.xml.poco_launcher`.
+  3. Added standalone header entry `@+id/poco_home` in `settings_header.xml` with package `com.mi.android.globallauncher` and title "POCO Launcher".
+  4. Removed old in-place hijacking of `com.miui.home` header in `HeaderManager.java`, granting POCO Launcher complete independence from Chinese MIUI Home settings.
+  5. Built and verified online on GitHub Actions (Run ID: 44026999415, Artifact ID: 14304245095).
+
+================================================================================
 MODULE 7: POCO Launcher Quick Restart Target & AppLabel Null Fix
 Source Origin: com.mi.android.globallauncher / com.miui.home
 Target Source Package:
@@ -82,7 +102,7 @@ Target Source Package:
 Timestamp Registered: 2026-11-17 07:25:00 EET
 ================================================================================
 
---- [PATCH: UI-03] [STATUS: PENDING_MERGE] REBOOT NULL DIALOG FIX & POCO RESTART TARGET ---
+--- [PATCH: UI-03] [STATUS: MERGED_TO_FORK (bf0a7d1ec)] REBOOT NULL DIALOG FIX & POCO RESTART TARGET ---
 [TIMESTAMP]: 2026-11-17 07:25:00 EET
 - Root Cause:
   1. On POCO devices where com.mi.android.globallauncher is installed, PackagesUtils.getAppLabel(context, "com.miui.home") threw NameNotFoundException and returned null.
@@ -101,7 +121,7 @@ Target Source Package:
 Timestamp Registered: 2026-11-17 07:25:00 EET
 ================================================================================
 
---- [PATCH: GESTURE-02] [STATUS: PENDING_MERGE] FULL SCREEN GESTURES HOOK (0MS HOME, RECENTS HOLD, CTS LONG PRESS) ---
+--- [PATCH: GESTURE-02] [STATUS: MERGED_TO_FORK (bf0a7d1ec)] FULL SCREEN GESTURES HOOK (0MS HOME, RECENTS HOLD, CTS LONG PRESS) ---
 [TIMESTAMP]: 2026-11-17 07:25:00 EET
 - Features Implemented via Xposed Hooks:
   1. Instant Home (0ms): Hooked NavStubView.performAppToHome to immediately inject KEYCODE_HOME (3) and finishRecentsActivityDirectly.
