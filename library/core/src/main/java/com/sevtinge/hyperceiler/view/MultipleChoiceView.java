@@ -34,11 +34,14 @@ import com.sevtinge.hyperceiler.core.R;
 
 import java.util.List;
 
+import fan.androidbase.widget.CheckedTextView;
+
 public class MultipleChoiceView extends LinearLayout implements MutipleChoiceAdapter.OnCurWillCheckAllChangedListener {
 
     private MutipleChoiceAdapter mAdapter;
     private List<String> mData;
     private RecyclerView mListView;
+    private CheckedTextView mToggleHeader;
     private Button mAllSelectBtn;
     private Button mOkBtn;
     // 确定选择监听器
@@ -63,6 +66,7 @@ public class MultipleChoiceView extends LinearLayout implements MutipleChoiceAda
         mListView = view.findViewById(android.R.id.list);
         mListView.setLayoutManager(new LinearLayoutManager(context));
         mListView.setHasFixedSize(true);
+        mToggleHeader = view.findViewById(R.id.toggle_show_all_apps);
         mAllSelectBtn = view.findViewById(android.R.id.button2);
         mOkBtn = view.findViewById(android.R.id.button1);
         mAllSelectBtn.setText(curWillCheckAll ? getResources().getString(R.string.miuix_appcompat_action_mode_select_all) : getResources().getString(R.string.miuix_appcompat_action_mode_inverse));
@@ -71,6 +75,28 @@ public class MultipleChoiceView extends LinearLayout implements MutipleChoiceAda
         // 全选按钮的回调接口
         mAllSelectBtn.setOnClickListener(onCheckedListener);
         mOkBtn.setOnClickListener(onCheckedListener);
+    }
+
+    public void setupToggleHeader(boolean visible, OnToggleHeaderListener listener) {
+        if (mToggleHeader != null) {
+            if (visible) {
+                mToggleHeader.setVisibility(View.VISIBLE);
+                mToggleHeader.setChecked(false);
+                mToggleHeader.setOnClickListener(v -> {
+                    mToggleHeader.toggle();
+                    if (listener != null) {
+                        listener.onToggle(mToggleHeader.isChecked());
+                    }
+                });
+            } else {
+                mToggleHeader.setVisibility(View.GONE);
+                mToggleHeader.setOnClickListener(null);
+            }
+        }
+    }
+
+    public interface OnToggleHeaderListener {
+        void onToggle(boolean isChecked);
     }
 
     public void setData(List<String> data, boolean[] isSelected) {

@@ -71,4 +71,5 @@
     <string name="ignore">Ignorar</string>
     <string name="disable_suggest">Desactivar sugerencias</string>
     <string name="enable_suggest">Activar sugerencias</string>
+    <string name="restart_show_supported_apps">Mostrar aplicaciones compatibles</string>
 </resources>

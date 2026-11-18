@@ -90,4 +90,5 @@
     <string name="debug_mode_switch">Версия отладки</string>
     <string name="load_apps_failed">Неудалось загрузить список приложений</string>
     <string name="search_apps_hint">Поиск %d приложений</string>
+    <string name="restart_show_supported_apps">Показать поддерживаемые приложения</string>
 </resources>

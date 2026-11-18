@@ -44,4 +44,5 @@
     <string name="happy_birthday_hyperceiler">今日无事可做？\n 你可以选择为 HyperCeiler 点一支蜡烛并祝 HyperCeiler 生日快乐！</string>
     <!--System UI-->
     <string name="system_ui">进程\"System UI\"</string>
+    <string name="restart_show_supported_apps">显示支持的域</string>
 </resources>

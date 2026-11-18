@@ -85,4 +85,5 @@
     <string name="ignore">Ігнорувати</string>
     <string name="disable_suggest">Вимкнути пропозиції</string>
     <string name="enable_suggest">Увімкнути пропозиції</string>
+    <string name="restart_show_supported_apps">Показати підтримувані додатки</string>
 </resources>

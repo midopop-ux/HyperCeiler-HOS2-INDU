@@ -22,6 +22,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <fan.androidbase.widget.CheckedTextView
+        android:id="@+id/toggle_show_all_apps"
+        style="@style/Widget.AlertDialogListItem.MultiChoice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/miuix_appcompat_dialog_list_preferred_item_height"
+        android:paddingHorizontal="@dimen/miuix_appcompat_dialog_list_item_padding_start"
+        android:singleLine="true"
+        android:text="@string/restart_show_supported_apps"
+        android:textDirection="locale"
+        android:visibility="gone" />
+
     <fan.springback.view.SpringBackLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

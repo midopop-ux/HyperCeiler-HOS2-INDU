@@ -21,12 +21,6 @@ package com.sevtinge.hyperceiler.view;
 import static com.sevtinge.hyperceiler.common.utils.ShellUtils.checkRootPermission;
 
 import android.content.Context;
-import android.graphics.Typeface;
-import android.util.TypedValue;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.sevtinge.hyperceiler.core.R;
 import com.sevtinge.hyperceiler.libhook.utils.hookapi.tool.AppsTool;
@@ -36,7 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import fan.appcompat.app.AlertDialog;
-import fan.slidingwidget.widget.SlidingButton;
 
 public class RestartAlertDialog extends AlertDialog {
 
@@ -59,6 +52,8 @@ public class RestartAlertDialog extends AlertDialog {
                               List<String> hookedNames, List<String> hookedPkgs,
                               List<String> allNames, List<String> allPkgs) {
         super(context);
+        setTitle(R.string.hyperceiler_restart_quick);
+
         mHookedNames = (hookedNames != null && !hookedNames.isEmpty()) ? hookedNames
                 : Arrays.asList(context.getResources().getStringArray(R.array.restart_apps_name_hyperos));
         mHookedPkgs = (hookedPkgs != null && !hookedPkgs.isEmpty()) ? hookedPkgs
@@ -67,68 +62,20 @@ public class RestartAlertDialog extends AlertDialog {
         mAllPkgs = allPkgs;
         mCurrentPkgs = mHookedNames;
 
-        setupTitleAndToggle(context);
         mChoiceView = createMultipleChoiceView(context);
+        if (mAllNames != null && !mAllNames.isEmpty()) {
+            mChoiceView.setupToggleHeader(true, isChecked -> {
+                if (isChecked) {
+                    mCurrentPkgs = mAllPkgs;
+                    mChoiceView.setData(mAllNames, null);
+                } else {
+                    mCurrentPkgs = mHookedNames;
+                    mChoiceView.setData(mHookedNames, null);
+                }
+                mChoiceView.deselectAll();
+            });
+        }
         setView(mChoiceView);
-    }
-
-    private void setupTitleAndToggle(Context context) {
-        if (mAllNames == null || mAllNames.isEmpty()) {
-            setTitle(R.string.hyperceiler_restart_quick);
-            return;
-        }
-
-        RelativeLayout titleLayout = new RelativeLayout(context);
-        int padH = (int) (context.getResources().getDisplayMetrics().density * 24);
-        int padTop = (int) (context.getResources().getDisplayMetrics().density * 20);
-        int padBottom = (int) (context.getResources().getDisplayMetrics().density * 8);
-        titleLayout.setPadding(padH, padTop, padH, padBottom);
-
-        TextView titleView = new TextView(context);
-        titleView.setText(R.string.hyperceiler_restart_quick);
-        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-        titleView.setTypeface(Typeface.DEFAULT_BOLD);
-
-        TypedValue tv = new TypedValue();
-        if (context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, tv, true)) {
-            if (tv.resourceId != 0) {
-                titleView.setTextColor(context.getColor(tv.resourceId));
-            } else {
-                titleView.setTextColor(tv.data);
-            }
-        }
-
-        RelativeLayout.LayoutParams titleParams = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        titleParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        titleView.setLayoutParams(titleParams);
-        titleLayout.addView(titleView);
-
-        SlidingButton toggle = new SlidingButton(context);
-        RelativeLayout.LayoutParams toggleParams = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        toggleParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
-        toggleParams.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
-        toggle.setLayoutParams(toggleParams);
-        toggle.setChecked(false);
-
-        toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                mCurrentPkgs = mAllPkgs;
-                mChoiceView.setData(mAllNames, null);
-            } else {
-                mCurrentPkgs = mHookedNames;
-                mChoiceView.setData(mHookedNames, null);
-            }
-            mChoiceView.deselectAll();
-        });
-
-        titleLayout.addView(toggle);
-        setCustomTitle(titleLayout);
     }
 
     private MultipleChoiceView createMultipleChoiceView(Context context) {
