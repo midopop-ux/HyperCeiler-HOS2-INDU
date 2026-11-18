@@ -68,6 +68,7 @@ object ChargingCVP : BaseHook() {
                     isSingleLine = false
                     textSize = 8.2f
                 }
+                setShowSpacing(clazzDependency, clazzKeyguardIndicationController, param)
             }
         }
 
@@ -121,9 +122,14 @@ object ChargingCVP : BaseHook() {
 
                 override fun run() {
                     doUpdateForHyperOS()
+                    val intervalSeconds = if (showSpacingValue) {
+                        PrefsBridge.getInt("system_ui_statusbar_lock_screen_show_spacing", 3) / 2.0
+                    } else {
+                        1.5
+                    }
                     handler.postDelayed(
                         this,
-                        PrefsBridge.getInt("system_ui_statusbar_lock_screen_show_spacing", 6) / 2 * 1000L
+                        (intervalSeconds * 1000L).toLong()
                     )
                 }
 

@@ -31,19 +31,19 @@ public class DisableAudioFocus extends BaseHook {
     @Override
     public void init() {
         try {
+            // 1. Hook requestAudioFocus: Always grant audio focus without stealing or ducking other streams
             hookAllMethods("com.android.server.audio.MediaFocusControl", "requestAudioFocus", new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
-                    Object[] args = param.getArgs();
-                    if (args != null && args.length > 0) {
-                        Object first = args[0];
-                        if (first instanceof AudioAttributes) {
-                            if (((AudioAttributes) first).getUsage() == AudioAttributes.USAGE_VOICE_COMMUNICATION) {
-                                return;
-                            }
-                        }
-                    }
-                    param.setResult(1);
+                    param.setResult(1); // AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                }
+            });
+
+            // 2. Prevent ducking (volume lowering) during incoming ringtones, alerts, or phone calls
+            hookAllMethods("com.android.server.audio.MediaFocusControl", "notifyExtPolicyFocusLoss_syncAf", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(null); // Block notifying focus loss / ducking to playing clients
                 }
             });
         } catch (Throwable t) {

@@ -110,14 +110,13 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                 }
             });
 
+            // Hook actionUpResolution: when user releases swipe up from bottom, immediately perform Home (0ms instant)
             findAndHookMethod("com.miui.home.recents.NavStubView", "actionUpResolution", new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
                     try {
                         Object navStub = param.getThisObject();
-                        boolean isAppHold = getBooleanField(navStub, "mIsAppHold");
-                        int keyCode = isAppHold ? 187 : 3;
-                        callMethod(navStub, "injectKeyEventDownAndUp", keyCode);
+                        callMethod(navStub, "injectKeyEventDownAndUp", 3);
                         callMethod(navStub, "finishRecentsActivityDirectly");
                         param.setResult(null);
                     } catch (Throwable t) {
@@ -126,20 +125,40 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                 }
             });
 
-            // Force isAllowToAppHoldState to return TRUE so swipe-and-hold transitions to Recents
-            findAndHookMethodReplace("com.miui.home.recents.NavStubView", "isAllowToAppHoldState", boolean.class, returnTrueHook);
+            // Double tap on bottom navigation gesture area to trigger Recents (KEYCODE_APP_SWITCH = 187)
+            findAndHookMethod("com.miui.home.recents.NavStubView", "onPointerEvent", android.view.MotionEvent.class, new IMethodHook() {
+                private long mLastBottomTapTime = 0;
+                private float mLastTapX = 0;
+                private float mLastTapY = 0;
 
-            // Hook enterAppHoldState to immediately inject KEYCODE_APP_SWITCH (187) and finish
-            findAndHookMethod("com.miui.home.recents.NavStubView", "enterAppHoldState", new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
                     try {
-                        Object navStub = param.getThisObject();
-                        callMethod(navStub, "injectKeyEventDownAndUp", 187);
-                        callMethod(navStub, "finishRecentsActivityDirectly");
-                        param.setResult(null);
+                        android.view.MotionEvent event = (android.view.MotionEvent) param.getArgs()[0];
+                        if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+                            Object navStub = param.getThisObject();
+                            int screenHeight = ((android.view.View) navStub).getResources().getDisplayMetrics().heightPixels;
+                            float y = event.getRawY();
+                            float x = event.getRawX();
+
+                            // Bottom edge area (within bottom 120 pixels)
+                            if (y >= screenHeight - 120) {
+                                long now = System.currentTimeMillis();
+                                if (now - mLastBottomTapTime < 350 && Math.abs(x - mLastTapX) < 150 && Math.abs(y - mLastTapY) < 150) {
+                                    // Double tap detected! Trigger Recents immediately
+                                    callMethod(navStub, "injectKeyEventDownAndUp", 187);
+                                    callMethod(navStub, "finishRecentsActivityDirectly");
+                                    mLastBottomTapTime = 0;
+                                    param.setResult(Boolean.TRUE);
+                                    return;
+                                }
+                                mLastBottomTapTime = now;
+                                mLastTapX = x;
+                                mLastTapY = y;
+                            }
+                        }
                     } catch (Throwable t) {
-                        XposedLog.w(TAG, "Error in enterAppHoldState hook: " + t.getMessage());
+                        XposedLog.w(TAG, "Error in double-tap onPointerEvent: " + t.getMessage());
                     }
                 }
             });
