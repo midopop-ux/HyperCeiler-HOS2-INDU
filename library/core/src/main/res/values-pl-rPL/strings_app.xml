@@ -283,11 +283,6 @@
     <string name="collapse_miui_title_on_always">Zawsze rozwinięty</string>
     <string name="link_open_mode_default">Domyślne ustawienie</string>
     <string name="link_open_mode_mi">Przeglądarka Mi</string>
-    <string name="app_sort_running">Domyślne sortowanie</string>
-    <string name="app_sort_name">Nazwa aplikacji</string>
-    <string name="app_sort_frequency">Ostatnio używane</string>
-    <string name="app_sort_storage">Zużycie pamięci</string>
-    <string name="app_sort_install">Czas instalacji</string>
     <string name="array_pa_blur_official">Oficjalne zawiera rozmycie</string>
     <string name="array_bpa_blur_customize">Niestandardowe rozmycie tła</string>
     <string name="control_center_sunshine_mode_default">Zamknij</string>
@@ -1248,8 +1243,6 @@
     <string name="security">Bezpieczeństwo</string>
     <string name="security_app_title">Pokaż dodatkowe szczegóły aplikacji</string>
     <string name="security_app_summary">Dodaje nowe pola do strony informacji o aplikacji:\n• Wersja aplikacji\n• ID użytkownika\n• Katalog danych\n• Katalog APK\n• Minimalna wersja SDK\n• Docelowa wersja SDK\n• Otwórz w Sklepie Play\n• Uruchom</string>
-    <string name="security_app_sort_title">Sortowanie listy zarządzania aplikacjami</string>
-    <string name="security_app_sort_summary">Zmienia domyślne sortowanie listy zarządzania aplikacjami</string>
     <string name="security_restrict_app_title">Pełne ograniczenia</string>
     <string name="security_restrict_app_summary">Zezwala na konfigurację oszczędzania energii i dostępu do Wi-Fi dla aplikacji systemowych</string>
     <string name="security_disable_app_title">Kontrola stanu aplikacji</string>

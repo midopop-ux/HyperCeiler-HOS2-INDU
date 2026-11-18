@@ -319,22 +319,6 @@
         <item>1</item>
     </string-array>
 
-    <string-array name="app_sort">
-        <item>@string/app_sort_running</item>
-        <item>@string/app_sort_name</item>
-        <item>@string/app_sort_frequency</item>
-        <item>@string/app_sort_storage</item>
-        <item>@string/app_sort_install</item>
-    </string-array>
-
-    <string-array name="app_sort_value">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-    </string-array>
-
     <string-array name="skip_count_down_limit_type">
         <item>自动勾选和跳过读秒</item>
         <item>直接授权</item>

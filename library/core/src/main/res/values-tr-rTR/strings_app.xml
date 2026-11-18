@@ -293,11 +293,6 @@
     <string name="collapse_miui_title_on_always">Her zaman genişlet</string>
     <string name="link_open_mode_default">Sistem varsayılanı</string>
     <string name="link_open_mode_mi">Xiaomi tarayıcı</string>
-    <string name="app_sort_running">Varsayılan sıralama</string>
-    <string name="app_sort_name">Uygulama adı</string>
-    <string name="app_sort_frequency">Kullanım sıklığı</string>
-    <string name="app_sort_storage">Kullanılan depolama alanı</string>
-    <string name="app_sort_install">Yükleme zamanı</string>
     <string name="array_pa_blur_official">Resmi bulanıklık</string>
     <string name="array_bpa_blur_customize">Özel arkaplan bulanıklığı</string>
     <string name="control_center_sunshine_mode_default">Kapat</string>
@@ -1152,8 +1147,6 @@
     <string name="security">Güvenlik</string>
     <string name="security_app_title">Ek uygulama ayrıntılarını göster</string>
     <string name="security_app_summary">Uygulamaya sayfaya yeni alanlar ekleyin:\n- sürüm kodu\n- apk\'ya giden tam yol\n- veri yolu\n- kullanıcı kimliği\n- min SDK sürümü\n- hedef SDK sürümü\n- play Store sayfasına bağlantı\n- bir uygulama başlatma</string>
-    <string name="security_app_sort_title">Uygulama yönetimi listesi sıralama</string>
-    <string name="security_app_sort_summary">Uygulama yönetimi listesinin varsayılan sıralamasını değiştirme</string>
     <string name="security_restrict_app_title">Tam sınır</string>
     <string name="security_restrict_app_summary">Güç tasarrufu yapılandırmasına ve sistem uygulamaları için Wi-Fi\'ye erişime izin verir</string>
     <string name="security_disable_app_title">Uygulama durumu kontrolü</string>

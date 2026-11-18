@@ -296,11 +296,6 @@
     <string name="collapse_miui_title_on_always">Sempre expandir</string>
     <string name="link_open_mode_default">Padrão do sistema</string>
     <string name="link_open_mode_mi">Navegador Mi</string>
-    <string name="app_sort_running">Classificação padrão</string>
-    <string name="app_sort_name">Nome do app</string>
-    <string name="app_sort_frequency">Recentemente usado</string>
-    <string name="app_sort_storage">Armazenamento usado</string>
-    <string name="app_sort_install">Data de instalação</string>
     <string name="array_pa_blur_official">Oficial vem com blur</string>
     <string name="array_bpa_blur_customize">Blur de fundo personalizado</string>
     <string name="control_center_sunshine_mode_default">Fechar</string>
@@ -1346,8 +1341,6 @@
     <string name="security">Segurança</string>
     <string name="security_app_title">Exibir detalhes adicionais do app</string>
     <string name="security_app_summary">Adicione novos campos à página de informações do app:\n• Número da versão do app\n• ID do usuário\n• Diretório de dados\n• Diretório APK\n• Versão mínima do SDK\n• Versão do SDK de destino\n• Abrir com a Play Store \n• Iniciar</string>
-    <string name="security_app_sort_title">Classificação da lista de gerenciar apps</string>
-    <string name="security_app_sort_summary">Modifique a classificação padrão da lista de gerenciar apps</string>
     <string name="security_restrict_app_title">Restrições completas</string>
     <string name="security_restrict_app_summary">Permite configurar a Economia de bateria e acesso ao Wi-Fi para apps do sistema</string>
     <string name="security_disable_app_title">Controlar estado do app</string>

@@ -105,7 +105,7 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                     }
                 });
 
-                // In actionUpResolution, when third-party launcher is default, trigger Home or Recents
+                // In actionUpResolution, when third-party launcher is default, trigger Home or Recents via hardware injection
                 hookAllMethods(navStubViewCls, "actionUpResolution", new IMethodHook() {
                     @Override
                     public void before(HookParam param) {
@@ -122,17 +122,68 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                                 isPause = (boolean) callMethod(navStub, "isPauseWhileSwipeUp");
                             } catch (Throwable ignored) {}
 
-                            // Speed 5 = Fast pull up, 10 = Normal pull up / safe area release, 2 = Drag up
-                            if (speedAndDir == 5 || speedAndDir == 10 || speedAndDir == 2) {
+                            boolean isPullUp = (speedAndDir == 5 || speedAndDir == 10 || speedAndDir == 2);
+                            if (!isPullUp) {
+                                try {
+                                    Object calc = getObjectField(navStub, "mCalculator");
+                                    if (calc != null) {
+                                        float distY = (float) callMethod(calc, "getDistanceY");
+                                        if (distY > 50f) {
+                                            isPullUp = true;
+                                        }
+                                    }
+                                } catch (Throwable ignored) {}
+                            }
+
+                            if (isPullUp) {
                                 if (isAppHold || isPause) {
-                                    callMethod(navStub, "enterAppHoldState");
+                                    callMethod(navStub, "injectKeyEventDownAndUp", 187); // KEYCODE_APP_SWITCH
+                                    callMethod(navStub, "finalization", "enterAppHoldState");
                                 } else {
-                                    callMethod(navStub, "performAppToHome");
+                                    callMethod(navStub, "injectKeyEventDownAndUp", 3); // KEYCODE_HOME
+                                    callMethod(navStub, "finalization", "performAppToHome");
                                 }
                                 setBooleanField(navStub, "mIsAppHold", false);
+                                param.setResult(null);
                             }
                         } catch (Throwable t) {
                             XposedLog.w(TAG, "Error in actionUpResolution hook: " + t.getMessage());
+                        }
+                    }
+                });
+
+                // Also hook performAppToHome directly to ensure Home injection
+                hookAllMethods(navStubViewCls, "performAppToHome", new IMethodHook() {
+                    @Override
+                    public void before(HookParam param) {
+                        Object navStub = param.getThisObject();
+                        try {
+                            Context ctx = (Context) callMethod(navStub, "getContext");
+                            if (isThirdPartyLauncherDefault(ctx)) {
+                                callMethod(navStub, "injectKeyEventDownAndUp", 3);
+                                callMethod(navStub, "finalization", "performAppToHome");
+                                param.setResult(null);
+                            }
+                        } catch (Throwable t) {
+                            XposedLog.w(TAG, "Error in performAppToHome hook: " + t.getMessage());
+                        }
+                    }
+                });
+
+                // Also hook enterAppHoldState directly to ensure Recents injection
+                hookAllMethods(navStubViewCls, "enterAppHoldState", new IMethodHook() {
+                    @Override
+                    public void before(HookParam param) {
+                        Object navStub = param.getThisObject();
+                        try {
+                            Context ctx = (Context) callMethod(navStub, "getContext");
+                            if (isThirdPartyLauncherDefault(ctx)) {
+                                callMethod(navStub, "injectKeyEventDownAndUp", 187);
+                                callMethod(navStub, "finalization", "enterAppHoldState");
+                                param.setResult(null);
+                            }
+                        } catch (Throwable t) {
+                            XposedLog.w(TAG, "Error in enterAppHoldState hook: " + t.getMessage());
                         }
                     }
                 });

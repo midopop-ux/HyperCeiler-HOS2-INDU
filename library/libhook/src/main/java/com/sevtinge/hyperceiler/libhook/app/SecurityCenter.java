@@ -40,7 +40,6 @@ import com.sevtinge.hyperceiler.libhook.rules.securitycenter.SidebarLineCustom;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.UnlockCarSicknessRelief;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AddAppInfoEntry;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AddAppManagerEntry;
-import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AppDefaultSort;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AppDetails;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AppDisable;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AppRestrict;
@@ -80,7 +79,6 @@ public class SecurityCenter extends BaseLoad {
     @Override
     public void onPackageLoaded() {
         // 应用管理
-        initHook(new AppDefaultSort(), true);
         initHook(new AppRestrict(), PrefsBridge.getBoolean("security_center_app_restrict"));
         initHook(new AppDisable(), PrefsBridge.getBoolean("security_center_app_disable"));
         initHook(new AppDetails(), PrefsBridge.getBoolean("security_center_app_details"));

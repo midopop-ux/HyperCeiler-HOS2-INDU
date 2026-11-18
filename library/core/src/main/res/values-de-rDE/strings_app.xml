@@ -288,11 +288,6 @@
     <string name="collapse_miui_title_on_always">Immer erweitert</string>
     <string name="link_open_mode_default">Systemstandard</string>
     <string name="link_open_mode_mi">Mi-Browser</string>
-    <string name="app_sort_running">Standard-Sortierung</string>
-    <string name="app_sort_name">App-Name</string>
-    <string name="app_sort_frequency">Kürzlich verwendet</string>
-    <string name="app_sort_storage">Verwendeter Speicher</string>
-    <string name="app_sort_install">Installationszeit</string>
     <string name="array_pa_blur_official">Offiziell mit Unschärfe</string>
     <string name="array_bpa_blur_customize">Benutzerdefinierte Hintergrund-Unschärfe</string>
     <string name="control_center_sunshine_mode_default">Schließen</string>
@@ -1299,8 +1294,6 @@
     <string name="security">Sicherheit</string>
     <string name="security_app_title">Weitere App-Details anzeigen</string>
     <string name="security_app_summary">Neue Felder zur App-Info-Seite hinzufügen:\n• App-Versionsnummer\n• Benutzer-ID\n• Datenverzeichnis\n• APK-Verzeichnis\n• Min SDK-Version\n• Ziel SDK-Version\n• Mit Play Store öffnen\n• Starten</string>
-    <string name="security_app_sort_title">Sortierung der App-Management-Liste</string>
-    <string name="security_app_sort_summary">Standardsortierung der App-Verwaltungsliste ändern</string>
     <string name="security_restrict_app_title">Vollständige Einschränkungen</string>
     <string name="security_restrict_app_summary">Ermöglicht die Konfiguration von Energiesparer und WLAN-Zugriff für System-Apps</string>
     <string name="security_disable_app_title">App-Statuskontrolle</string>

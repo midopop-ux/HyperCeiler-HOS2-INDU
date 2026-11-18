@@ -294,11 +294,6 @@
     <string name="collapse_miui_title_on_always">توسيع دائمًا</string>
     <string name="link_open_mode_default">الإعداد التلقائي للنظام</string>
     <string name="link_open_mode_mi">Mi Browser</string>
-    <string name="app_sort_running">الترتيب افتراضي</string>
-    <string name="app_sort_name">اسم التطبيق</string>
-    <string name="app_sort_frequency">استخدام مؤخرًا</string>
-    <string name="app_sort_storage">استخدام التخزين</string>
-    <string name="app_sort_install">وقت التثبيت</string>
     <string name="array_pa_blur_official">الرسمي يأتي بضبابية</string>
     <string name="array_bpa_blur_customize">تخصيص ضبابية الخلفية</string>
     <string name="control_center_sunshine_mode_default">إغلاق</string>
@@ -1357,8 +1352,6 @@
     <string name="security">الأمان</string>
     <string name="security_app_title">عرض تفاصيل إضافية للتطبيق</string>
     <string name="security_app_summary">إضافة حقول جديدة إلى صفحة التطبيق:\n• رقم إصدار التطبيق\n• معرف المستخدم\n• دليل البيانات\n• دليل APK\n• الحد الأدنى لإصدار SDK\n• إصدار SDK المستهدف\n• فتح مع متجر Play\n• إطلاق</string>
-    <string name="security_app_sort_title">ترتيب قائمة إدارة التطبيقات</string>
-    <string name="security_app_sort_summary">تعديل الترتيب الافتراضي لقائمة إدارة التطبيقات</string>
     <string name="security_restrict_app_title">القيود الكاملة</string>
     <string name="security_restrict_app_summary">يسمح بتكوين وضع توفير البطارية والوصول إلى Wi-Fi للتطبيقات النظامية</string>
     <string name="security_disable_app_title">التحكم في حالة التطبيق</string>

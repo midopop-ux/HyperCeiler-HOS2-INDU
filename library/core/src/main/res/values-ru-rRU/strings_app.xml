@@ -298,11 +298,6 @@
     <string name="collapse_miui_title_on_always">Всегда развернуто</string>
     <string name="link_open_mode_default">Системный по умолчанию</string>
     <string name="link_open_mode_mi">Mi Браузер</string>
-    <string name="app_sort_running">По умолчанию</string>
-    <string name="app_sort_name">Имя приложения</string>
-    <string name="app_sort_frequency">Недавно используемое</string>
-    <string name="app_sort_storage">Занимаемое место</string>
-    <string name="app_sort_install">Время установки</string>
     <string name="array_pa_blur_official">Официально прилагается с размытием</string>
     <string name="array_bpa_blur_customize">Своё значение размытия фона</string>
     <string name="control_center_sunshine_mode_default">Отключить</string>
@@ -1349,8 +1344,6 @@
     <string name="security">Безопасность</string>
     <string name="security_app_title">Показать дополнительные сведения о приложении</string>
     <string name="security_app_summary">Добавить новые поля на страницу приложения:\nВерсия\n• Полный путь до APK\n• Путь к данным\n• ID пользователя\n• Минимальная версия SDK\n• Целевая версия SDK\n• Ссылка в Google Play\n• Запустить приложение</string>
-    <string name="security_app_sort_title">Сортировка списка управления приложениями</string>
-    <string name="security_app_sort_summary">Изменить сортировку списка управления приложениями по умолчанию</string>
     <string name="security_restrict_app_title">Максимальное ограничение</string>
     <string name="security_restrict_app_summary">Позволяет настраивать режим энергосбережения и получать доступ к Wi-Fi для системных приложений</string>
     <string name="security_disable_app_title">Контроль состояния приложения</string>

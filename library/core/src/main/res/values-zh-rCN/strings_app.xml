@@ -338,11 +338,6 @@
     <string name="collapse_miui_title_on_always">始终展开</string>
     <string name="link_open_mode_default">系统默认</string>
     <string name="link_open_mode_mi">小米浏览器</string>
-    <string name="app_sort_running">默认排序</string>
-    <string name="app_sort_name">应用名称</string>
-    <string name="app_sort_frequency">使用频率</string>
-    <string name="app_sort_storage">存储占用</string>
-    <string name="app_sort_install">安装时间</string>
     <string name="array_pa_blur_official">官方自带模糊</string>
     <string name="array_bpa_blur_customize">自定义背景模糊</string>
     <string name="control_center_sunshine_mode_default">关闭</string>
@@ -1420,8 +1415,6 @@
     <string name="security">手机管家</string>
     <string name="security_app_title">显示更多应用信息</string>
     <string name="security_app_summary">添加新字段到应用信息页面:\n- 版本代码\n- APK 完整目录\n- 数据目录\n- 用户标识符\n- 最低 SDK 版本\n- 目标 SDK 版本\n- 链接到商店页面\n- 启动应用</string>
-    <string name="security_app_sort_title">应用管理列表排序</string>
-    <string name="security_app_sort_summary">修改应用管理列表默认排序</string>
     <string name="security_restrict_app_title">全限制</string>
     <string name="security_restrict_app_summary">允许配置省电程序并且为系统应用接入 WIFI</string>
     <string name="security_disable_app_title">应用状态控制</string>

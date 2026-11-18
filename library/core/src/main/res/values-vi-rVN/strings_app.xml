@@ -298,11 +298,6 @@
     <string name="collapse_miui_title_on_always">Luôn mở rộng</string>
     <string name="link_open_mode_default">Mặc định</string>
     <string name="link_open_mode_mi">Trình duyệt Xiaomi</string>
-    <string name="app_sort_running">Sắp xếp theo mặc định</string>
-    <string name="app_sort_name">Tên ứng dụng</string>
-    <string name="app_sort_frequency">Tần suất sử dụng</string>
-    <string name="app_sort_storage">Bộ nhớ sử dụng</string>
-    <string name="app_sort_install">Thời gian cài đặt</string>
     <string name="array_pa_blur_official">Hiệu ứng làm mờ cài sẵn chính thức</string>
     <string name="array_bpa_blur_customize">Tùy chỉnh làm mờ nền</string>
     <string name="control_center_sunshine_mode_default">Đóng</string>
@@ -1350,8 +1345,6 @@
     <string name="security">Bảo mật</string>
     <string name="security_app_title">Hiển thị thêm chi tiết ứng dụng</string>
     <string name="security_app_summary">Đã thêm thông tin chi tiết vào thông tin ứng dụng: - Số phiên bản ứng dụng - Đường dẫn APK - Đường dẫn dữ liệu - ID người dùng - Phiên bản SDK - Mở trang Cửa hàng Google Play - Khởi chạy</string>
-    <string name="security_app_sort_title">Sắp xếp danh sách ứng dụng</string>
-    <string name="security_app_sort_summary">Sửa đổi sắp xếp mặc định của danh sách ứng dụng</string>
     <string name="security_restrict_app_title">Quyền đầy đủ</string>
     <string name="security_restrict_app_summary">Cho phép cấu hình \"Tiết kiệm pin\" và \"Truy cập Wlan\" cho ứng dụng hệ thống</string>
     <string name="security_disable_app_title">Kiểm soát trạng thái ứng dụng</string>

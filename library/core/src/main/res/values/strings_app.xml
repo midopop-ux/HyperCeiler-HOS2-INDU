@@ -378,11 +378,6 @@
     <string name="collapse_miui_title_on_always">Always expand</string>
     <string name="link_open_mode_default">System default</string>
     <string name="link_open_mode_mi">Mi Browser</string>
-    <string name="app_sort_running">Default sort</string>
-    <string name="app_sort_name">App name</string>
-    <string name="app_sort_frequency">Used recently</string>
-    <string name="app_sort_storage">Storage used</string>
-    <string name="app_sort_install">Installation time</string>
     <string name="array_pa_blur_official">Official comes with blur</string>
     <string name="array_bpa_blur_customize">Custom background blur</string>
     <string name="control_center_sunshine_mode_default">Close</string>
@@ -1471,8 +1466,6 @@
     <string name="security">Security</string>
     <string name="security_app_title">Show additional app details</string>
     <string name="security_app_summary">Add new fields to app into page:\n• App version number\n• User ID\n• Data directory\n• APK directory\n• Min SDK version\n• Target SDK version\n• Open with Play Store\n• Launch</string>
-    <string name="security_app_sort_title">App management list sorting</string>
-    <string name="security_app_sort_summary">Modify the default sorting of the manage apps list</string>
     <string name="security_restrict_app_title">Full restrictions</string>
     <string name="security_restrict_app_summary">Allows configuring Battery saver and Wi-Fi access for system apps</string>
     <string name="security_disable_app_title">App state control</string>

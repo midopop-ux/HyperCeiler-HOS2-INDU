@@ -275,11 +275,6 @@
     <string name="collapse_miui_title_on_always">Siempre expandido</string>
     <string name="link_open_mode_default">Predeterminado del sistema</string>
     <string name="link_open_mode_mi">Navegador Xiaomi</string>
-    <string name="app_sort_running">Orden predefinido</string>
-    <string name="app_sort_name">Nombre de aplicación</string>
-    <string name="app_sort_frequency">Frecuencia de uso</string>
-    <string name="app_sort_storage">Almacenamiento usado</string>
-    <string name="app_sort_install">Tiempo de instalación</string>
     <string name="array_pa_blur_official">Desenfocado predeterminado</string>
     <string name="array_bpa_blur_customize">Desenfocado personalizado</string>
     <string name="control_center_sunshine_mode_default">Cerrar</string>
@@ -1094,8 +1089,6 @@
     <string name="security">Seguridad</string>
     <string name="security_app_title">Se muestran detalles adicionales de las apps</string>
     <string name="security_app_summary">Agrega nuevos campos a la información de aplicaciones:\n- código de versión\n- ruta completa del apk\n- ruta de datos\n- ID de usuario\n- versión de SDK mínimo\n- versión de SDK de destino\n- Enlace a Play Store\n- lanzarla</string>
-    <string name="security_app_sort_title">Ordenación de listas de gestión de aplicaciones</string>
-    <string name="security_app_sort_summary">Se puede usar otros órdenes de la lista de gestión de aplicaciones aparte de lo predeterminado</string>
     <string name="security_restrict_app_title">Límite completo</string>
     <string name="security_restrict_app_summary">Permitir la configuración del ahorro de energía y el acceso a Wi-Fi para aplicaciones del sistema</string>
     <string name="security_disable_app_title">Control de estado de aplicación</string>

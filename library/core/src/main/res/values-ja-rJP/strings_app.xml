@@ -298,11 +298,6 @@
     <string name="collapse_miui_title_on_always">常に展開</string>
     <string name="link_open_mode_default">システムのデフォルト</string>
     <string name="link_open_mode_mi">Xiaomi ブラウザー</string>
-    <string name="app_sort_running">デフォルトの並び順</string>
-    <string name="app_sort_name">アプリ名</string>
-    <string name="app_sort_frequency">使用頻度</string>
-    <string name="app_sort_storage">ストレージの使用量</string>
-    <string name="app_sort_install">インストール日時</string>
     <string name="array_pa_blur_official">公式のぼかし</string>
     <string name="array_bpa_blur_customize">カスタム背景ぼかし</string>
     <string name="control_center_sunshine_mode_default">オフ</string>
@@ -1349,8 +1344,6 @@
     <string name="security">セキュリティ</string>
     <string name="security_app_title">アプリの詳細を表示</string>
     <string name="security_app_summary">アプリ情報に以下の項目を追加します:\n• アプリのバージョン番号\n• ユーザー ID\n• データディレクトリ\n• APK ディレクトリ\n• 最小 SDK バージョン\n• 対象 SDK バージョン\n• Play ストアで開く\n• 起動</string>
-    <string name="security_app_sort_title">アプリ管理リストの並び順</string>
-    <string name="security_app_sort_summary">アプリ管理リストのデフォルトの並び順を変更します</string>
     <string name="security_restrict_app_title">フル制限</string>
     <string name="security_restrict_app_summary">システムアプリのバッテリーセーバーと Wi-Fi アクセスの設定を許可する</string>
     <string name="security_disable_app_title">アプリの状態制御</string>
