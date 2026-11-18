@@ -1,19 +1,19 @@
 /*
  * This file is part of HyperCeiler.
-
+ *
  * HyperCeiler is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
-
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+ *
  * Copyright (C) 2023-2026 HyperCeiler Contributions
  */
 package com.sevtinge.hyperceiler.view;
@@ -21,7 +21,12 @@ package com.sevtinge.hyperceiler.view;
 import static com.sevtinge.hyperceiler.common.utils.ShellUtils.checkRootPermission;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.graphics.Typeface;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.sevtinge.hyperceiler.core.R;
 import com.sevtinge.hyperceiler.libhook.utils.hookapi.tool.AppsTool;
@@ -31,33 +36,104 @@ import java.util.Arrays;
 import java.util.List;
 
 import fan.appcompat.app.AlertDialog;
+import fan.slidingwidget.widget.SlidingButton;
 
 public class RestartAlertDialog extends AlertDialog {
 
-    private List<String> mAppNameList;
-    private List<String> mAppPackageNameList;
+    private List<String> mHookedNames;
+    private List<String> mHookedPkgs;
+    private List<String> mAllNames;
+    private List<String> mAllPkgs;
+    private List<String> mCurrentPkgs;
+    private MultipleChoiceView mChoiceView;
 
     public RestartAlertDialog(Context context) {
-        this(context, null, null);
+        this(context, null, null, null, null);
     }
 
     public RestartAlertDialog(Context context, List<String> appNameList, List<String> appPackageNameList) {
-        super(context);
-        setTitle(R.string.hyperceiler_restart_quick);
-        setView(createMultipleChoiceView(context, appNameList, appPackageNameList));
+        this(context, appNameList, appPackageNameList, null, null);
     }
 
-    private MultipleChoiceView createMultipleChoiceView(Context context, List<String> appNameList, List<String> appPackageNameList) {
-        Resources mRes = context.getResources();
-        MultipleChoiceView view = new MultipleChoiceView(context);
-        if (appNameList != null && appPackageNameList != null && !appNameList.isEmpty()) {
-            mAppNameList = appNameList;
-            mAppPackageNameList = appPackageNameList;
-        } else {
-            mAppNameList = Arrays.asList(mRes.getStringArray(R.array.restart_apps_name_hyperos));
-            mAppPackageNameList = Arrays.asList(mRes.getStringArray(R.array.restart_apps_packagename));
+    public RestartAlertDialog(Context context,
+                              List<String> hookedNames, List<String> hookedPkgs,
+                              List<String> allNames, List<String> allPkgs) {
+        super(context);
+        mHookedNames = (hookedNames != null && !hookedNames.isEmpty()) ? hookedNames
+                : Arrays.asList(context.getResources().getStringArray(R.array.restart_apps_name_hyperos));
+        mHookedPkgs = (hookedPkgs != null && !hookedPkgs.isEmpty()) ? hookedPkgs
+                : Arrays.asList(context.getResources().getStringArray(R.array.restart_apps_packagename));
+        mAllNames = allNames;
+        mAllPkgs = allPkgs;
+        mCurrentPkgs = mHookedNames;
+
+        setupTitleAndToggle(context);
+        mChoiceView = createMultipleChoiceView(context);
+        setView(mChoiceView);
+    }
+
+    private void setupTitleAndToggle(Context context) {
+        if (mAllNames == null || mAllNames.isEmpty()) {
+            setTitle(R.string.hyperceiler_restart_quick);
+            return;
         }
-        view.setData(mAppNameList, null);
+
+        RelativeLayout titleLayout = new RelativeLayout(context);
+        int padH = (int) (context.getResources().getDisplayMetrics().density * 24);
+        int padTop = (int) (context.getResources().getDisplayMetrics().density * 20);
+        int padBottom = (int) (context.getResources().getDisplayMetrics().density * 8);
+        titleLayout.setPadding(padH, padTop, padH, padBottom);
+
+        TextView titleView = new TextView(context);
+        titleView.setText(R.string.hyperceiler_restart_quick);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        titleView.setTypeface(Typeface.DEFAULT_BOLD);
+
+        TypedValue tv = new TypedValue();
+        if (context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, tv, true)) {
+            if (tv.resourceId != 0) {
+                titleView.setTextColor(context.getColor(tv.resourceId));
+            } else {
+                titleView.setTextColor(tv.data);
+            }
+        }
+
+        RelativeLayout.LayoutParams titleParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        titleParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        titleView.setLayoutParams(titleParams);
+        titleLayout.addView(titleView);
+
+        SlidingButton toggle = new SlidingButton(context);
+        RelativeLayout.LayoutParams toggleParams = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        toggleParams.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
+        toggleParams.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+        toggle.setLayoutParams(toggleParams);
+        toggle.setChecked(false);
+
+        toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                mCurrentPkgs = mAllPkgs;
+                mChoiceView.setData(mAllNames, null);
+            } else {
+                mCurrentPkgs = mHookedNames;
+                mChoiceView.setData(mHookedNames, null);
+            }
+            mChoiceView.deselectAll();
+        });
+
+        titleLayout.addView(toggle);
+        setCustomTitle(titleLayout);
+    }
+
+    private MultipleChoiceView createMultipleChoiceView(Context context) {
+        MultipleChoiceView view = new MultipleChoiceView(context);
+        view.setData(mHookedNames, null);
         view.deselectAll();
         view.setOnCheckedListener(sparseBooleanArray -> {
             dismiss();
@@ -66,30 +142,19 @@ public class RestartAlertDialog extends AlertDialog {
                 DialogHelper.showAlertDialog(context, false, true);
                 return;
             }
-            for (int i = 0; i < size; i++) {
-                if (sparseBooleanArray.get(i)) {
-                    // ShellUtils.execCommand("pkill -l 9 -f " + mAppPackageNameList.get(i), true, false);
-                    // String test = "XX";
-                    String packageGet = mAppPackageNameList.get(i);
-                    AppsTool.killApps(packageGet);
-                    if ("com.miui.home".equals(packageGet)) {
-                        AppsTool.killApps("com.mi.android.globallauncher");
+            List<String> pkgsToKill = mCurrentPkgs != null ? mCurrentPkgs : mHookedPkgs;
+            if (pkgsToKill != null) {
+                for (int i = 0; i < size; i++) {
+                    if (sparseBooleanArray.get(i) && i < pkgsToKill.size()) {
+                        String packageGet = pkgsToKill.get(i);
+                        AppsTool.killApps(packageGet);
+                        if ("com.miui.home".equals(packageGet)) {
+                            AppsTool.killApps("com.mi.android.globallauncher");
+                        }
                     }
                 }
             }
         });
         return view;
     }
-
-    /*public void restartApp(Context context, String packageName) {
-        Intent intent = new Intent(GlobalActions.ACTION_PREFIX + "RestartApps");
-        intent.putExtra("packageName", packageName);
-        context.sendBroadcast(intent);
-    }
-
-    public void restartSystemUI(Context context) {
-        Intent intent = new Intent(GlobalActions.ACTION_PREFIX + "RestartSystemUI");
-        intent.setPackage("com.android.systemui");
-        context.sendBroadcast(intent);
-    }*/
 }

@@ -487,8 +487,7 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
     }
 
     private void startTipAutoRefresh() {
-        mIsTipsAutoRefreshActive = true;
-        scheduleNextTipRefresh();
+        // Tips banner removed
     }
 
     private void stopTipAutoRefresh() {
@@ -497,10 +496,7 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
     }
 
     private void scheduleNextTipRefresh() {
-        mTipsHandler.removeCallbacks(mTipsAutoTask);
-        if (mIsTipsAutoRefreshActive) {
-            mTipsHandler.postDelayed(mTipsAutoTask, TIP_AUTO_REFRESH_INTERVAL_MS);
-        }
+        // Tips banner removed
     }
 
     @Override
@@ -600,24 +596,37 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
         } else if (itemId == R.id.quick_restart) {
             Context context = requireContext();
             List<Header> displayHeaders = HeaderManager.getDisplayHeaders(context, mHeaders);
-            List<String> names = new ArrayList<>();
-            List<String> pkgs = new ArrayList<>();
+            List<String> hookedNames = new ArrayList<>();
+            List<String> hookedPkgs = new ArrayList<>();
             if (displayHeaders != null) {
                 for (Header h : displayHeaders) {
                     if (h == null || h.summary == null) continue;
                     String pkg = h.summary.toString();
                     if (!TextUtils.isEmpty(pkg) && !pkg.equals("system") && pkg.contains(".")) {
                         CharSequence title = h.getTitle(getResources());
-                        names.add(title != null ? title.toString() : pkg);
-                        pkgs.add(pkg);
+                        hookedNames.add(title != null ? title.toString() : pkg);
+                        hookedPkgs.add(pkg);
                     }
                 }
             }
-            if (!names.isEmpty()) {
-                DialogHelper.showRestartDialog(context, names, pkgs);
-            } else {
-                DialogHelper.showRestartDialog(context);
+
+            List<String> allNames = new ArrayList<>();
+            List<String> allPkgs = new ArrayList<>();
+            if (mHeaders != null) {
+                for (Header h : mHeaders) {
+                    if (h == null || h.summary == null) continue;
+                    String pkg = h.summary.toString();
+                    if (!TextUtils.isEmpty(pkg) && !pkg.equals("system") && pkg.contains(".")) {
+                        if (!com.sevtinge.hyperceiler.utils.PackagesUtils.checkAppStatus(context, pkg)) {
+                            CharSequence title = h.getTitle(getResources());
+                            allNames.add(title != null ? title.toString() : pkg);
+                            allPkgs.add(pkg);
+                        }
+                    }
+                }
             }
+
+            DialogHelper.showRestartDialog(context, hookedNames, hookedPkgs, allNames, allPkgs);
         }
         return super.onOptionsItemSelected(item);
     }

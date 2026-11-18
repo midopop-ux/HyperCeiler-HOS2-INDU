@@ -52,9 +52,6 @@ public class HomePageHeaderHelper {
             masterContainer.addView(view);
         }
 
-        View tipView = HomePageTipHelper.getTipView(context);
-        removeFromParent(tipView);
-        masterContainer.addView(tipView);
 
         if (masterContainer.getChildCount() > 0) {
             if (isNewContainer) {
