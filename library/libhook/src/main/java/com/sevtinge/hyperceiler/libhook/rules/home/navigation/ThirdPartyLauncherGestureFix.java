@@ -68,6 +68,26 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
             XposedLog.w(TAG, "Failed to hook BaseRecentsImpl methods: " + t.getMessage());
         }
 
+        // 2b. Hook RecentsActivity to auto-finish and remove task when stopped so it never lingers above third-party home (Nova)
+        try {
+            findAndHookMethod("com.miui.home.recents.RecentsActivity", "onStop", new IMethodHook() {
+                @Override
+                public void after(HookParam param) {
+                    try {
+                        android.app.Activity activity = (android.app.Activity) param.getThisObject();
+                        if (isThirdPartyLauncherDefault(activity)) {
+                            activity.finishAndRemoveTask();
+                        }
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, "Failed to finish RecentsActivity onStop: " + t.getMessage());
+                    }
+                }
+            });
+            XposedLog.d(TAG, "Hooked RecentsActivity.onStop successfully");
+        } catch (Throwable t) {
+            XposedLog.w(TAG, "Failed to hook RecentsActivity.onStop: " + t.getMessage());
+        }
+
         // 3. Hook NavStubView for full gesture support (Home & Recents) when a third-party launcher (Nova) is default
         try {
             Class<?> navStubViewCls = findClassIfExists("com.miui.home.recents.NavStubView");

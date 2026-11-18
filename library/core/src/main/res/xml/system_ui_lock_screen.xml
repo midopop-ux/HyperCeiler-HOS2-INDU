@@ -112,9 +112,21 @@
         <SwitchPreference
             android:defaultValue="true"
             android:dependency="prefs_key_system_ui_lock_screen_show_charging_cv"
-            android:key="prefs_key_system_ui_lock_screen_dual_cell"
-            android:summary="@string/system_ui_lock_screen_dual_cell_desc"
-            android:title="@string/system_ui_lock_screen_dual_cell" />
+            android:key="prefs_key_system_ui_lock_screen_charging_custom_y_enabled"
+            android:summary="@string/system_ui_lock_screen_charging_offset_y_desc"
+            android:title="@string/system_ui_lock_screen_charging_offset_y" />
+
+        <SeekBarPreferenceCompat
+            android:dependency="prefs_key_system_ui_lock_screen_charging_custom_y_enabled"
+            android:key="prefs_key_system_ui_lock_screen_charging_offset_y"
+            android:layout="@layout/miuix_preference_widget_seekbar_compat_no_title"
+            app:defaultValue="135"
+            app:defaultValueTitle="@string/array_default"
+            app:format="%d dp"
+            app:maxValue="240"
+            app:minValue="40"
+            app:dividerValue="1"
+            app:stepValue="5" />
 
         <SwitchPreference
             android:defaultValue="false"

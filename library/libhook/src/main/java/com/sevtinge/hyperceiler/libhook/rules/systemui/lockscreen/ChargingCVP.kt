@@ -23,11 +23,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Typeface
 import android.os.Handler
 import android.os.PowerManager
 import android.util.ArrayMap
+import android.view.Gravity
 import android.widget.TextView
 import com.sevtinge.hyperceiler.common.log.XposedLog
+import java.lang.ref.WeakReference
 import com.sevtinge.hyperceiler.common.utils.PrefsBridge
 import com.sevtinge.hyperceiler.libhook.base.BaseHook
 import io.github.lingqiqi5211.ezhooktool.core.callMethod
@@ -54,11 +57,19 @@ object ChargingCVP : BaseHook() {
     private val isShowMoreC: Boolean
         get() = PrefsBridge.getBoolean("system_ui_show_charging_c_more")
 
-    private val isDualCell: Boolean
-        get() = PrefsBridge.getBoolean("system_ui_lock_screen_dual_cell", true)
-
     @Volatile
     private var isReceiverRegistered = false
+
+    @Volatile
+    private var indicationTextViewRef: WeakReference<TextView>? = null
+
+    private fun getChargingOffsetY(context: Context): Float {
+        val enabled = PrefsBridge.getBoolean("system_ui_lock_screen_charging_custom_y_enabled", true)
+        if (!enabled) return 0f
+        val offsetDp = PrefsBridge.getInt("system_ui_lock_screen_charging_offset_y", 135)
+        val density = context.resources.displayMetrics.density
+        return offsetDp * density
+    }
 
     @SuppressLint("SetTextI18n")
     override fun init() {
@@ -68,10 +79,30 @@ object ChargingCVP : BaseHook() {
 
         findClassIfExists("com.android.systemui.statusbar.phone.KeyguardIndicationTextView")?.constructors?.toList()?.createHooks {
             after { param ->
-                (param.thisObject as TextView).apply {
+                val textView = param.thisObject as TextView
+                indicationTextViewRef = WeakReference(textView)
+
+                val offsetPx = getChargingOffsetY(textView.context)
+                textView.apply {
                     isSingleLine = false
-                    textSize = 8.2f
+                    maxLines = 3
+                    textSize = 10.5f
+                    typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                    paint.isFakeBoldText = true
+                    lineSpacingMultiplier = 1.15f
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    if (offsetPx > 0f) {
+                        translationY = -offsetPx
+                    }
                 }
+
+                textView.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+                    val currentOffset = getChargingOffsetY(v.context)
+                    if (currentOffset > 0f && v.translationY != -currentOffset) {
+                        v.translationY = -currentOffset
+                    }
+                }
+
                 if (clazzDependency != null && clazzKeyguardIndicationController != null) {
                     setShowSpacing(clazzDependency, clazzKeyguardIndicationController, param)
                 }
@@ -98,7 +129,8 @@ object ChargingCVP : BaseHook() {
                         }
 
                         if (extra.isNotEmpty()) {
-                            param.result = "$originalText · $extra"
+                            val cleanOriginal = originalText.trim().trimEnd('·', ' ', '•')
+                            param.result = "$cleanOriginal\n$extra"
                         }
                     }
                 }
@@ -194,6 +226,14 @@ object ChargingCVP : BaseHook() {
                         )
                         controller.setObjectField("mComputePowerIndication", chargingHintText)
                         controller.callMethod("updateDeviceEntryIndication", false)
+
+                        val tv = indicationTextViewRef?.get()
+                        if (tv != null) {
+                            val offsetPx = getChargingOffsetY(tv.context)
+                            if (offsetPx > 0f && tv.translationY != -offsetPx) {
+                                tv.translationY = -offsetPx
+                            }
+                        }
                     }
                 }
             }
@@ -257,15 +297,14 @@ object ChargingCVP : BaseHook() {
                 }
             }
 
-            val multiplier = if (isDualCell) 2.0 else 1.0
-            val totalCurrent = abs(current) * multiplier
-            val watt = abs(current * voltage) * multiplier
+            val absCurrent = abs(current)
+            val watt = abs(current * voltage)
             val power = String.format("%.1f", watt)
 
             val mCurrent = if (isShowMoreC) {
-                "${(totalCurrent * 1000).toInt()} mA"
+                "${(absCurrent * 1000).toInt()} mA"
             } else {
-                "${String.format("%.1f", totalCurrent)} A"
+                "${String.format("%.1f", absCurrent)} A"
             }
 
             if (current == 0.0) return ""
