@@ -15,6 +15,7 @@ object ScopeManager {
 
     private const val TAG = "ScopeManager"
     private const val SYSTEM_SCOPE_PACKAGE = "system"
+    private const val PREF_CACHED_SCOPE = "cached_lsposed_scope"
     @Volatile
     private var sService: XposedService? = null
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -214,10 +215,6 @@ object ScopeManager {
             }
         }
     }
-
-    /**
-     * 同步读取当前生效的作用域，并返回规范化后的包集合。
-    private const val PREF_CACHED_SCOPE = "cached_lsposed_scope"
 
     /**
      * 同步读取当前生效的作用域，并返回规范化后的包集合。

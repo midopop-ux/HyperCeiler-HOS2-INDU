@@ -20,6 +20,7 @@
 package com.sevtinge.hyperceiler.libhook.rules.systemframework.others;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.provider.Settings;
 
 import com.sevtinge.hyperceiler.common.log.XposedLog;
@@ -60,13 +61,14 @@ public class DisableAudioFocus extends BaseHook {
                 }
             });
 
-            // 2. Ensure mMultiAudioFocusEnabled stays true on every focus request
+            // 2. Grant audio focus unconditionally on every focus request
             hookAllMethods(MEDIA_FOCUS_CONTROL, "requestAudioFocus", new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
                     try {
                         setBooleanField(param.getThisObject(), "mMultiAudioFocusEnabled", true);
                     } catch (Throwable ignored) {}
+                    param.setResult(android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
                 }
             });
 
@@ -94,7 +96,7 @@ public class DisableAudioFocus extends BaseHook {
             hookAllMethods(MEDIA_FOCUS_CONTROL, "propagateFocusLossFromGain_syncAf", suppressFocusLossHook);
             hookAllMethods(MEDIA_FOCUS_CONTROL, "propagateFocusLossFromGain_syncAf_mi", suppressFocusLossHook);
 
-            // 6. Block ducking (volume lowering) and fade out
+            // 6. Block ducking (volume lowering) and fade out in MediaFocusControl
             hookAllMethods(MEDIA_FOCUS_CONTROL, "duckPlayers", new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
@@ -108,7 +110,36 @@ public class DisableAudioFocus extends BaseHook {
                 }
             });
 
-            XposedLog.d(TAG, "Multi Audio Focus & ducking suppression initialized successfully");
+            // 7. Block ducking, call muting, and player attenuation in PlaybackActivityMonitor & DuckingManager
+            String PLAYBACK_ACTIVITY_MONITOR = "com.android.server.audio.PlaybackActivityMonitor";
+            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "duckPlayers", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(Boolean.FALSE);
+                }
+            });
+            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "unduckPlayers", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(null);
+                }
+            });
+            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "mutePlayersForCall", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(null);
+                }
+            });
+
+            String DUCKING_MANAGER = "com.android.server.audio.PlaybackActivityMonitor$DuckingManager";
+            hookAllMethods(DUCKING_MANAGER, "duckUid", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(null);
+                }
+            });
+
+            XposedLog.d(TAG, "Multi Audio Focus, requestAudioFocus bypass & ducking suppression initialized successfully");
         } catch (Throwable t) {
             XposedLog.e(TAG, getPackageName(), t);
         }
