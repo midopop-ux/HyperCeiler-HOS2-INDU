@@ -68,22 +68,6 @@ public class AppDefaultSort extends BaseHook {
             }
         });
 
-        // Ensure app sizes are calculated/loaded in ManageFragment even when sorting by install time or name
-        Class<?> manageFragCls = findClassIfExists("com.miui.appmanager.fragment.ManageFragment");
-        if (manageFragCls != null) {
-            findAndHookMethod(manageFragCls, "w1", java.util.List.class, new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    try {
-                        Object fragment = param.getThisObject();
-                        // Field P in ManageFragment indicates whether size data is calculated/ready
-                        setBooleanField(fragment, "P", false);
-                    } catch (Throwable ignored) {
-                    }
-                }
-            });
-        }
-
         // Hook p5.g.B() which returns the total size in bytes (field 'p')
         // When sorting by installation time, 'p' is 0 because size calculation wasn't triggered.
         // If B() returns 0, calculate and cache the actual size on disk so '0 B' is never shown!
@@ -101,14 +85,21 @@ public class AppDefaultSort extends BaseHook {
                                 java.io.File sourceFile = new java.io.File(appInfo.sourceDir);
                                 long computedSize = 0;
                                 if (sourceFile.exists()) {
-                                    computedSize += sourceFile.length();
                                     java.io.File parentDir = sourceFile.getParentFile();
-                                    if (parentDir != null && parentDir.isDirectory()) {
-                                        java.io.File[] files = parentDir.listFiles();
-                                        if (files != null) {
-                                            for (java.io.File f : files) {
-                                                if (f.isFile()) {
-                                                    computedSize += f.length();
+                                    java.io.File[] files = (parentDir != null && parentDir.isDirectory()) ? parentDir.listFiles() : null;
+                                    if (files != null && files.length > 0) {
+                                        for (java.io.File f : files) {
+                                            if (f.isFile()) {
+                                                computedSize += f.length();
+                                            }
+                                        }
+                                    } else {
+                                        computedSize = sourceFile.length();
+                                        if (appInfo.splitSourceDirs != null) {
+                                            for (String split : appInfo.splitSourceDirs) {
+                                                java.io.File sf = new java.io.File(split);
+                                                if (sf.isFile()) {
+                                                    computedSize += sf.length();
                                                 }
                                             }
                                         }
@@ -131,8 +122,10 @@ public class AppDefaultSort extends BaseHook {
     public static Bundle checkBundle(Bundle bundle) {
         if (bundle == null) bundle = new Bundle();
         int order = PrefsBridge.getStringAsInt("security_center_app_default_sort", 0);
-        bundle.putInt("current_sory_type", order - 1);
-        bundle.putInt("current_sort_type", order - 1);
+        if (order > 0) {
+            bundle.putInt("current_sory_type", order - 1);
+            bundle.putInt("current_sort_type", order - 1);
+        }
         return bundle;
     }
 }

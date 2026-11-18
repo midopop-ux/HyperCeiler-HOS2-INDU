@@ -19,33 +19,62 @@
 
 package com.sevtinge.hyperceiler.libhook.rules.systemframework.others;
 
-import android.media.AudioAttributes;
-
 import com.sevtinge.hyperceiler.common.log.XposedLog;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
 
 import io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam;
 import io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook;
+import io.github.lingqiqi5211.ezhooktool.xposed.java.IReplaceHook;
 
 public class DisableAudioFocus extends BaseHook {
+
+    private static final String TAG = "DisableAudioFocus";
+
     @Override
     public void init() {
         try {
-            // 1. Hook requestAudioFocus: Always grant audio focus without stealing or ducking other streams
-            hookAllMethods("com.android.server.audio.MediaFocusControl", "requestAudioFocus", new IMethodHook() {
+            IReplaceHook returnTrueHook = new IReplaceHook() {
+                @Override
+                public Object replace(HookParam param) {
+                    return Boolean.TRUE;
+                }
+            };
+
+            IReplaceHook returnFalseHook = new IReplaceHook() {
+                @Override
+                public Object replace(HookParam param) {
+                    return Boolean.FALSE;
+                }
+            };
+
+            // 1. Enable Android Native Multi Audio Focus so multiple apps can play audio simultaneously
+            findAndHookMethodReplace("com.android.server.audio.MediaFocusControl", "getMultiAudioFocusEnabled", returnTrueHook);
+
+            // 2. Block sending focus loss to existing players when another app starts playing
+            IMethodHook suppressFocusLossHook = new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
-                    param.setResult(1); // AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                    param.setResult(null);
+                }
+            };
+            hookAllMethods("com.android.server.audio.MediaFocusControl", "propagateFocusLossFromGain_syncAf", suppressFocusLossHook);
+            hookAllMethods("com.android.server.audio.MediaFocusControl", "propagateFocusLossFromGain_syncAf_mi", suppressFocusLossHook);
+
+            // 3. Block ducking (volume lowering) and fade out
+            hookAllMethods("com.android.server.audio.MediaFocusControl", "duckPlayers", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(Boolean.FALSE);
+                }
+            });
+            hookAllMethods("com.android.server.audio.MediaFocusControl", "fadeOutPlayers", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(Boolean.FALSE);
                 }
             });
 
-            // 2. Prevent ducking (volume lowering) during incoming ringtones, alerts, or phone calls
-            hookAllMethods("com.android.server.audio.MediaFocusControl", "notifyExtPolicyFocusLoss_syncAf", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(null); // Block notifying focus loss / ducking to playing clients
-                }
-            });
+            XposedLog.d(TAG, "Audio focus & ducking suppression hooks initialized successfully");
         } catch (Throwable t) {
             XposedLog.e(TAG, getPackageName(), t);
         }

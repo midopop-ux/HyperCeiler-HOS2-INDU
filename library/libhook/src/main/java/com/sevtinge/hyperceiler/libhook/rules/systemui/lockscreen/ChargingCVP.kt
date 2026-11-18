@@ -27,6 +27,7 @@ import android.os.Handler
 import android.os.PowerManager
 import android.util.ArrayMap
 import android.widget.TextView
+import com.sevtinge.hyperceiler.common.log.XposedLog
 import com.sevtinge.hyperceiler.common.utils.PrefsBridge
 import com.sevtinge.hyperceiler.libhook.base.BaseHook
 import io.github.lingqiqi5211.ezhooktool.core.callMethod
@@ -45,22 +46,25 @@ import java.math.RoundingMode
 import kotlin.math.abs
 
 object ChargingCVP : BaseHook() {
-    private val showSpacingValue by lazy {
-        PrefsBridge.getBoolean("system_ui_lock_screen_show_spacing_value")
-    }
-    private val isShowTemp by lazy {
-        PrefsBridge.getBoolean("system_ui_show_battery_temperature")
-    }
-    private val isShowMoreC by lazy {
-        PrefsBridge.getBoolean("system_ui_show_charging_c_more")
-    }
+    private const val TAG = "ChargingCVP"
+
+    private val isShowTemp: Boolean
+        get() = PrefsBridge.getBoolean("system_ui_show_battery_temperature")
+
+    private val isShowMoreC: Boolean
+        get() = PrefsBridge.getBoolean("system_ui_show_charging_c_more")
+
+    private val isDualCell: Boolean
+        get() = PrefsBridge.getBoolean("system_ui_lock_screen_dual_cell", true)
+
+    @Volatile
+    private var isReceiverRegistered = false
 
     @SuppressLint("SetTextI18n")
     override fun init() {
-        // 去除单行限制
-        val clazzDependency = findClass("com.android.systemui.Dependency")
+        val clazzDependency = findClassIfExists("com.android.systemui.Dependency")
         val clazzKeyguardIndicationController =
-            findClass("com.android.systemui.statusbar.KeyguardIndicationController")
+            findClassIfExists("com.android.systemui.statusbar.KeyguardIndicationController")
 
         findClassIfExists("com.android.systemui.statusbar.phone.KeyguardIndicationTextView")?.constructors?.toList()?.createHooks {
             after { param ->
@@ -68,23 +72,37 @@ object ChargingCVP : BaseHook() {
                     isSingleLine = false
                     textSize = 8.2f
                 }
-                setShowSpacing(clazzDependency, clazzKeyguardIndicationController, param)
+                if (clazzDependency != null && clazzKeyguardIndicationController != null) {
+                    setShowSpacing(clazzDependency, clazzKeyguardIndicationController, param)
+                }
             }
         }
 
-
-        // 修改底部文本信息
+        // 修改底部文本信息，保留原有系统信息（如快充、百分比等），并追加实时温度与功率
         val clazzChargeUtils = findClassIfExists("com.miui.charge.ChargeUtils")
             ?: findClassIfExists("com.android.keyguard.charge.ChargeUtils")
         clazzChargeUtils?.findMethod { name("getChargingHintText"); paramCount(3) }
             ?.createHook {
                 after { param ->
-                    param.result = param.result?.let {
-                        "${getTemp()}${getCVP()}"
+                    val originalText = param.result as? String
+                    val temp = getTemp()
+                    val cvp = getCVP()
+                    if (originalText != null) {
+                        val extra = StringBuilder()
+                        if (temp.isNotEmpty()) {
+                            extra.append(temp)
+                        }
+                        if (cvp.isNotEmpty()) {
+                            if (extra.isNotEmpty()) extra.append(" · ")
+                            extra.append(cvp)
+                        }
+
+                        if (extra.isNotEmpty()) {
+                            param.result = "$originalText · $extra"
+                        }
                     }
                 }
             }
-
     }
 
     private fun setShowSpacing(
@@ -92,97 +110,102 @@ object ChargingCVP : BaseHook() {
         clazzKeyguardIndicationController: Class<*>,
         param: HookParam
     ) {
+        if (isReceiverRegistered) return
+        synchronized(this) {
+            if (isReceiverRegistered) return
+            isReceiverRegistered = true
+        }
+
+        val textView = param.thisObject as? TextView ?: return
+        val appContext = textView.context.applicationContext ?: textView.context
+
+        val keyguardIndicationController = runCatching {
+            clazzDependency.callStaticMethod("get", clazzKeyguardIndicationController)
+        }.getOrNull() ?: runCatching {
+            val clazzMiuiStub = findClassIfExists("miui.stub.MiuiStub")
+            val instanceMiuiStub = clazzMiuiStub?.getStaticObjectFieldOrNull("INSTANCE")
+            val mSysUIProvider = instanceMiuiStub?.getObjectFieldOrNull("mSysUIProvider")
+            val mKeyguardIndicationController = mSysUIProvider?.getObjectFieldOrNull("mKeyguardIndicationController")
+            mKeyguardIndicationController?.callMethod("get")
+        }.getOrNull()
+
+        if (keyguardIndicationController == null) {
+            XposedLog.w(TAG, "KeyguardIndicationController not found, skip periodic refresh")
+            return
+        }
+
+        val handler = Handler(appContext.mainLooper)
+        val runnable = object : Runnable {
+            override fun run() {
+                try {
+                    doUpdateForHyperOS(keyguardIndicationController)
+                } catch (t: Throwable) {
+                    XposedLog.w(TAG, "Error in doUpdateForHyperOS: " + t.message)
+                }
+
+                // 刷新间隔：默认 1.0 秒 (1000ms)，若用户在设置中自定义了间距则采用设置值
+                val intervalMs = if (PrefsBridge.getBoolean("system_ui_lock_screen_show_spacing_value")) {
+                    val spacing = PrefsBridge.getInt("system_ui_lock_screen_show_spacing", 2)
+                    (spacing * 500L).coerceAtLeast(500L)
+                } else {
+                    1000L
+                }
+
+                handler.postDelayed(this, intervalMs)
+            }
+
+            fun doUpdateForHyperOS(controller: Any) {
+                runCatching {
+                    val clazzMiuiDependency = findClassIfExists("com.miui.systemui.MiuiDependency") ?: return
+                    val clazzMiuiChargeController = findClassIfExists("com.miui.charge.MiuiChargeController") ?: return
+                    val sDependency = clazzMiuiDependency.getStaticObjectFieldOrNull("sDependency") ?: return
+                    val mProviders = sDependency.getObjectFieldOrNull("mProviders") as? ArrayMap<*, *> ?: return
+                    val mMiuiChargeControllerProvider = mProviders[clazzMiuiChargeController] ?: return
+
+                    val instanceMiuiChargeController = runCatching {
+                        mMiuiChargeControllerProvider.getObjectFieldOrNull("f$0")?.callMethod("get")
+                    }.getOrNull() ?: runCatching {
+                        mMiuiChargeControllerProvider.callMethod("get")
+                    }.getOrNull() ?: return
+
+                    val mBatteryStatus = instanceMiuiChargeController.getObjectFieldOrNull("mBatteryStatus") ?: return
+                    val level = mBatteryStatus.getObjectFieldOrNull("level") ?: 0
+                    val plugged = (mBatteryStatus.getObjectFieldOrNull("plugged") as? Int) ?: 0
+
+                    val clazzMiuiBatteryStatus = findClassIfExists("com.miui.systemui.charge.MiuiBatteryStatus", lpparam.classLoader)
+                    val isPluggedIn = runCatching {
+                        if (clazzMiuiBatteryStatus != null) {
+                            callStaticMethod(clazzMiuiBatteryStatus, "isPluggedIn", plugged) as? Boolean
+                        } else null
+                    }.getOrNull() ?: (plugged == 1 || plugged == 2 || plugged == 4)
+
+                    val mContext = instanceMiuiChargeController.getObjectFieldOrNull("mContext")
+
+                    val clazzChargeUtils =
+                        findClassIfExists("com.miui.charge.ChargeUtils", lpparam.classLoader)
+                            ?: findClassIfExists("com.android.keyguard.charge.ChargeUtils", lpparam.classLoader)
+                    if (clazzChargeUtils != null) {
+                        val chargingHintText = callStaticMethod(
+                            clazzChargeUtils,
+                            "getChargingHintText",
+                            level,
+                            isPluggedIn,
+                            mContext
+                        )
+                        controller.setObjectField("mComputePowerIndication", chargingHintText)
+                        controller.callMethod("updateDeviceEntryIndication", false)
+                    }
+                }
+            }
+        }
+
         val screenOnOffReceiver = object : BroadcastReceiver() {
-            val keyguardIndicationController = runCatching {
-                clazzDependency.callStaticMethod("get", clazzKeyguardIndicationController)!!
-            }.getOrElse {
-                val clazzMiuiStub = findClass("miui.stub.MiuiStub")
-                val instanceMiuiStub =
-                    clazzMiuiStub.getStaticObjectFieldOrNull("INSTANCE")!!
-                val mSysUIProvider =
-                    instanceMiuiStub.getObjectFieldOrNull("mSysUIProvider")!!
-                val mKeyguardIndicationController =
-                    mSysUIProvider.getObjectFieldOrNull("mKeyguardIndicationController")!!
-                mKeyguardIndicationController.callMethod("get")!!
-            }
-            val handler = Handler((param.thisObject as TextView).context.mainLooper)
-            val runnable = object : Runnable {
-                val clazzMiuiDependency =
-                    findClass("com.miui.systemui.MiuiDependency")
-                val clazzMiuiChargeController =
-                    findClass("com.miui.charge.MiuiChargeController")
-                val sDependency =
-                    clazzMiuiDependency.getStaticObjectFieldOrNull("sDependency")!!
-                val mProviders =
-                    sDependency.getObjectFieldOrNull("mProviders") as ArrayMap<*, *>
-                val mMiuiChargeControllerProvider = mProviders[clazzMiuiChargeController]!!
-                val instanceMiuiChargeController = mMiuiChargeControllerProvider
-                        .getObjectFieldOrNull("f$0")!!
-                        .callMethod("get")!!
-
-                override fun run() {
-                    doUpdateForHyperOS()
-                    val intervalSeconds = if (showSpacingValue) {
-                        PrefsBridge.getInt("system_ui_statusbar_lock_screen_show_spacing", 3) / 2.0
-                    } else {
-                        1.5
-                    }
-                    handler.postDelayed(
-                        this,
-                        (intervalSeconds * 1000L).toLong()
-                    )
-                }
-
-                fun doUpdateForHyperOS() {
-                    runCatching {
-                        val mBatteryStatus =
-                            instanceMiuiChargeController.getObjectFieldOrNull("mBatteryStatus") ?: return
-                        val level = mBatteryStatus.getObjectFieldOrNull("level")
-                        val plugged = (mBatteryStatus.getObjectFieldOrNull("plugged") as? Int) ?: 0
-                        val clazzMiuiBatteryStatus = findClassIfExists("com.miui.systemui.charge.MiuiBatteryStatus", lpparam.classLoader)
-                        val isPluggedIn = runCatching {
-                            if (clazzMiuiBatteryStatus != null) {
-                                callStaticMethod(clazzMiuiBatteryStatus, "isPluggedIn", plugged) as? Boolean
-                            } else null
-                        }.getOrNull() ?: (plugged == 1 || plugged == 2 || plugged == 4)
-
-                        val mContext =
-                            instanceMiuiChargeController.getObjectFieldOrNull("mContext")
-                        val clazzChargeUtils =
-                            findClassIfExists("com.miui.charge.ChargeUtils", lpparam.classLoader)
-                                ?: findClassIfExists("com.android.keyguard.charge.ChargeUtils", lpparam.classLoader)
-                        if (clazzChargeUtils != null) {
-                            val chargingHintText =
-                                callStaticMethod(
-                                    clazzChargeUtils,
-                                    "getChargingHintText",
-                                    level,
-                                    isPluggedIn,
-                                    mContext
-                                )
-                            keyguardIndicationController.setObjectField("mComputePowerIndication", chargingHintText)
-                            keyguardIndicationController.callMethod(
-                                "updateDeviceEntryIndication",
-                                null,
-                                false
-                            )
-                        }
-                    }
-                }
-            }
-
-            init {
-                if (((param.thisObject as TextView).context.getSystemService(Context.POWER_SERVICE) as PowerManager).isInteractive) {
-                    handler.post(runnable)
-                }
-            }
-
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
                     Intent.ACTION_SCREEN_ON -> {
+                        handler.removeCallbacks(runnable)
                         handler.post(runnable)
                     }
-
                     Intent.ACTION_SCREEN_OFF -> {
                         handler.removeCallbacks(runnable)
                     }
@@ -194,14 +217,16 @@ object ChargingCVP : BaseHook() {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_SCREEN_OFF)
         }
-        (param.thisObject as TextView).context.registerReceiver(
-            screenOnOffReceiver, filter, Context.RECEIVER_EXPORTED
-        )
+        appContext.registerReceiver(screenOnOffReceiver, filter, Context.RECEIVER_EXPORTED)
+
+        val powerManager = appContext.getSystemService(Context.POWER_SERVICE) as? PowerManager
+        if (powerManager?.isInteractive == true) {
+            handler.post(runnable)
+        }
     }
 
     private fun getTemp(): String {
         var temp = 0.0
-
         try {
             BufferedReader(FileReader("/sys/class/power_supply/battery/temp")).use { reader ->
                 temp = BigDecimal(reader.readLine().toDouble() / 10.0)
@@ -212,7 +237,7 @@ object ChargingCVP : BaseHook() {
             temp = 0.0
         }
 
-        return if (isShowTemp) "$temp ℃ · " else ""
+        return if (isShowTemp && temp > 0.0) "$temp ℃" else ""
     }
 
     @SuppressLint("DefaultLocale")
@@ -232,26 +257,20 @@ object ChargingCVP : BaseHook() {
                 }
             }
 
-            // 计算功率信息 (Dynamic watt calculation)
-            val watt = abs(current * voltage)
+            val multiplier = if (isDualCell) 2.0 else 1.0
+            val totalCurrent = abs(current) * multiplier
+            val watt = abs(current * voltage) * multiplier
             val power = String.format("%.1f", watt)
 
-            // 电流展示逻辑设置
             val mCurrent = if (isShowMoreC) {
-                "${abs(current * 1000).toInt()} mA"
+                "${(totalCurrent * 1000).toInt()} mA"
             } else {
-                "${String.format("%.1f", abs(current))} A"
+                "${String.format("%.1f", totalCurrent)} A"
             }
 
-            // 判断充满信息是否归零
-            val showBattery = if (current == 0.0) {
-                ""
-            } else {
-                "$mCurrent ($power W)"
-            }
+            if (current == 0.0) return ""
 
-            // 输出展示信息
-            return showBattery
+            return "$mCurrent ($power W)"
         }
         return ""
     }

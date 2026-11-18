@@ -64,37 +64,5 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
         } catch (Throwable t) {
             XposedLog.w(TAG, "Failed to hook BaseRecentsImpl methods: " + t.getMessage());
         }
-
-        // 3. Hook OverviewComponentObserver to maintain full screen gesture targets and stubs
-        try {
-            findAndHookMethodReplace("com.miui.home.recents.OverviewComponentObserver", "isHomeAndOverviewSame", returnTrueHook);
-
-            findAndHookMethod("com.miui.home.recents.OverviewComponentObserver", "updateOverviewTargets", new IMethodHook() {
-                @Override
-                public void after(HookParam param) {
-                    try {
-                        Object observer = param.getThisObject();
-                        setBooleanField(observer, "mIsHomeAndOverviewSame", true);
-
-                        Class<?> recentsClass = findClassIfExists("com.miui.home.recents.RecentsModel");
-                        if (recentsClass != null) {
-                            Object recentsModelInstance = callStaticMethod(recentsClass, "getInstance");
-                            if (recentsModelInstance != null) {
-                                Object baseRecents = callMethod(recentsModelInstance, "getRecentsImpl");
-                                if (baseRecents != null) {
-                                    callMethod(baseRecents, "setIsUseMiuiHomeAsDefaultHome", true);
-                                }
-                            }
-                        }
-                    } catch (Throwable t) {
-                        XposedLog.w(TAG, "Error in OverviewComponentObserver.updateOverviewTargets hook: " + t.getMessage());
-                    }
-                }
-            });
-            XposedLog.d(TAG, "Hooked OverviewComponentObserver methods successfully");
-        } catch (Throwable t) {
-            XposedLog.w(TAG, "Failed to hook OverviewComponentObserver.updateOverviewTargets: " + t.getMessage());
-        }
-
     }
 }

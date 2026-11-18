@@ -531,6 +531,8 @@
     <string name="system_ui_lock_screen_default_theme">يدعم الثيم الافتراضي فقط</string>
     <string name="system_ui_lock_screen_show_charging_cv">عرض معلومات الشحن في الأسفل</string>
     <string name="system_ui_lock_screen_show_charging_c_more">عرض تفاصيل التيار</string>
+    <string name="system_ui_lock_screen_dual_cell">بطارية مزدوجة الخلايا (مضاعفة القوة 2x)</string>
+    <string name="system_ui_lock_screen_dual_cell_desc">مضاعفة قراءة التيار والواط للأجهزة ذات الشحن السريع (67W / 90W / 120W)</string>
     <string name="system_ui_lock_screen_show_battery_temperature">إظهار درجة حرارة البطارية</string>
     <string name="system_ui_lock_screen_show_spacing">عرض الفاصل الزمني للتحديث</string>
     <string name="system_ui_lock_screen_hide_camera">إخفاء زر الكاميرا</string>

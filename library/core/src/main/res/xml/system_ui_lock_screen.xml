@@ -110,6 +110,13 @@
             android:title="@string/system_ui_lock_screen_show_charging_c_more" />
 
         <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="prefs_key_system_ui_lock_screen_show_charging_cv"
+            android:key="prefs_key_system_ui_lock_screen_dual_cell"
+            android:summary="@string/system_ui_lock_screen_dual_cell_desc"
+            android:title="@string/system_ui_lock_screen_dual_cell" />
+
+        <SwitchPreference
             android:defaultValue="false"
             android:dependency="prefs_key_system_ui_lock_screen_show_charging_cv"
             android:key="prefs_key_system_ui_show_battery_temperature"

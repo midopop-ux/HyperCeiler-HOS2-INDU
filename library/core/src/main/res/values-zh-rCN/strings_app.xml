@@ -578,6 +578,8 @@
     <string name="system_ui_lock_screen_default_theme">仅支持默认主题</string>
     <string name="system_ui_lock_screen_show_charging_cv">锁屏底部显示充电信息</string>
     <string name="system_ui_lock_screen_show_charging_c_more">显示详细电流</string>
+    <string name="system_ui_lock_screen_dual_cell">双电芯电池 (2x 功率)</string>
+    <string name="system_ui_lock_screen_dual_cell_desc">为双电芯快充机型 (67W / 90W / 120W) 翻倍显示总电流与总功率</string>
     <string name="system_ui_lock_screen_show_battery_temperature">显示电池温度</string>
     <string name="system_ui_lock_screen_show_spacing">显示刷新间隔</string>
     <string name="system_ui_lock_screen_hide_camera">隐藏相机</string>
