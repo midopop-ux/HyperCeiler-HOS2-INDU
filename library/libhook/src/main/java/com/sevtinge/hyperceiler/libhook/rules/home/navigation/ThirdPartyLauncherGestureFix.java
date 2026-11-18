@@ -58,13 +58,17 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                     param.getArgs()[0] = Boolean.TRUE;
                 }
             });
-            XposedLog.d(TAG, "Hooked BaseRecentsImpl.setIsUseMiuiHomeAsDefaultHome successfully");
+            findAndHookMethodReplace("com.miui.home.recents.BaseRecentsImpl", "getIsUseMiuiHomeAsDefaultHome", returnTrueHook);
+            findAndHookMethodReplace("com.miui.home.recents.BaseRecentsImpl", "isUseLauncherRecentsAndFsGesture", returnTrueHook);
+            XposedLog.d(TAG, "Hooked BaseRecentsImpl default home checks successfully");
         } catch (Throwable t) {
-            XposedLog.w(TAG, "Failed to hook BaseRecentsImpl.setIsUseMiuiHomeAsDefaultHome: " + t.getMessage());
+            XposedLog.w(TAG, "Failed to hook BaseRecentsImpl methods: " + t.getMessage());
         }
 
         // 3. Hook OverviewComponentObserver to maintain full screen gesture targets and stubs
         try {
+            findAndHookMethodReplace("com.miui.home.recents.OverviewComponentObserver", "isHomeAndOverviewSame", returnTrueHook);
+
             findAndHookMethod("com.miui.home.recents.OverviewComponentObserver", "updateOverviewTargets", new IMethodHook() {
                 @Override
                 public void after(HookParam param) {
@@ -87,117 +91,9 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                     }
                 }
             });
-            XposedLog.d(TAG, "Hooked OverviewComponentObserver.updateOverviewTargets successfully");
+            XposedLog.d(TAG, "Hooked OverviewComponentObserver methods successfully");
         } catch (Throwable t) {
             XposedLog.w(TAG, "Failed to hook OverviewComponentObserver.updateOverviewTargets: " + t.getMessage());
-        }
-
-        // 4. Hook NavStubView for instant Home (0ms), Hold for Recents, and gesture support
-        try {
-            // Hook actionUpResolution: when user releases swipe up, immediately perform Home (0ms instant)
-            findAndHookMethod("com.miui.home.recents.NavStubView", "commonAppTouchFromDown", boolean.class, new IMethodHook() {
-                @Override
-                public void after(HookParam param) {
-                    try {
-                        Object navStub = param.getThisObject();
-                        Object stateMachine = getObjectField(navStub, "mStateMachine");
-                        if (stateMachine != null) {
-                            callMethod(stateMachine, "sendMessage", 11);
-                        }
-                    } catch (Throwable t) {
-                        XposedLog.w(TAG, "Error in commonAppTouchFromDown hook: " + t.getMessage());
-                    }
-                }
-            });
-
-            // Hook actionUpResolution: when user releases swipe up from bottom, immediately perform Home (0ms instant)
-            findAndHookMethod("com.miui.home.recents.NavStubView", "actionUpResolution", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    try {
-                        Object navStub = param.getThisObject();
-                        callMethod(navStub, "injectKeyEventDownAndUp", 3);
-                        callMethod(navStub, "finishRecentsActivityDirectly");
-                        param.setResult(null);
-                    } catch (Throwable t) {
-                        XposedLog.w(TAG, "Error in actionUpResolution hook: " + t.getMessage());
-                    }
-                }
-            });
-
-            // Double tap on bottom navigation gesture area to trigger Recents (KEYCODE_APP_SWITCH = 187)
-            IMethodHook doubleTapHook = new IMethodHook() {
-                private long mLastBottomTapTime = 0;
-                private float mLastTapX = 0;
-                private float mLastTapY = 0;
-
-                @Override
-                public void before(HookParam param) {
-                    try {
-                        android.view.MotionEvent event = (android.view.MotionEvent) param.getArgs()[0];
-                        if (event != null && event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
-                            Object navStub = param.getThisObject();
-                            int screenHeight = ((android.view.View) navStub).getResources().getDisplayMetrics().heightPixels;
-                            float y = event.getRawY();
-                            float x = event.getRawX();
-
-                            // Bottom edge area (within bottom 160 pixels or touch height)
-                            if (y >= screenHeight - 160) {
-                                long now = System.currentTimeMillis();
-                                if (now - mLastBottomTapTime < 400 && Math.abs(x - mLastTapX) < 180 && Math.abs(y - mLastTapY) < 180) {
-                                    // Double tap detected!
-                                    XposedLog.d(TAG, "Double tap on bottom gesture bar detected!");
-                                    android.content.Context ctx = ((android.view.View) navStub).getContext();
-                                    boolean handled = false;
-                                    try {
-                                        handled = com.sevtinge.hyperceiler.libhook.appbase.systemframework.GlobalActionBridge.handleAction(
-                                            ctx != null ? ctx : io.github.lingqiqi5211.ezhooktool.xposed.EzXposed.getAppContext(),
-                                            "home_gesture_line_double_click"
-                                        );
-                                    } catch (Throwable t) {
-                                        XposedLog.w(TAG, "Error invoking GlobalActionBridge: " + t.getMessage());
-                                    }
-
-                                    if (!handled) {
-                                        // Default fallback: Trigger Recents immediately (KEYCODE_APP_SWITCH = 187)
-                                        callMethod(navStub, "injectKeyEventDownAndUp", 187);
-                                        callMethod(navStub, "finishRecentsActivityDirectly");
-                                    }
-                                    mLastBottomTapTime = 0;
-                                    param.setResult(Boolean.TRUE);
-                                    return;
-                                }
-                                mLastBottomTapTime = now;
-                                mLastTapX = x;
-                                mLastTapY = y;
-                            }
-                        }
-                    } catch (Throwable t) {
-                        XposedLog.w(TAG, "Error in double-tap hook: " + t.getMessage());
-                    }
-                }
-            };
-
-            findAndHookMethod("com.miui.home.recents.NavStubView", "onPointerEvent", android.view.MotionEvent.class, doubleTapHook);
-            findAndHookMethod("com.miui.home.recents.NavStubView", "onTouchEvent", android.view.MotionEvent.class, doubleTapHook);
-
-            // Hook performAppToHome to immediately inject KEYCODE_HOME (3) with 0ms delay
-            findAndHookMethod("com.miui.home.recents.NavStubView", "performAppToHome", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    try {
-                        Object navStub = param.getThisObject();
-                        callMethod(navStub, "injectKeyEventDownAndUp", 3);
-                        callMethod(navStub, "finishRecentsActivityDirectly");
-                        param.setResult(null);
-                    } catch (Throwable t) {
-                        XposedLog.w(TAG, "Error in performAppToHome hook: " + t.getMessage());
-                    }
-                }
-            });
-            XposedLog.d(TAG, "Hooked NavStubView gesture triggers successfully");
-        } catch (Throwable t) {
-            XposedLog.w(TAG, "Failed to hook NavStubView: " + t.getMessage());
         }
 
     }

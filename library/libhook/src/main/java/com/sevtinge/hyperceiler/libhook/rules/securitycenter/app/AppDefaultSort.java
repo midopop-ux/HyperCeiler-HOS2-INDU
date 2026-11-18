@@ -71,19 +71,57 @@ public class AppDefaultSort extends BaseHook {
         // Ensure app sizes are calculated/loaded in ManageFragment even when sorting by install time or name
         Class<?> manageFragCls = findClassIfExists("com.miui.appmanager.fragment.ManageFragment");
         if (manageFragCls != null) {
-            findAndHookMethod(manageFragCls, "w1", new IMethodHook() {
+            findAndHookMethod(manageFragCls, "w1", java.util.List.class, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    try {
+                        Object fragment = param.getThisObject();
+                        // Field P in ManageFragment indicates whether size data is calculated/ready
+                        setBooleanField(fragment, "P", false);
+                    } catch (Throwable ignored) {
+                    }
+                }
+            });
+        }
+
+        // Hook p5.g.B() which returns the total size in bytes (field 'p')
+        // When sorting by installation time, 'p' is 0 because size calculation wasn't triggered.
+        // If B() returns 0, calculate and cache the actual size on disk so '0 B' is never shown!
+        Class<?> itemCls = findClassIfExists("p5.g");
+        if (itemCls != null) {
+            findAndHookMethod(itemCls, "B", new IMethodHook() {
                 @Override
                 public void after(HookParam param) {
                     try {
-                        Object fragment = param.getThisObject();
-                        int sortType = getIntField(fragment, "z");
-                        // If sortType is not 2 (Storage sort), MIUI skips updateData() which calculates app sizes, resulting in '0 B'.
-                        // Trigger updateData() to ensure all app sizes are loaded and displayed!
-                        if (sortType != 2) {
-                            callMethod(fragment, "updateData");
+                        long size = (long) param.getResult();
+                        if (size <= 0) {
+                            Object item = param.getThisObject();
+                            android.content.pm.ApplicationInfo appInfo = (android.content.pm.ApplicationInfo) getObjectField(item, "v");
+                            if (appInfo != null && appInfo.sourceDir != null) {
+                                java.io.File sourceFile = new java.io.File(appInfo.sourceDir);
+                                long computedSize = 0;
+                                if (sourceFile.exists()) {
+                                    computedSize += sourceFile.length();
+                                    java.io.File parentDir = sourceFile.getParentFile();
+                                    if (parentDir != null && parentDir.isDirectory()) {
+                                        java.io.File[] files = parentDir.listFiles();
+                                        if (files != null) {
+                                            for (java.io.File f : files) {
+                                                if (f.isFile()) {
+                                                    computedSize += f.length();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (computedSize > 0) {
+                                    setLongField(item, "p", computedSize);
+                                    param.setResult(computedSize);
+                                }
+                            }
                         }
                     } catch (Throwable t) {
-                        XposedLog.w(TAG, getPackageName(), "ManageFragment.w1 hook error: " + t.getMessage());
+                        XposedLog.w(TAG, getPackageName(), "Error computing item size in p5.g.B: " + t.getMessage());
                     }
                 }
             });
