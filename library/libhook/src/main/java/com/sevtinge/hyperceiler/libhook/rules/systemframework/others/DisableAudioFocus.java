@@ -34,14 +34,49 @@ public class DisableAudioFocus extends BaseHook {
 
     private static final String TAG = "DisableAudioFocus";
     private static final String MEDIA_FOCUS_CONTROL = "com.android.server.audio.MediaFocusControl";
+    private static final String FOCUS_REQUESTER = "com.android.server.audio.FocusRequester";
+    private static final String PLAYBACK_ACTIVITY_MONITOR = "com.android.server.audio.PlaybackActivityMonitor";
+    private static final String DUCKING_MANAGER = "com.android.server.audio.PlaybackActivityMonitor$DuckingManager";
+    private static final String DUCKED_APP = "com.android.server.audio.PlaybackActivityMonitor$DuckingManager$DuckedApp";
+    private static final String FADE_OUT_MANAGER = "com.android.server.audio.FadeOutManager";
+    private static final String PAM_STUB = "com.android.server.audio.PlaybackActivityMonitorStub";
+    private static final String PAM_STUB_IMPL = "com.android.server.audio.PlaybackActivityMonitorStubImpl";
 
     @Override
     public void init() {
         try {
-            IReplaceHook returnTrueHook = new IReplaceHook() {
+            IReplaceHook returnTrueReplaceHook = new IReplaceHook() {
                 @Override
                 public Object replace(HookParam param) {
                     return Boolean.TRUE;
+                }
+            };
+
+            IMethodHook returnTrueMethodHook = new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(Boolean.TRUE);
+                }
+            };
+
+            IMethodHook returnFalseMethodHook = new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(Boolean.FALSE);
+                }
+            };
+
+            IMethodHook noOpMethodHook = new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(null);
+                }
+            };
+
+            IMethodHook returnZeroMethodHook = new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(0);
                 }
             };
 
@@ -68,7 +103,7 @@ public class DisableAudioFocus extends BaseHook {
                     try {
                         setBooleanField(param.getThisObject(), "mMultiAudioFocusEnabled", true);
                     } catch (Throwable ignored) {}
-                    param.setResult(android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+                    param.setResult(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
                 }
             });
 
@@ -83,63 +118,52 @@ public class DisableAudioFocus extends BaseHook {
                 }
             });
 
-            // 4. Force getMultiAudioFocusEnabled() to return true
-            findAndHookMethodReplace(MEDIA_FOCUS_CONTROL, "getMultiAudioFocusEnabled", returnTrueHook);
+            // 4. Force getMultiAudioFocusEnabled() & canReassignAudioFocus() to return true
+            findAndHookMethodReplace(MEDIA_FOCUS_CONTROL, "getMultiAudioFocusEnabled", returnTrueReplaceHook);
+            hookAllMethods(MEDIA_FOCUS_CONTROL, "canReassignAudioFocus", returnTrueMethodHook);
 
-            // 5. Block sending focus loss to existing players when another app starts playing
-            IMethodHook suppressFocusLossHook = new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(null);
-                }
-            };
-            hookAllMethods(MEDIA_FOCUS_CONTROL, "propagateFocusLossFromGain_syncAf", suppressFocusLossHook);
-            hookAllMethods(MEDIA_FOCUS_CONTROL, "propagateFocusLossFromGain_syncAf_mi", suppressFocusLossHook);
+            // 5. Block sending focus loss and call audio muting in MediaFocusControl
+            hookAllMethods(MEDIA_FOCUS_CONTROL, "propagateFocusLossFromGain_syncAf", noOpMethodHook);
+            hookAllMethods(MEDIA_FOCUS_CONTROL, "propagateFocusLossFromGain_syncAf_mi", noOpMethodHook);
+            hookAllMethods(MEDIA_FOCUS_CONTROL, "runAudioCheckerForRingOrCallAsync", noOpMethodHook);
+            hookAllMethods(MEDIA_FOCUS_CONTROL, "mutePlayersForCall", noOpMethodHook);
+            hookAllMethods(MEDIA_FOCUS_CONTROL, "duckPlayers", returnFalseMethodHook);
+            hookAllMethods(MEDIA_FOCUS_CONTROL, "fadeOutPlayers", returnFalseMethodHook);
 
-            // 6. Block ducking (volume lowering) and fade out in MediaFocusControl
-            hookAllMethods(MEDIA_FOCUS_CONTROL, "duckPlayers", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(Boolean.FALSE);
-                }
-            });
-            hookAllMethods(MEDIA_FOCUS_CONTROL, "fadeOutPlayers", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(Boolean.FALSE);
-                }
-            });
+            // 6. Complete suppression of focus loss dispatch in FocusRequester
+            // This prevents ANY negative focus change (-1, -2, -3 ducking) from reaching client apps (e.g. YouTube)
+            hookAllMethods(FOCUS_REQUESTER, "handleFocusLoss", noOpMethodHook);
+            hookAllMethods(FOCUS_REQUESTER, "handleFocusLossFromGain", returnFalseMethodHook);
+            hookAllMethods(FOCUS_REQUESTER, "dispatchFocusChange", returnZeroMethodHook);
+            hookAllMethods(FOCUS_REQUESTER, "dispatchFocusChangeWithFadeLocked", returnZeroMethodHook);
+            hookAllMethods(FOCUS_REQUESTER, "frameworkHandleFocusLoss", returnFalseMethodHook);
 
-            // 7. Block ducking, call muting, and player attenuation in PlaybackActivityMonitor & DuckingManager
-            String PLAYBACK_ACTIVITY_MONITOR = "com.android.server.audio.PlaybackActivityMonitor";
-            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "duckPlayers", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(Boolean.FALSE);
-                }
-            });
-            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "unduckPlayers", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(null);
-                }
-            });
-            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "mutePlayersForCall", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(null);
-                }
-            });
+            // 7. Block ducking, call muting, and player attenuation in PlaybackActivityMonitor
+            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "duckPlayers", returnFalseMethodHook);
+            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "unduckPlayers", noOpMethodHook);
+            hookAllMethods(PLAYBACK_ACTIVITY_MONITOR, "mutePlayersForCall", noOpMethodHook);
 
-            String DUCKING_MANAGER = "com.android.server.audio.PlaybackActivityMonitor$DuckingManager";
-            hookAllMethods(DUCKING_MANAGER, "duckUid", new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(null);
-                }
-            });
+            // 8. Block DuckingManager & DuckedApp VolumeShaper ducking
+            hookAllMethods(DUCKING_MANAGER, "duckUid", noOpMethodHook);
+            hookAllMethods(DUCKING_MANAGER, "checkDuck", noOpMethodHook);
+            hookAllMethods(DUCKED_APP, "addDuck", noOpMethodHook);
 
-            XposedLog.d(TAG, "Multi Audio Focus, requestAudioFocus bypass & ducking suppression initialized successfully");
+            // 9. Block FadeOutManager from fading out or lowering player volume
+            hookAllMethods(FADE_OUT_MANAGER, "isFadeEnabled", returnFalseMethodHook);
+            hookAllMethods(FADE_OUT_MANAGER, "canCauseFadeOut", returnFalseMethodHook);
+            hookAllMethods(FADE_OUT_MANAGER, "canBeFadedOut", returnFalseMethodHook);
+            hookAllMethods(FADE_OUT_MANAGER, "fadeOutUid", noOpMethodHook);
+            hookAllMethods(FADE_OUT_MANAGER, "checkFade", noOpMethodHook);
+
+            // 10. Xiaomi HyperOS / MIUI specific PlaybackActivityMonitor stubs
+            hookAllMethods(PAM_STUB, "interruptMusicPlayback", returnFalseMethodHook);
+            hookAllMethods(PAM_STUB, "ignoreFocusRequest", returnTrueMethodHook);
+            hookAllMethods(PAM_STUB_IMPL, "interruptMusicPlayback", returnFalseMethodHook);
+            hookAllMethods(PAM_STUB_IMPL, "ignoreFocusRequest", returnTrueMethodHook);
+            hookAllMethods(PAM_STUB_IMPL, "updatePlayerVolumeByApc", noOpMethodHook);
+            hookAllMethods(PAM_STUB_IMPL, "updatePlayerVolume", noOpMethodHook);
+
+            XposedLog.d(TAG, "Multi Audio Focus, focus loss suppression & call ducking elimination initialized successfully");
         } catch (Throwable t) {
             XposedLog.e(TAG, getPackageName(), t);
         }
