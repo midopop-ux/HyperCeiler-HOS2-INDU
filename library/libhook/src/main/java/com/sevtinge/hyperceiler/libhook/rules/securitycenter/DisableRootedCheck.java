@@ -63,82 +63,88 @@ public class DisableRootedCheck extends BaseHook {
 
     @Override
     protected boolean initDexKit() {
-        mReturnEnvironmentMethod = requiredMember("ReturnEnvironment", new IDexKit() {
+        mReturnEnvironmentMethod = optionalMember("ReturnEnvironment", new IDexKit() {
             @Override
             public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
                 MethodData methodData = bridge.findMethod(FindMethod.create()
                     .matcher(MethodMatcher.create()
                         .usingStrings("Invalid Task , reason:  [canceled, ")
-                    )).singleOrNull();
+                    )).firstOrNull();
                 return methodData;
             }
         });
-        mClientApiRequestClass = requiredMember("ClientApiRequest", new IDexKit() {
+        mClientApiRequestClass = optionalMember("ClientApiRequest", new IDexKit() {
             @Override
             public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
                 ClassData classData = bridge.findClass(FindClass.create()
                     .matcher(ClassMatcher.create()
                         .usingStrings("ClientApiRequest")
-                    )).singleOrNull();
+                    )).firstOrNull();
                 return classData;
             }
         });
-        mEnvironmentPutMethod = requiredMember("EnvironmentPut", new IDexKit() {
-            @Override
-            public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
-                MethodData methodData = bridge.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create()
-                        .declaredClass(mClientApiRequestClass)
-                        .returnType(boolean.class)
-                    )).singleOrNull();
-                return methodData;
-            }
-        });
-        mRiskAppClass = requiredMember("RiskAppClass", new IDexKit() {
+        if (mClientApiRequestClass != null) {
+            mEnvironmentPutMethod = optionalMember("EnvironmentPut", new IDexKit() {
+                @Override
+                public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
+                    MethodData methodData = bridge.findMethod(FindMethod.create()
+                        .matcher(MethodMatcher.create()
+                            .declaredClass(mClientApiRequestClass)
+                            .returnType(boolean.class)
+                        )).firstOrNull();
+                    return methodData;
+                }
+            });
+        }
+        mRiskAppClass = optionalMember("RiskAppClass", new IDexKit() {
             @Override
             public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
                 ClassData classData = bridge.findClass(FindClass.create()
                     .matcher(ClassMatcher.create()
                         .usingStrings("RiskAppManager")
-                    )).singleOrNull();
+                    )).firstOrNull();
                 return classData;
             }
         });
-        mRiskAppField = requiredMember("RiskApp", new IDexKit() {
-            @Override
-            public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
-                FieldData fieldData = bridge.findField(FindField.create()
-                    .matcher(FieldMatcher.create()
-                        .type(mRiskAppClass)
-                        .modifiers(Modifier.PRIVATE)
-                    )).singleOrNull();
-                return fieldData;
+        if (mRiskAppClass != null) {
+            mRiskAppField = optionalMember("RiskApp", new IDexKit() {
+                @Override
+                public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
+                    FieldData fieldData = bridge.findField(FindField.create()
+                        .matcher(FieldMatcher.create()
+                            .type(mRiskAppClass)
+                            .modifiers(Modifier.PRIVATE)
+                        )).firstOrNull();
+                    return fieldData;
+                }
+            });
+            mUnsetEnvironmentMethod = optionalMember("UnsetEnvironment", new IDexKit() {
+                @Override
+                public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
+                    MethodData methodData = bridge.findMethod(FindMethod.create()
+                        .matcher(MethodMatcher.create()
+                            .usingStrings("RiskAppManager")
+                        )).firstOrNull();
+                    return methodData;
+                }
+            });
+            if (mClientApiRequestClass != null) {
+                mSetEnvironmentMethods = optionalMemberList("SetEnvironment", new IDexKitList() {
+                    @Override
+                    public BaseDataList<MethodData> dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
+                        MethodDataList methodData = bridge.findMethod(FindMethod.create()
+                            .matcher(MethodMatcher.create()
+                                .returnType(void.class)
+                                .paramTypes(mClientApiRequestClass)
+                                .declaredClass(mRiskAppClass)
+                            )
+                        );
+                        return methodData;
+                    }
+                });
             }
-        });
-        mUnsetEnvironmentMethod = requiredMember("UnsetEnvironment", new IDexKit() {
-            @Override
-            public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
-                MethodData methodData = bridge.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create()
-                        .usingStrings("RiskAppManager")
-                    )).singleOrNull();
-                return methodData;
-            }
-        });
-        mSetEnvironmentMethods = requiredMemberList("SetEnvironment", new IDexKitList() {
-            @Override
-            public BaseDataList<MethodData> dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
-                MethodDataList methodData = bridge.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create()
-                        .returnType(void.class)
-                        .paramTypes(mClientApiRequestClass)
-                        .declaredClass(mRiskAppClass)
-                    )
-                );
-                return methodData;
-            }
-        });
-        mCheckRootMethods = requiredMemberList("CheckRoot", new IDexKitList() {
+        }
+        mCheckRootMethods = optionalMemberList("CheckRoot", new IDexKitList() {
             @Override
             public BaseDataList<MethodData> dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
                 MethodDataList methodData = bridge.findMethod(FindMethod.create()
@@ -155,31 +161,36 @@ public class DisableRootedCheck extends BaseHook {
 
     @Override
     public void init() {
-        hookMethod(mReturnEnvironmentMethod, new IMethodHook() {
-            @Override
-            public void before(HookParam param) {
-                Object obj = param.getArgs()[0];
-                if (mClientApiRequestClass.isInstance(obj)) {
-                    callMethod(obj, mEnvironmentPutMethod.getName());
-                    Object thisObj = param.getThisObject();
-                    Object cField = getObjectField(thisObj, mRiskAppField.getName());
-                    for (Method method : mSetEnvironmentMethods) {
-                        if (method != mUnsetEnvironmentMethod) {
-                            callMethod(cField, method.getName(), obj);
+        if (mReturnEnvironmentMethod != null && mClientApiRequestClass != null && mEnvironmentPutMethod != null && mRiskAppField != null) {
+            hookMethod(mReturnEnvironmentMethod, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    Object obj = param.getArgs()[0];
+                    if (mClientApiRequestClass.isInstance(obj)) {
+                        callMethod(obj, mEnvironmentPutMethod.getName());
+                        Object thisObj = param.getThisObject();
+                        Object cField = getObjectField(thisObj, mRiskAppField.getName());
+                        if (mSetEnvironmentMethods != null) {
+                            for (Method method : mSetEnvironmentMethods) {
+                                if (method != mUnsetEnvironmentMethod) {
+                                    callMethod(cField, method.getName(), obj);
+                                }
+                            }
                         }
                     }
                 }
-            }
-        });
-        for (Method method : mCheckRootMethods) {
-            // Method method = methodData.getMethodInstance(lpparam.classLoader);
-            XposedLog.d(TAG, getPackageName(), "Current hooking method is " + method);
-            hookMethod(method, new IMethodHook() {
-                @Override
-                public void before(HookParam param) {
-                    param.setResult(false);
-                }
             });
+        }
+        if (mCheckRootMethods != null) {
+            for (Method method : mCheckRootMethods) {
+                XposedLog.d(TAG, getPackageName(), "Current hooking method is " + method);
+                hookMethod(method, new IMethodHook() {
+                    @Override
+                    public void before(HookParam param) {
+                        param.setResult(false);
+                    }
+                });
+            }
         }
     }
 }

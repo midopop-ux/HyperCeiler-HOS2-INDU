@@ -50,18 +50,44 @@ public class ShowAutostartToggle extends BaseHook {
 
     @Override
     public void init() {
-        mAmAppInfoCls = findClassIfExists("com.miui.appmanager.AMAppInfomationActivity");
-        if (mAmAppInfoCls == null) {
-            return;
+        // Hook PreferenceGroup.removePreference to prevent SecurityCenter from hiding app_autostart_pref on Global/HyperOS
+        Class<?> prefGroupCls = findClassIfExists("androidx.preference.PreferenceGroup");
+        Class<?> prefCls = findClassIfExists("androidx.preference.Preference");
+        if (prefGroupCls != null && prefCls != null) {
+            findAndHookMethod(prefGroupCls, "removePreference", prefCls, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    Object preference = param.getArgs()[0];
+                    if (preference != null) {
+                        try {
+                            String key = (String) callMethod(preference, "getKey");
+                            if (AUTOSTART_KEY.equals(key)) {
+                                param.setResult(false);
+                            }
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                }
+            });
         }
 
-        findAndHookMethod(mAmAppInfoCls, "onCreate", Bundle.class, new IMethodHook() {
-            @Override
-            public void after(HookParam param) {
-                Activity activity = (Activity) param.getThisObject();
-                new Handler(Looper.getMainLooper()).postDelayed(() -> setupAutostartPreference(activity), 300);
+        // Hook Activity onCreate for both HyperOS and older MIUI
+        String[] targetActivities = new String[]{
+                "com.miui.appmanager.ApplicationsDetailsActivity",
+                "com.miui.appmanager.AMAppInfomationActivity"
+        };
+        for (String actName : targetActivities) {
+            Class<?> actCls = findClassIfExists(actName);
+            if (actCls != null) {
+                findAndHookMethod(actCls, "onCreate", Bundle.class, new IMethodHook() {
+                    @Override
+                    public void after(HookParam param) {
+                        Activity activity = (Activity) param.getThisObject();
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> setupAutostartPreference(activity), 350);
+                    }
+                });
             }
-        });
+        }
     }
 
     private void setupAutostartPreference(Activity activity) {
@@ -108,6 +134,20 @@ public class ShowAutostartToggle extends BaseHook {
     }
 
     private Object findFragment(Activity act) {
+        try {
+            if (act instanceof androidx.fragment.app.FragmentActivity) {
+                androidx.fragment.app.FragmentManager fm = ((androidx.fragment.app.FragmentActivity) act).getSupportFragmentManager();
+                for (androidx.fragment.app.Fragment f : fm.getFragments()) {
+                    if (f != null && (f.getClass().getSimpleName().contains("ApplicationsDetails") || f.getClass().getSimpleName().contains("AppInfo") || f.getClass().getSimpleName().contains("Details"))) {
+                        return f;
+                    }
+                }
+                if (!fm.getFragments().isEmpty()) {
+                    return fm.getFragments().get(0);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
         Object frag = act.getFragmentManager().findFragmentById(android.R.id.content);
         if (frag != null) return frag;
         try {
@@ -223,7 +263,21 @@ public class ShowAutostartToggle extends BaseHook {
             // Find category to add to
             Object screen = callMethod(fragment, "getPreferenceScreen");
             if (screen != null) {
-                Object category = callMethod(screen, "findPreference", "app_detail_perm_category");
+                String[] permCategories = new String[]{
+                        "app_detail_perm_category",
+                        "app_permissions_category",
+                        "permission_category",
+                        "category_permissions"
+                };
+                Object category = null;
+                for (String catKey : permCategories) {
+                    category = callMethod(screen, "findPreference", catKey);
+                    if (category != null) break;
+                }
+                if (category == null) {
+                    // Try getting field n (which is the permissions PreferenceCategory in ApplicationsDetailsFragment)
+                    category = getObjectFieldOrNull(fragment, "n");
+                }
                 if (category != null) {
                     callMethod(category, "addPreference", pref);
                 } else {

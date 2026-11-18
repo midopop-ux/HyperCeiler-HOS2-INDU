@@ -134,30 +134,40 @@ object ChargingCVP : BaseHook() {
                 }
 
                 fun doUpdateForHyperOS() {
-                    val mBatteryStatus =
-                        instanceMiuiChargeController.getObjectFieldOrNull("mBatteryStatus")!!
-                    val level = mBatteryStatus.getObjectFieldOrNull("level")
-                    val plugged = mBatteryStatus.getObjectFieldOrNull("plugged") as Int
-                    val isPluggedIn =
-                        mBatteryStatus.callMethod("isPluggedIn", plugged)
-                    val mContext =
-                        instanceMiuiChargeController.getObjectFieldOrNull("mContext")
-                    val clazzChargeUtils =
-                        findClass("com.miui.charge.ChargeUtils", lpparam.classLoader)
-                    val chargingHintText =
-                        callStaticMethod(
-                            clazzChargeUtils,
-                            "getChargingHintText",
-                            level,
-                            isPluggedIn,
-                            mContext
-                        )
-                    keyguardIndicationController.setObjectField("mComputePowerIndication", chargingHintText)
-                    keyguardIndicationController.callMethod(
-                        "updateDeviceEntryIndication",
-                        null,
-                        false
-                    )
+                    runCatching {
+                        val mBatteryStatus =
+                            instanceMiuiChargeController.getObjectFieldOrNull("mBatteryStatus") ?: return
+                        val level = mBatteryStatus.getObjectFieldOrNull("level")
+                        val plugged = (mBatteryStatus.getObjectFieldOrNull("plugged") as? Int) ?: 0
+                        val clazzMiuiBatteryStatus = findClassIfExists("com.miui.systemui.charge.MiuiBatteryStatus", lpparam.classLoader)
+                        val isPluggedIn = runCatching {
+                            if (clazzMiuiBatteryStatus != null) {
+                                callStaticMethod(clazzMiuiBatteryStatus, "isPluggedIn", plugged) as? Boolean
+                            } else null
+                        }.getOrNull() ?: (plugged == 1 || plugged == 2 || plugged == 4)
+
+                        val mContext =
+                            instanceMiuiChargeController.getObjectFieldOrNull("mContext")
+                        val clazzChargeUtils =
+                            findClassIfExists("com.miui.charge.ChargeUtils", lpparam.classLoader)
+                                ?: findClassIfExists("com.android.keyguard.charge.ChargeUtils", lpparam.classLoader)
+                        if (clazzChargeUtils != null) {
+                            val chargingHintText =
+                                callStaticMethod(
+                                    clazzChargeUtils,
+                                    "getChargingHintText",
+                                    level,
+                                    isPluggedIn,
+                                    mContext
+                                )
+                            keyguardIndicationController.setObjectField("mComputePowerIndication", chargingHintText)
+                            keyguardIndicationController.callMethod(
+                                "updateDeviceEntryIndication",
+                                null,
+                                false
+                            )
+                        }
+                    }
                 }
             }
 

@@ -45,7 +45,7 @@ public class BypassAdbInstallVerify extends BaseHook {
 
     @Override
     protected boolean initDexKit() {
-        mAdbInstallNetworkVerifyMethod = requiredMember("AdbInstallNetworkVerify", new IDexKit() {
+        mAdbInstallNetworkVerifyMethod = optionalMember("AdbInstallNetworkVerify", new IDexKit() {
             @Override
             public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
                 MethodData methodData = bridge.findMethod(FindMethod.create()
@@ -53,17 +53,17 @@ public class BypassAdbInstallVerify extends BaseHook {
                                 .declaredClass(ClassMatcher.create()
                                         .usingStrings("https://srv.sec.miui.com/data/adb"))
                                 .usingStrings("connectivity")
-                        )).singleOrNull();
+                        )).firstOrNull();
                 return methodData;
             }
         });
-        mAdbInstallCallerMethod = requiredMember("AdbInstallCaller", new IDexKit() {
+        mAdbInstallCallerMethod = optionalMember("AdbInstallCaller", new IDexKit() {
             @Override
             public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
                 MethodData methodData = bridge.findMethod(FindMethod.create()
                         .matcher(MethodMatcher.create()
                                 .usingStrings("AdbInstallActivity", "start request for adb install!")
-                        )).singleOrNull();
+                        )).firstOrNull();
                 return methodData;
             }
         });
@@ -72,23 +72,29 @@ public class BypassAdbInstallVerify extends BaseHook {
 
     @Override
     public void init() {
-        hookMethod(mAdbInstallNetworkVerifyMethod, new IMethodHook() {
-            @Override
-            public void before(HookParam param) {
-                Object instance = param.getThisObject();
-                Object adbInstallVerifyActivityInstance = newInstance(findClass("com.miui.permcenter.install.AdbInstallVerifyActivity$b", getClassLoader()), instance);
-                setObjectField(instance, "d", adbInstallVerifyActivityInstance);
-                Object threadPoolExecutor = getStaticObjectField(findClass("android.os.AsyncTask", getClassLoader()), "THREAD_POOL_EXECUTOR");
-                callMethod(adbInstallVerifyActivityInstance, "executeOnExecutor", threadPoolExecutor, new Void[]{});
-                param.setResult(null);
-
-            }
-        });
-        hookMethod(mAdbInstallCallerMethod, new IMethodHook() {
-            @Override
-            public void before(HookParam param) {
-                param.setResult(null);
-            }
-        });
+        if (mAdbInstallNetworkVerifyMethod != null) {
+            hookMethod(mAdbInstallNetworkVerifyMethod, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    Object instance = param.getThisObject();
+                    Class<?> verifyClass = findClassIfExists("com.miui.permcenter.install.AdbInstallVerifyActivity$b");
+                    if (verifyClass != null) {
+                        Object adbInstallVerifyActivityInstance = newInstance(verifyClass, instance);
+                        setObjectField(instance, "d", adbInstallVerifyActivityInstance);
+                        Object threadPoolExecutor = getStaticObjectField(findClass("android.os.AsyncTask", getClassLoader()), "THREAD_POOL_EXECUTOR");
+                        callMethod(adbInstallVerifyActivityInstance, "executeOnExecutor", threadPoolExecutor, new Void[]{});
+                    }
+                    param.setResult(null);
+                }
+            });
+        }
+        if (mAdbInstallCallerMethod != null) {
+            hookMethod(mAdbInstallCallerMethod, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(null);
+                }
+            });
+        }
     }
 }

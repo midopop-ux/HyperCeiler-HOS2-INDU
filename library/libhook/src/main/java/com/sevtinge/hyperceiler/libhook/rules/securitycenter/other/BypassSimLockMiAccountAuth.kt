@@ -31,8 +31,8 @@ object BypassSimLockMiAccountAuth : BaseHook() {
         return true
     }
 
-    private val findMethod by lazy<List<Method>> {
-        requiredMemberList("BypassSimLockMiAccountAuth") {
+    private val findMethod by lazy<List<Method>?> {
+        optionalMemberList("BypassSimLockMiAccountAuth") {
             it.findClass {
                 matcher {
                     addUsingString("SimLockUtils", StringMatchType.Contains)
@@ -50,7 +50,7 @@ object BypassSimLockMiAccountAuth : BaseHook() {
     }
 
     override fun init() {
-        findMethod.last().createHook {
+        findMethod?.lastOrNull()?.createHook {
             returnConstant(true)
         }
     }

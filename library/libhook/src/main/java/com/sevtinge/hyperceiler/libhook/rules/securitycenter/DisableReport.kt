@@ -24,22 +24,22 @@ import java.lang.reflect.Method
 
 object DisableReport : BaseHook() {
     override fun useDexKit() = true
-    private lateinit var disableReportMethod: Method
+    private var disableReportMethod: Method? = null
 
     override fun initDexKit(): Boolean {
-        disableReportMethod = requiredMember("DisableReport") {
+        disableReportMethod = optionalMember("DisableReport") {
             it.findMethod {
                 matcher {
                     usingEqStrings("android.intent.action.VIEW", "com.xiaomi.market")
                     returnType = "boolean"
                 }
-            }.single()
+            }.firstOrNull()
         }
         return true
     }
 
     override fun init() {
-        disableReportMethod.createHook {
+        disableReportMethod?.createHook {
             returnConstant(false)
         }
     }

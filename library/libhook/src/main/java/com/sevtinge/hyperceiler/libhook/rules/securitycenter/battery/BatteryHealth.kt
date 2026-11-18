@@ -86,7 +86,19 @@ object BatteryHealth : BaseHook() {
         }
 
         cc.createAfterHook {
-            gff.callMethod("setText", "$health %")
+            val displayHealth = health ?: run {
+                // Calculate from /sys/class/power_supply/battery if available
+                runCatching {
+                    val full = java.io.File("/sys/class/power_supply/battery/charge_full").readText().trim().toLong()
+                    val design = java.io.File("/sys/class/power_supply/battery/charge_full_design").readText().trim().toLong()
+                    if (full > 0 && design > 0) {
+                        (full * 100 / design).toInt().coerceIn(1, 100)
+                    } else null
+                }.getOrNull()
+            }
+            if (displayHealth != null) {
+                gff.callMethod("setText", "$displayHealth %")
+            }
         }
 
     }

@@ -31,7 +31,7 @@ object UnlockAIWallPaper : BaseHook() {
         return true
     }
     private val unlock by lazy {
-        requiredMember("wallpaper") { dexKitBridge ->
+        optionalMember("wallpaper") { dexKitBridge ->
             dexKitBridge.findClass {
                 matcher {
                     addUsingString("enable_video_depth", StringMatchType.Contains)
@@ -41,12 +41,12 @@ object UnlockAIWallPaper : BaseHook() {
                     addInvoke("Ljava/util/Set;->contains(Ljava/lang/Object;)Z")
                     returnType = "boolean"
                 }
-            }.single()
-        } as Method
+            }.firstOrNull()
+        } as? Method
     }
 
     override fun init() {
-        unlock.createHook {
+        unlock?.createHook {
             returnConstant(true)
         }
     }

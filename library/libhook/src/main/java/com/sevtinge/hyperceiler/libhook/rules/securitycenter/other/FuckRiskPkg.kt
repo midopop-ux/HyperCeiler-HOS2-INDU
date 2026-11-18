@@ -31,8 +31,8 @@ object FuckRiskPkg : BaseHook() {
         return true
     }
 
-    private val pkg by lazy<List<Method>> {
-        requiredMemberList("FuckRiskPkg") {
+    private val pkg by lazy<List<Method>?> {
+        optionalMemberList("FuckRiskPkg") {
             it.findMethod {
                 matcher {
                     usingEqStrings(
@@ -44,7 +44,7 @@ object FuckRiskPkg : BaseHook() {
     }
 
     override fun init() {
-        pkg.createHooks {
+        pkg?.takeIf { it.isNotEmpty() }?.createHooks {
             returnConstant(null)
         }
     }
