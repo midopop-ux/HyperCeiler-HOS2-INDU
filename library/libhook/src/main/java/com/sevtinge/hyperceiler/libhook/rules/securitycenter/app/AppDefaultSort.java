@@ -67,6 +67,27 @@ public class AppDefaultSort extends BaseHook {
                 }
             }
         });
+
+        // Ensure app sizes are calculated/loaded in ManageFragment even when sorting by install time or name
+        Class<?> manageFragCls = findClassIfExists("com.miui.appmanager.fragment.ManageFragment");
+        if (manageFragCls != null) {
+            findAndHookMethod(manageFragCls, "w1", new IMethodHook() {
+                @Override
+                public void after(HookParam param) {
+                    try {
+                        Object fragment = param.getThisObject();
+                        int sortType = getIntField(fragment, "z");
+                        // If sortType is not 2 (Storage sort), MIUI skips updateData() which calculates app sizes, resulting in '0 B'.
+                        // Trigger updateData() to ensure all app sizes are loaded and displayed!
+                        if (sortType != 2) {
+                            callMethod(fragment, "updateData");
+                        }
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, getPackageName(), "ManageFragment.w1 hook error: " + t.getMessage());
+                    }
+                }
+            });
+        }
     }
 
     public static Bundle checkBundle(Bundle bundle) {

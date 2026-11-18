@@ -156,7 +156,7 @@ public class HomePhoneOld extends BaseLoad {
         initHook(new ScreenSwipe(), gesturesEnabled && hasScreenSwipeAction);
         initHook(new ShakeDevice(), gesturesEnabled && PrefsBridge.getInt("home_gesture_shake_action", 0) > 0);
         boolean hasHomeLongPress = PrefsBridge.getInt("prefs_key_navigation_bar_home_long_press_action", 0) > 0;
-        initHook(GestureLine.INSTANCE, (gesturesEnabled && hasGestureLineAction) || hasHomeLongPress);
+        initHook(GestureLine.INSTANCE, hasGestureLineAction || hasHomeLongPress);
         // initHook(new SwipeAndStop(), PrefsBridge.getInt("home_gesture_swipe_and_stop_action" ,0) > 0);
 
         initHook(new DisableFullScreenBackGesture(), PrefsBridge.getBoolean("home_navigation_disable_full_screen_back_gesture"));

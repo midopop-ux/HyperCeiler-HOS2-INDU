@@ -1010,6 +1010,10 @@
     <string name="home_navigation_back_area_height">ارتفاع منطقة الإيماءة للرجوع</string>
     <string name="home_navigation_back_area_width">عرض منطقة الإيماءة للرجوع</string>
     <string name="home_gesture_title2">الإيماءات</string>
+    <string name="home_gesture_line_double_click">النقر المزدوج على شريط الإيماءات</string>
+    <string name="home_gesture_line_double_click_desc">انقر نقرتين على شريط الإيماءات السفلي لتنفيذ إجراء</string>
+    <string name="home_gesture_line_long_press">الضغط المطول على شريط الإيماءات</string>
+    <string name="home_gesture_line_long_press_desc">اضغط مطولاً على شريط الإيماءات السفلي لتنفيذ إجراء</string>
     <string name="home_gesture_mainscreen_title">الشاشة الرئيسية</string>
     <string name="home_gesture_gesture_title">إيماءة الشاشة الكاملة</string>
     <string name="home_gesture_double_tap">النقر المزدوج</string>

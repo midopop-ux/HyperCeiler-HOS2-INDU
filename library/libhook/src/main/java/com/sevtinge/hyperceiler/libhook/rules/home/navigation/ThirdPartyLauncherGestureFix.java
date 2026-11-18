@@ -126,7 +126,7 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
             });
 
             // Double tap on bottom navigation gesture area to trigger Recents (KEYCODE_APP_SWITCH = 187)
-            findAndHookMethod("com.miui.home.recents.NavStubView", "onPointerEvent", android.view.MotionEvent.class, new IMethodHook() {
+            IMethodHook doubleTapHook = new IMethodHook() {
                 private long mLastBottomTapTime = 0;
                 private float mLastTapX = 0;
                 private float mLastTapY = 0;
@@ -135,19 +135,34 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                 public void before(HookParam param) {
                     try {
                         android.view.MotionEvent event = (android.view.MotionEvent) param.getArgs()[0];
-                        if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+                        if (event != null && event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
                             Object navStub = param.getThisObject();
                             int screenHeight = ((android.view.View) navStub).getResources().getDisplayMetrics().heightPixels;
                             float y = event.getRawY();
                             float x = event.getRawX();
 
-                            // Bottom edge area (within bottom 120 pixels)
-                            if (y >= screenHeight - 120) {
+                            // Bottom edge area (within bottom 160 pixels or touch height)
+                            if (y >= screenHeight - 160) {
                                 long now = System.currentTimeMillis();
-                                if (now - mLastBottomTapTime < 350 && Math.abs(x - mLastTapX) < 150 && Math.abs(y - mLastTapY) < 150) {
-                                    // Double tap detected! Trigger Recents immediately
-                                    callMethod(navStub, "injectKeyEventDownAndUp", 187);
-                                    callMethod(navStub, "finishRecentsActivityDirectly");
+                                if (now - mLastBottomTapTime < 400 && Math.abs(x - mLastTapX) < 180 && Math.abs(y - mLastTapY) < 180) {
+                                    // Double tap detected!
+                                    XposedLog.d(TAG, "Double tap on bottom gesture bar detected!");
+                                    android.content.Context ctx = ((android.view.View) navStub).getContext();
+                                    boolean handled = false;
+                                    try {
+                                        handled = com.sevtinge.hyperceiler.libhook.appbase.systemframework.GlobalActionBridge.handleAction(
+                                            ctx != null ? ctx : io.github.lingqiqi5211.ezhooktool.xposed.EzXposed.getAppContext(),
+                                            "home_gesture_line_double_click"
+                                        );
+                                    } catch (Throwable t) {
+                                        XposedLog.w(TAG, "Error invoking GlobalActionBridge: " + t.getMessage());
+                                    }
+
+                                    if (!handled) {
+                                        // Default fallback: Trigger Recents immediately (KEYCODE_APP_SWITCH = 187)
+                                        callMethod(navStub, "injectKeyEventDownAndUp", 187);
+                                        callMethod(navStub, "finishRecentsActivityDirectly");
+                                    }
                                     mLastBottomTapTime = 0;
                                     param.setResult(Boolean.TRUE);
                                     return;
@@ -158,10 +173,13 @@ public class ThirdPartyLauncherGestureFix extends BaseHook {
                             }
                         }
                     } catch (Throwable t) {
-                        XposedLog.w(TAG, "Error in double-tap onPointerEvent: " + t.getMessage());
+                        XposedLog.w(TAG, "Error in double-tap hook: " + t.getMessage());
                     }
                 }
-            });
+            };
+
+            findAndHookMethod("com.miui.home.recents.NavStubView", "onPointerEvent", android.view.MotionEvent.class, doubleTapHook);
+            findAndHookMethod("com.miui.home.recents.NavStubView", "onTouchEvent", android.view.MotionEvent.class, doubleTapHook);
 
             // Hook performAppToHome to immediately inject KEYCODE_HOME (3) with 0ms delay
             findAndHookMethod("com.miui.home.recents.NavStubView", "performAppToHome", new IMethodHook() {

@@ -71,6 +71,22 @@ public class ShowAutostartToggle extends BaseHook {
             });
         }
 
+        // Direct hook on ApplicationsDetailsFragment (where the native removePreference call happens)
+        Class<?> appDetailsFragCls = findClassIfExists("com.miui.appmanager.fragment.ApplicationsDetailsFragment");
+        if (appDetailsFragCls != null) {
+            findAndHookMethod(appDetailsFragCls, "initView", new IMethodHook() {
+                @Override
+                public void after(HookParam param) {
+                    try {
+                        Object fragment = param.getThisObject();
+                        setupAutostartPreferenceFromFragment(fragment);
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, getPackageName(), "ApplicationsDetailsFragment.initView hook error", t);
+                    }
+                }
+            });
+        }
+
         // Hook Activity onCreate for both HyperOS and older MIUI
         String[] targetActivities = new String[]{
                 "com.miui.appmanager.ApplicationsDetailsActivity",
@@ -83,10 +99,71 @@ public class ShowAutostartToggle extends BaseHook {
                     @Override
                     public void after(HookParam param) {
                         Activity activity = (Activity) param.getThisObject();
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> setupAutostartPreference(activity), 350);
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> setupAutostartPreference(activity), 300);
                     }
                 });
             }
+        }
+    }
+
+    private void setupAutostartPreferenceFromFragment(Object fragment) {
+        if (fragment == null) return;
+        try {
+            Activity activity = (Activity) callMethod(fragment, "getActivity");
+            if (activity == null || activity.isFinishing() || activity.isDestroyed()) return;
+
+            PackageInfo packageInfo = getPackageInfo(fragment);
+            if (packageInfo == null || packageInfo.applicationInfo == null) return;
+
+            final String pkgName = packageInfo.packageName;
+            final int uid = packageInfo.applicationInfo.uid;
+            final Context context = activity.getApplicationContext();
+            final AppOpsManager appOps = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+
+            Object preference = null;
+            try {
+                preference = getObjectField(fragment, "p");
+            } catch (Throwable ignored) {
+            }
+
+            if (preference == null) {
+                preference = callMethod(fragment, "findPreference", AUTOSTART_KEY);
+            }
+
+            Object category = null;
+            try {
+                category = getObjectField(fragment, "n");
+            } catch (Throwable ignored) {
+            }
+
+            if (preference != null && category != null) {
+                try {
+                    Object existing = callMethod(category, "findPreference", AUTOSTART_KEY);
+                    if (existing == null) {
+                        callMethod(category, "addPreference", preference);
+                    }
+                } catch (Throwable ignored) {
+                }
+            } else if (preference == null) {
+                preference = createAndAddAutostartPreference(fragment, activity, pkgName, uid, appOps);
+            }
+
+            if (preference != null) {
+                try {
+                    callMethod(preference, "setVisible", true);
+                } catch (Throwable ignored) {
+                }
+
+                boolean isAllowed = isAutostartAllowed(context, appOps, uid, pkgName);
+                try {
+                    callMethod(preference, "setChecked", isAllowed);
+                } catch (Throwable ignored) {
+                }
+
+                hookPreferenceChangeListener(preference, context, appOps, uid, pkgName);
+            }
+        } catch (Throwable t) {
+            XposedLog.w(TAG, getPackageName(), "setupAutostartPreferenceFromFragment error", t);
         }
     }
 
