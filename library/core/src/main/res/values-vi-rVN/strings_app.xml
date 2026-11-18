@@ -1319,7 +1319,6 @@
     <string name="security_center_beauty_title">Trợ lý Camera trước</string>
     <string name="security_center_bubble_and_freeform_title">Bong bóng và cửa sổ nổi</string>
     <string name="security_center_newbox_title">Thanh bên</string>
-    <string name="security_center_disable_root_check_environment">Tắt kiểm tra root</string>
     <string name="security_center_dolby_open">Tắt pop-up Dolby</string>
     <string name="security_center_show_battery_temperature">Hiển thị nhiệt độ pin</string>
     <string name="security_center_show_battery_health">Hiển thị chi tiết tình trạng pin</string>
@@ -1344,7 +1343,6 @@
     <string name="security_center_install_intercept">Tắt chặn cài đặt USB</string>
     <string name="security_center_adb_install_verify">Tắt xác minh mạng khi mở cài đặt USB</string>
     <string name="security_center_remove_macro_black_list">Xóa danh sách đen combo tự động</string>
-    <string name="security_center_disable_send_malicious_app_notification">Tắt thông báo \"Tìm thấy ứng dụng độc hại\"</string>
     <string name="security_center_newbox_custom_enable">Mở tùy chỉnh</string>
     <string name="security_center_newbox_bg_custom">Làm mờ nền</string>
     <string name="security_center_newbox_bg_padding_vertical">Lề ngang</string>
@@ -1406,10 +1404,6 @@
     <string name="security_center_sidebar_function_title">Chức năng thanh bên</string>
     <string name="security_center_game_speed">Mở trò chơi nhanh chóng</string>
     <string name="security_center_game_speed_desc">Khi khởi chạy trò chơi, nó chuyển hoạt ảnh màn hình mở đầu với tốc độ gấp 3 lần, tốc độ này chỉ được hỗ trợ bởi một số trò chơi</string>
-    <string name="security_center_bypass_simlock_miaccount_auth">Bảo mật thẻ SIM bỏ qua xác minh đăng nhập</string>
-    <string name="security_center_bypass_simlock_miaccount_auth_desc">Không cần đăng nhập tài khoản Xiaomi khi bật bảo mật thẻ SIM</string>
-    <string name="security_center_remove_simlock_success_dialog">Xóa hộp thoại xác minh bảo mật thẻ SIM thành công</string>
-    <string name="security_center_remove_simlock_success_dialog_desc">Không còn hộp thoại nào nữa sau khi bật điện thoại để báo hiệu rằng bảo vệ bảo mật thẻ SIM đã được xác minh thành công.</string>
     <string name="security_center_power_consumption_ranking">Hiển thị mức tiêu thụ điện năng</string>
     <string name="security_center_hide_xopt_mode_tip">Ẩn mẹo để sử dụng quyền ẩn</string>
     <string name="security_center_battery_unlock_low_temp_ext_endurance">Mở khóa chế độ kháng lạnh</string>

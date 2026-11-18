@@ -25,7 +25,6 @@ import io.github.lingqiqi5211.ezhooktool.xposed.dsl.createAfterHook
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.lang.reflect.Method
 
-
 object BatteryHealth : BaseHook() {
     override fun useDexKit() = true
 
@@ -35,6 +34,7 @@ object BatteryHealth : BaseHook() {
         findMethod
         return true
     }
+
     private val getSecurityBatteryHealth by lazy<Method> {
         requiredMember("getSecurityBatteryHealth") {
             it.findMethod {
@@ -71,23 +71,22 @@ object BatteryHealth : BaseHook() {
         }
     }
 
-    private lateinit var gff: Any
+    private var gff: Any? = null
     private var health: Int? = null
-
 
     override fun init() {
         getSecurityBatteryHealth.createAfterHook { param ->
-            health = param.args[0] as Int // 获取手机管家内部的健康度
+            health = param.args[0] as? Int
         }
 
         findMethod.createAfterHook { param ->
-            gff = param.thisObject
-                .callMethod("findPreference", "reference_battery_health")!!
+            gff = runCatching {
+                param.thisObject.callMethod("findPreference", "reference_battery_health")
+            }.getOrNull()
         }
 
         cc.createAfterHook {
             val displayHealth = health ?: run {
-                // Calculate from /sys/class/power_supply/battery if available
                 runCatching {
                     val full = java.io.File("/sys/class/power_supply/battery/charge_full").readText().trim().toLong()
                     val design = java.io.File("/sys/class/power_supply/battery/charge_full_design").readText().trim().toLong()
@@ -97,10 +96,10 @@ object BatteryHealth : BaseHook() {
                 }.getOrNull()
             }
             if (displayHealth != null) {
-                gff.callMethod("setText", "$displayHealth %")
+                runCatching {
+                    gff?.callMethod("setText", "$displayHealth %")
+                }
             }
         }
-
     }
 }
-

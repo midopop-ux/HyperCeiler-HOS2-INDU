@@ -25,7 +25,6 @@ import com.sevtinge.hyperceiler.libhook.rules.securitycenter.AppLockPinScramble;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.BypassAdbInstallVerify;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.DisableNetworkAssistantOfflineInfoManager;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.DisableReport;
-import com.sevtinge.hyperceiler.libhook.rules.securitycenter.DisableRootedCheck;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.DisableSafepayAutoScan;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.GetBubbleAppString;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.HideXOptModeTip;
@@ -58,12 +57,9 @@ import com.sevtinge.hyperceiler.libhook.rules.securitycenter.battery.UnlockSuper
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.beauty.BeautyLightAuto;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.beauty.BeautyPc;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.beauty.BeautyPrivacy;
-import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.BypassSimLockMiAccountAuth;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.DisableRootCheck;
-import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.FuckRiskPkg;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.LockOneHundredPoints;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.NoLowBatteryWarning;
-import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.RemoveSIMLockSuccessDialog;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.SimplifyMainFragment;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.other.SkipCountDownLimit;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.AddSideBarExpandReceiver;
@@ -114,17 +110,13 @@ public class SecurityCenter extends BaseLoad {
         initHook(BeautyPc.INSTANCE, PrefsBridge.getBoolean("security_center_beauty_pc"));
 
         // 其他
-        initHook(new DisableRootedCheck(), PrefsBridge.getBoolean("security_center_disable_root_check_environment"));
         initHook(new DisableSafepayAutoScan(), PrefsBridge.getBoolean("security_center_disable_safepay_auto_check"));
         initHook(SimplifyMainFragment.INSTANCE, PrefsBridge.getBoolean("security_center_simplify_home"));
         initHook(new InstallIntercept(), PrefsBridge.getBoolean("security_center_install_intercept"));
         initHook(new LockOneHundredPoints(), PrefsBridge.getBoolean("security_center_score"));
         initHook(new SkipCountDownLimit(), PrefsBridge.getBoolean("security_center_skip_count_down_limit"));
         initHook(DisableRootCheck.INSTANCE, PrefsBridge.getBoolean("security_center_disable_root_check"));
-        initHook(FuckRiskPkg.INSTANCE, PrefsBridge.getBoolean("security_center_disable_send_malicious_app_notification"));
         initHook(NoLowBatteryWarning.INSTANCE, PrefsBridge.getBoolean("security_center_remove_low_battery_reminder"));
-        initHook(RemoveSIMLockSuccessDialog.INSTANCE, PrefsBridge.getBoolean("security_center_remove_simlock_success_dialog"));
-        initHook(BypassSimLockMiAccountAuth.INSTANCE, PrefsBridge.getBoolean("security_center_bypass_simlock_miaccount_auth"));
         initHook(new BypassAdbInstallVerify(), PrefsBridge.getBoolean("security_center_adb_install_verify"));
         initHook(new UnlockCarSicknessRelief(), PrefsBridge.getBoolean("security_center_unlock_car_sickness"));
         initHook(new DisableNetworkAssistantOfflineInfoManager(), PrefsBridge.getBoolean("security_center_disable_offline_info_manager"));

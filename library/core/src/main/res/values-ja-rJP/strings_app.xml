@@ -1318,7 +1318,6 @@
     <string name="security_center_beauty_title">フロントカメラアシスタント</string>
     <string name="security_center_bubble_and_freeform_title">バブルとフリーフォーム</string>
     <string name="security_center_newbox_title">サイドバー</string>
-    <string name="security_center_disable_root_check_environment">環境チェックを無効化</string>
     <string name="security_center_dolby_open">Dolby ポップアップウィンドウを閉じる</string>
     <string name="security_center_show_battery_temperature">バッテリーの温度を表示</string>
     <string name="security_center_show_battery_health">詳細なバッテリー健康状態を表示</string>
@@ -1343,7 +1342,6 @@
     <string name="security_center_install_intercept">USB インストールの傍受を無効化</string>
     <string name="security_center_adb_install_verify">USB インストール時のネットワーク検証を無効化</string>
     <string name="security_center_remove_macro_black_list">マクロ機能のブラックリストを削除</string>
-    <string name="security_center_disable_send_malicious_app_notification">「悪意のあるアプリが見つかりました」通知を無効化</string>
     <string name="security_center_newbox_custom_enable">カスタムを有効化</string>
     <string name="security_center_newbox_bg_custom">背景のぼかし</string>
     <string name="security_center_newbox_bg_padding_vertical">水平方向の余白</string>
@@ -1405,10 +1403,6 @@
     <string name="security_center_sidebar_function_title">サイドバー機能</string>
     <string name="security_center_game_speed">すぐにゲームを起動</string>
     <string name="security_center_game_speed_desc">ゲーム起動時に開始画面のアニメーションを3倍速で表示します。一部のゲームにのみ対応しています。</string>
-    <string name="security_center_bypass_simlock_miaccount_auth">Xiaomi アカウントの SIM セキュリティをバイパスする</string>
-    <string name="security_center_bypass_simlock_miaccount_auth_desc">一部の機能での SIM と Xiaomi アカウントの要求を回避します。Xiaomi アカウントにログインしなくても機能を使えるようにできます</string>
-    <string name="security_center_remove_simlock_success_dialog">SIM セキュリティ認証の警告を削除する</string>
-    <string name="security_center_remove_simlock_success_dialog_desc">デバイスの電源を入れた後、SIM セキュリティ認証が正常に完了したことを示すダイアログを削除する</string>
     <string name="security_center_power_consumption_ranking">消費電力ランキングを表示</string>
     <string name="security_center_hide_xopt_mode_tip">隠し権限の使用のためのヒントを隠す</string>
     <string name="security_center_battery_unlock_low_temp_ext_endurance">低温耐久モードをアンロック</string>

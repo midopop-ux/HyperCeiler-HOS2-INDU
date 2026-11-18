@@ -1318,7 +1318,6 @@
     <string name="security_center_beauty_title">Помощник фронтальной камеры</string>
     <string name="security_center_bubble_and_freeform_title">Плавающее окно и всплывающие уведомления</string>
     <string name="security_center_newbox_title">Боковая панель</string>
-    <string name="security_center_disable_root_check_environment">Отключить проверку окружения</string>
     <string name="security_center_dolby_open">Закройте всплывающее окно Dolby</string>
     <string name="security_center_show_battery_temperature">Показывать температуру батареи</string>
     <string name="security_center_show_battery_health">Показать подробную информацию о состоянии батареи</string>
@@ -1343,7 +1342,6 @@
     <string name="security_center_install_intercept">Отключить перехват установки USB</string>
     <string name="security_center_adb_install_verify">Отключить проверку сети при открытой установке USB</string>
     <string name="security_center_remove_macro_black_list">Удалить автообъединенный черный список</string>
-    <string name="security_center_disable_send_malicious_app_notification">Отключить уведомления \"Найдено вредоносное приложение\"</string>
     <string name="security_center_newbox_custom_enable">Включить настройку</string>
     <string name="security_center_newbox_bg_custom">Размытие фона</string>
     <string name="security_center_newbox_bg_padding_vertical">Горизонтальный интервал</string>
@@ -1405,10 +1403,6 @@
     <string name="security_center_sidebar_function_title">Функция боковой панели</string>
     <string name="security_center_game_speed">Быстрый запуск игры</string>
     <string name="security_center_game_speed_desc">При запуске игры анимация начального экрана передается с трехкратной скоростью, что поддерживается только некоторыми играми.</string>
-    <string name="security_center_bypass_simlock_miaccount_auth">Обход проверки SIM-карты учетной записи Xiaomi</string>
-    <string name="security_center_bypass_simlock_miaccount_auth_desc">Вы можете использовать эту функцию даже без входа в учетную запись Xiaomi</string>
-    <string name="security_center_remove_simlock_success_dialog">Уберите предупреждение о проверке безопасности SIM-карты</string>
-    <string name="security_center_remove_simlock_success_dialog_desc">Больше не будет диалогового окна после включения телефона, указывающего на успешную проверку безопасности SIM-карты</string>
     <string name="security_center_power_consumption_ranking">Показать рейтинг энергопотребления</string>
     <string name="security_center_hide_xopt_mode_tip">Скрыть подсказку для использования скрытых разрешений</string>
     <string name="security_center_battery_unlock_low_temp_ext_endurance">Разблокировать экстремальную выносливость при низких температурах</string>

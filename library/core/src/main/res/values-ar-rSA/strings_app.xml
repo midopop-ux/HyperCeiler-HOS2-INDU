@@ -1326,7 +1326,6 @@
     <string name="security_center_beauty_title">مساعد الكاميرا الأمامية</string>
     <string name="security_center_bubble_and_freeform_title">الفقاعات والخيارات الحرة</string>
     <string name="security_center_newbox_title">الشريط الجانبي</string>
-    <string name="security_center_disable_root_check_environment">تعطيل فحص البيئة</string>
     <string name="security_center_dolby_open">إغلاق نافذة منبثقة Dolby</string>
     <string name="security_center_show_battery_temperature">عرض درجة حرارة البطارية</string>
     <string name="security_center_show_battery_health">عرض صحة البطارية بالتفصيل</string>
@@ -1351,7 +1350,6 @@
     <string name="security_center_install_intercept">تعطيل اعتراض تثبيت USB</string>
     <string name="security_center_adb_install_verify">تعطيل التحقق الشبكي عند فتح تثبيت USB</string>
     <string name="security_center_remove_macro_black_list">إزالة القائمة السوداء للتركيبات التلقائية</string>
-    <string name="security_center_disable_send_malicious_app_notification">تعطيل إشعارات \"تم العثور على تطبيق خبيث\"</string>
     <string name="security_center_newbox_custom_enable">تمكين التخصيص</string>
     <string name="security_center_newbox_bg_custom">تشويش الخلفية</string>
     <string name="security_center_newbox_bg_padding_vertical">الهامش الأفقي</string>
@@ -1413,10 +1411,6 @@
     <string name="security_center_sidebar_function_title">وظائف الشريط الجانبي</string>
     <string name="security_center_game_speed">إطلاق اللعبة بسرعة</string>
     <string name="security_center_game_speed_desc">عند إطلاق اللعبة، يتم تجاوز شاشة البداية بسرعة 3x، وهذه الميزة مدعومة فقط من بعض الألعاب.</string>
-    <string name="security_center_bypass_simlock_miaccount_auth">تجاوز أمان حساب Xiaomi لبطاقة SIM</string>
-    <string name="security_center_bypass_simlock_miaccount_auth_desc">يمكنك استخدام هذه الميزة حتى دون تسجيل الدخول إلى حساب Xiaomi الخاص بك</string>
-    <string name="security_center_remove_simlock_success_dialog">إزالة تحذير التحقق من أمان SIM</string>
-    <string name="security_center_remove_simlock_success_dialog_desc">إزالة الحوار الذي يظهر عند تشغيل الجهاز للإشارة إلى أن التحقق من أمان SIM قد اكتمل بنجاح</string>
     <string name="security_center_power_consumption_ranking">عرض ترتيب استهلاك الطاقة</string>
     <string name="security_center_hide_xopt_mode_tip">إخفاء النصائح لاستخدام الأذونات المخفية</string>
     <string name="security_center_battery_unlock_low_temp_ext_endurance">فتح وضع التحمل البارد</string>

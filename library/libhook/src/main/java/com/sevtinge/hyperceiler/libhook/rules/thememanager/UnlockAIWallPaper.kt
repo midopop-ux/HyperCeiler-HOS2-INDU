@@ -30,6 +30,7 @@ object UnlockAIWallPaper : BaseHook() {
         unlock
         return true
     }
+
     private val unlock by lazy {
         optionalMember("wallpaper") { dexKitBridge ->
             dexKitBridge.findClass {
@@ -38,7 +39,6 @@ object UnlockAIWallPaper : BaseHook() {
                 }
             }.findMethod {
                 matcher {
-                    addInvoke("Ljava/util/Set;->contains(Ljava/lang/Object;)Z")
                     returnType = "boolean"
                 }
             }.firstOrNull()
@@ -51,4 +51,3 @@ object UnlockAIWallPaper : BaseHook() {
         }
     }
 }
-

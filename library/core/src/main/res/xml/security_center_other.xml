@@ -59,10 +59,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory>
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="prefs_key_security_center_disable_root_check_environment"
-            android:title="@string/security_center_disable_root_check_environment" />
 
         <SwitchPreference
             android:defaultValue="false"
@@ -143,11 +139,6 @@
 
         <SwitchPreference
             android:defaultValue="false"
-            android:key="prefs_key_security_center_disable_send_malicious_app_notification"
-            android:title="@string/security_center_disable_send_malicious_app_notification" />
-
-        <SwitchPreference
-            android:defaultValue="false"
             android:key="prefs_key_security_center_unlock_car_sickness"
             android:summary="@string/security_center_unlock_car_sickness_desc"
             android:title="@string/security_center_unlock_car_sickness" />
@@ -158,18 +149,6 @@
             android:summary="@string/security_center_game_speed_desc"
             android:title="@string/security_center_game_speed"
             app:isPreferenceVisible="false" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="prefs_key_security_center_bypass_simlock_miaccount_auth"
-            android:summary="@string/security_center_bypass_simlock_miaccount_auth_desc"
-            android:title="@string/security_center_bypass_simlock_miaccount_auth" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="prefs_key_security_center_remove_simlock_success_dialog"
-            android:summary="@string/security_center_remove_simlock_success_dialog_desc"
-            android:title="@string/security_center_remove_simlock_success_dialog" />
 
         <SwitchPreference
             android:defaultValue="false"

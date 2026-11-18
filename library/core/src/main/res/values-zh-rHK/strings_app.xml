@@ -1336,7 +1336,6 @@
     <string name="security_center_beauty_title">前置攝像助手</string>
     <string name="security_center_bubble_and_freeform_title">小窗和氣泡通知</string>
     <string name="security_center_newbox_title">全局側邊欄</string>
-    <string name="security_center_disable_root_check_environment">禁用環境檢查</string>
     <string name="security_center_dolby_open">關閉杜比彈窗</string>
     <string name="security_center_show_battery_temperature">顯示電池温度</string>
     <string name="security_center_show_battery_health">顯示具體電池健康度</string>
@@ -1361,7 +1360,6 @@
     <string name="security_center_install_intercept">禁用 USB 安裝拦截</string>
     <string name="security_center_adb_install_verify">繞過開啟 USB 安裝時的網絡校驗</string>
     <string name="security_center_remove_macro_black_list">移除自動連招黑名單</string>
-    <string name="security_center_disable_send_malicious_app_notification">禁止發送 “發现恶意應用程式” 通知</string>
     <string name="security_center_newbox_custom_enable">啟用自定義</string>
     <string name="security_center_newbox_bg_custom">背景模糊</string>
     <string name="security_center_newbox_bg_padding_vertical">水平邊距</string>
@@ -1423,10 +1421,6 @@
     <string name="security_center_sidebar_function_title">全局側邊欄功能</string>
     <string name="security_center_game_speed">快速啟動遊戲</string>
     <string name="security_center_game_speed_desc">在啟動遊戲時倍速通過開屏動畫，僅部分遊戲支持</string>
-    <string name="security_center_bypass_simlock_miaccount_auth">SIM 卡安全保護跳過登錄驗證</string>
-    <string name="security_center_bypass_simlock_miaccount_auth_desc">開啟 SIM 卡安全保護功能時無需登錄小米賬號</string>
-    <string name="security_center_remove_simlock_success_dialog">移除 SIM 卡安全保護驗證成功的彈窗</string>
-    <string name="security_center_remove_simlock_success_dialog_desc">開機後不再彈窗提示 SIM 卡安全保護驗證成功</string>
     <string name="security_center_power_consumption_ranking">恢復顯示耗電排行</string>
     <string name="security_center_hide_xopt_mode_tip">隱藏權限使用提示</string>
     <string name="security_center_battery_unlock_low_temp_ext_endurance">解鎖低温超級續航</string>

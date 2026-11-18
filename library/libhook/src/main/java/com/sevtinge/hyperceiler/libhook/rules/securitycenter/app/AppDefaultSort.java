@@ -18,114 +18,67 @@
 */
 package com.sevtinge.hyperceiler.libhook.rules.securitycenter.app;
 
-import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
+import android.view.View;
 
 import com.sevtinge.hyperceiler.common.log.XposedLog;
 import com.sevtinge.hyperceiler.common.utils.PrefsBridge;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
-
-import java.lang.reflect.Field;
 
 import io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam;
 import io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook;
 
 public class AppDefaultSort extends BaseHook {
 
-    Class<?> mAppManagerCls;
-    String fragCls = null;
+    private static final String TAG = "AppDefaultSort";
 
     @Override
     public void init() {
+        int order = PrefsBridge.getStringAsInt("security_center_app_default_sort", 0);
+        if (order <= 0) {
+            return;
+        }
+        final int targetSort = order - 1;
 
-        mAppManagerCls = findClassIfExists("com.miui.appmanager.AppManagerMainActivity");
-
-        findAndHookMethod(mAppManagerCls, "onCreate", Bundle.class, new IMethodHook() {
-            @Override
-            public void before(HookParam param) {
-                param.getArgs()[0] = checkBundle((Bundle) param.getArgs()[0]);
-                Class<?> mFragXCls = findClassIfExists("androidx.fragment.app.Fragment");
-                Field[] fields = param.getThisObject().getClass().getDeclaredFields();
-                for (Field field : fields) {
-                    if (Fragment.class.isAssignableFrom(field.getType()) || (mFragXCls != null && mFragXCls.isAssignableFrom(field.getType()))) {
-                        fragCls = field.getType().getCanonicalName();
-                        break;
-                    }
-                }
-                if (fragCls != null) {
-                    hookAllMethods(fragCls, "onActivityCreated", new IMethodHook() {
-                        @Override
-                        public void before(final HookParam param) {
-                            try {
-                                param.getArgs()[0] = checkBundle((Bundle) param.getArgs()[0]);
-                            } catch (Throwable t) {
-                                XposedLog.e(TAG, getPackageName(), "", t);
-                            }
-                        }
-                    });
-                }
-            }
-        });
-
-        // Hook p5.g.B() which returns the total size in bytes (field 'p')
-        // When sorting by installation time, 'p' is 0 because size calculation wasn't triggered.
-        // If B() returns 0, calculate and cache the actual size on disk so '0 B' is never shown!
-        Class<?> itemCls = findClassIfExists("p5.g");
-        if (itemCls != null) {
-            findAndHookMethod(itemCls, "B", new IMethodHook() {
+        Class<?> manageFragCls = findClassIfExists("com.miui.appmanager.fragment.ManageFragment");
+        if (manageFragCls != null) {
+            // Apply sort seamlessly after initial load without corrupting savedInstanceState or loaders
+            hookAllMethods(manageFragCls, "onResume", new IMethodHook() {
                 @Override
                 public void after(HookParam param) {
+                    final Object frag = param.getThisObject();
                     try {
-                        long size = (long) param.getResult();
-                        if (size <= 0) {
-                            Object item = param.getThisObject();
-                            android.content.pm.ApplicationInfo appInfo = (android.content.pm.ApplicationInfo) getObjectField(item, "v");
-                            if (appInfo != null && appInfo.sourceDir != null) {
-                                java.io.File sourceFile = new java.io.File(appInfo.sourceDir);
-                                long computedSize = 0;
-                                if (sourceFile.exists()) {
-                                    java.io.File parentDir = sourceFile.getParentFile();
-                                    java.io.File[] files = (parentDir != null && parentDir.isDirectory()) ? parentDir.listFiles() : null;
-                                    if (files != null && files.length > 0) {
-                                        for (java.io.File f : files) {
-                                            if (f.isFile()) {
-                                                computedSize += f.length();
+                        View view = (View) callMethod(frag, "getView");
+                        if (view != null) {
+                            view.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        int currentZ = getIntField(frag, "z");
+                                        if (currentZ != targetSort) {
+                                            setIntField(frag, "z", targetSort);
+                                            Object adapter = getObjectField(frag, "f");
+                                            if (adapter != null) {
+                                                callMethod(adapter, "v", targetSort);
                                             }
-                                        }
-                                    } else {
-                                        computedSize = sourceFile.length();
-                                        if (appInfo.splitSourceDirs != null) {
-                                            for (String split : appInfo.splitSourceDirs) {
-                                                java.io.File sf = new java.io.File(split);
-                                                if (sf.isFile()) {
-                                                    computedSize += sf.length();
-                                                }
+                                            String[] s = (String[]) getObjectField(frag, "s");
+                                            Object menu = getObjectField(frag, "B");
+                                            if (menu != null && s != null && targetSort >= 0 && targetSort < s.length) {
+                                                callMethod(menu, "n", (Object) s[targetSort]);
                                             }
+                                            callMethod(frag, "updateData");
+                                            XposedLog.d(TAG, "Applied default sort seamlessly: " + targetSort);
                                         }
+                                    } catch (Throwable t) {
+                                        XposedLog.w(TAG, "Error applying default sort in view.post: " + t.getMessage());
                                     }
                                 }
-                                if (computedSize > 0) {
-                                    setLongField(item, "p", computedSize);
-                                    param.setResult(computedSize);
-                                }
-                            }
+                            });
                         }
                     } catch (Throwable t) {
-                        XposedLog.w(TAG, getPackageName(), "Error computing item size in p5.g.B: " + t.getMessage());
+                        XposedLog.w(TAG, "Error in ManageFragment.onResume hook: " + t.getMessage());
                     }
                 }
             });
         }
-    }
-
-    public static Bundle checkBundle(Bundle bundle) {
-        if (bundle == null) bundle = new Bundle();
-        int order = PrefsBridge.getStringAsInt("security_center_app_default_sort", 0);
-        if (order > 0) {
-            bundle.putInt("current_sory_type", order - 1);
-            bundle.putInt("current_sort_type", order - 1);
-        }
-        return bundle;
     }
 }

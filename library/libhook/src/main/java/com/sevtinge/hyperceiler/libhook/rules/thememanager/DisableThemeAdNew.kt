@@ -24,7 +24,6 @@ import com.sevtinge.hyperceiler.common.log.XposedLog
 import com.sevtinge.hyperceiler.libhook.base.BaseHook
 import io.github.lingqiqi5211.ezhooktool.core.findAllMethods
 import io.github.lingqiqi5211.ezhooktool.core.findMethod
-import io.github.lingqiqi5211.ezhooktool.core.loadClass
 import io.github.lingqiqi5211.ezhooktool.core.java.Constructors
 import io.github.lingqiqi5211.ezhooktool.xposed.dsl.createHook
 import io.github.lingqiqi5211.ezhooktool.xposed.dsl.createHooks
@@ -47,21 +46,26 @@ class DisableThemeAdNew : BaseHook() {
             XposedLog.e(TAG, it)
         }
         runCatching {
-            loadClass("com.android.thememanager.basemodule.ad.model.AdInfoResponse").findMethod { name("isAdValid"); paramCount(1) }
-                .createHook {
+            findClassIfExists("com.android.thememanager.basemodule.ad.model.AdInfoResponse")?.let {
+                it.findMethod { name("isAdValid"); paramCount(1) }.createHook {
                     returnConstant(false)
                 }
+            }
         }.onFailure {
             XposedLog.e(TAG, it)
         }
 
-        removeAds(loadClass("com.android.thememanager.recommend.view.listview.viewholder.SelfFontItemAdViewHolder"))
-        removeAds(loadClass("com.android.thememanager.recommend.view.listview.viewholder.SelfRingtoneItemAdViewHolder"))
+        findClassIfExists("com.android.thememanager.recommend.view.listview.viewholder.SelfFontItemAdViewHolder")?.let {
+            removeAds(it)
+        }
+        findClassIfExists("com.android.thememanager.recommend.view.listview.viewholder.SelfRingtoneItemAdViewHolder")?.let {
+            removeAds(it)
+        }
     }
 
     private fun removeAds(clazz: Class<*>) {
-        try {
-            Constructors.find(clazz).filterByParamCount(2).first().createHook {
+        runCatching {
+            Constructors.find(clazz).filterByParamCount(2).firstOrNull()?.createHook {
                 after {
                     if (it.args[0] != null) {
                         val view = it.args[0] as View
@@ -71,8 +75,8 @@ class DisableThemeAdNew : BaseHook() {
                     }
                 }
             }
-        } catch (t: Throwable) {
-            XposedLog.e(TAG, this.lpparam.packageName, t)
+        }.onFailure {
+            XposedLog.e(TAG, this.lpparam.packageName, it)
         }
     }
 }

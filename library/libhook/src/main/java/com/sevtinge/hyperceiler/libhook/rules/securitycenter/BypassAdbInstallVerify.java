@@ -19,82 +19,50 @@
 
 package com.sevtinge.hyperceiler.libhook.rules.securitycenter;
 
+import com.sevtinge.hyperceiler.common.log.XposedLog;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
-import com.sevtinge.hyperceiler.libhook.utils.hookapi.dexkit.IDexKit;
-
-import org.luckypray.dexkit.DexKitBridge;
-import org.luckypray.dexkit.query.FindMethod;
-import org.luckypray.dexkit.query.matchers.ClassMatcher;
-import org.luckypray.dexkit.query.matchers.MethodMatcher;
-import org.luckypray.dexkit.result.MethodData;
-import org.luckypray.dexkit.result.base.BaseData;
-
-import java.lang.reflect.Method;
 
 import io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam;
 import io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook;
 
 public class BypassAdbInstallVerify extends BaseHook {
-    private Method mAdbInstallNetworkVerifyMethod;
-    private Method mAdbInstallCallerMethod;
 
-    @Override
-    protected boolean useDexKit() {
-        return true;
-    }
-
-    @Override
-    protected boolean initDexKit() {
-        mAdbInstallNetworkVerifyMethod = optionalMember("AdbInstallNetworkVerify", new IDexKit() {
-            @Override
-            public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
-                MethodData methodData = bridge.findMethod(FindMethod.create()
-                        .matcher(MethodMatcher.create()
-                                .declaredClass(ClassMatcher.create()
-                                        .usingStrings("https://srv.sec.miui.com/data/adb"))
-                                .usingStrings("connectivity")
-                        )).firstOrNull();
-                return methodData;
-            }
-        });
-        mAdbInstallCallerMethod = optionalMember("AdbInstallCaller", new IDexKit() {
-            @Override
-            public BaseData dexkit(DexKitBridge bridge) throws ReflectiveOperationException {
-                MethodData methodData = bridge.findMethod(FindMethod.create()
-                        .matcher(MethodMatcher.create()
-                                .usingStrings("AdbInstallActivity", "start request for adb install!")
-                        )).firstOrNull();
-                return methodData;
-            }
-        });
-        return true;
-    }
+    private static final String TAG = "BypassAdbInstallVerify";
 
     @Override
     public void init() {
-        if (mAdbInstallNetworkVerifyMethod != null) {
-            hookMethod(mAdbInstallNetworkVerifyMethod, new IMethodHook() {
+        Class<?> verifyActCls = findClassIfExists("com.miui.permcenter.install.AdbInstallVerifyActivity");
+        if (verifyActCls != null) {
+            // Hook onCreate to bypass network check, grant permission immediately and finish
+            hookAllMethods(verifyActCls, "onCreate", new IMethodHook() {
                 @Override
-                public void before(HookParam param) {
-                    Object instance = param.getThisObject();
-                    Class<?> verifyClass = findClassIfExists("com.miui.permcenter.install.AdbInstallVerifyActivity$b");
-                    if (verifyClass != null) {
-                        Object adbInstallVerifyActivityInstance = newInstance(verifyClass, instance);
-                        setObjectField(instance, "d", adbInstallVerifyActivityInstance);
-                        Object threadPoolExecutor = getStaticObjectField(findClass("android.os.AsyncTask", getClassLoader()), "THREAD_POOL_EXECUTOR");
-                        callMethod(adbInstallVerifyActivityInstance, "executeOnExecutor", threadPoolExecutor, new Void[]{});
+                public void after(HookParam param) {
+                    try {
+                        Object act = param.getThisObject();
+                        callMethod(act, "H0");
+                        callMethod(act, "finish");
+                    } catch (Throwable t) {
+                        XposedLog.w(TAG, "Error in AdbInstallVerifyActivity.onCreate hook: " + t.getMessage());
                     }
-                    param.setResult(null);
                 }
             });
-        }
-        if (mAdbInstallCallerMethod != null) {
-            hookMethod(mAdbInstallCallerMethod, new IMethodHook() {
+
+            // Prevent showing progress dialog
+            hookAllMethods(verifyActCls, "K0", new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
                     param.setResult(null);
                 }
             });
+
+            // Prevent network request
+            hookAllMethods(verifyActCls, "I0", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    param.setResult(null);
+                }
+            });
+            XposedLog.d(TAG, "Hooked AdbInstallVerifyActivity successfully");
         }
     }
 }

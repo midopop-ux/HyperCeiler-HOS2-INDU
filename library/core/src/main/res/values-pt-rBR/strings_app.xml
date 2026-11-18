@@ -1315,7 +1315,6 @@
     <string name="security_center_beauty_title">Assistente da câmera frontal</string>
     <string name="security_center_bubble_and_freeform_title">Bolha e janelas flutuantes</string>
     <string name="security_center_newbox_title">Barra lateral</string>
-    <string name="security_center_disable_root_check_environment">Desativar verificação de ambiente</string>
     <string name="security_center_dolby_open">Fechar janela pop-up Dolby</string>
     <string name="security_center_show_battery_temperature">Exibir temperatura da bateria</string>
     <string name="security_center_show_battery_health">Exibir saúde da bateria detalhada</string>
@@ -1340,7 +1339,6 @@
     <string name="security_center_install_intercept">Desativar interceptação de instalação USB</string>
     <string name="security_center_adb_install_verify">Desativar verificação de rede ao abrir a instalação USB</string>
     <string name="security_center_remove_macro_black_list">Remover lista negra de combinação automática</string>
-    <string name="security_center_disable_send_malicious_app_notification">Desativar notificações de \"App malicioso encontrado\"</string>
     <string name="security_center_newbox_custom_enable">Ativar personalização</string>
     <string name="security_center_newbox_bg_custom">Blur de fundo</string>
     <string name="security_center_newbox_bg_padding_vertical">Margem horizontal</string>
@@ -1402,10 +1400,6 @@
     <string name="security_center_sidebar_function_title">Função da barra lateral</string>
     <string name="security_center_game_speed">Iniciar jogo rapidamente</string>
     <string name="security_center_game_speed_desc">Ao iniciar o jogo, ele passa a animação da tela de abertura em velocidade 3x, o que só é suportado por alguns jogos.</string>
-    <string name="security_center_bypass_simlock_miaccount_auth">Ignorar segurança do SIM da Conta Xiaomi</string>
-    <string name="security_center_bypass_simlock_miaccount_auth_desc">Você pode usar este recurso mesmo sem fazer login em sua Conta Xiaomi</string>
-    <string name="security_center_remove_simlock_success_dialog">Remover aviso de verificação de segurança do SIM</string>
-    <string name="security_center_remove_simlock_success_dialog_desc">Remove a caixa de diálogo após ligar o dispositivo para indicar que a verificação de segurança do SIM foi concluída com sucesso</string>
     <string name="security_center_power_consumption_ranking">Exibir classificação do consumo de energia</string>
     <string name="security_center_hide_xopt_mode_tip">Ocultar dica de uso de permissões ocultas</string>
     <string name="security_center_battery_unlock_low_temp_ext_endurance">Desbloquear Modo de resistência a frio</string>
