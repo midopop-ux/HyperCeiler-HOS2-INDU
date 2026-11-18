@@ -276,7 +276,10 @@ public class ShowAutostartToggle extends BaseHook {
                 }
                 if (category == null) {
                     // Try getting field n (which is the permissions PreferenceCategory in ApplicationsDetailsFragment)
-                    category = getObjectFieldOrNull(fragment, "n");
+                    try {
+                        category = getObjectField(fragment, "n");
+                    } catch (Throwable ignored) {
+                    }
                 }
                 if (category != null) {
                     callMethod(category, "addPreference", pref);
