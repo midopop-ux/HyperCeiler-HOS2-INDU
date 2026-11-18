@@ -20,6 +20,9 @@ package com.sevtinge.hyperceiler.libhook.rules.home.navigation;
 
 import static com.sevtinge.hyperceiler.libhook.utils.api.DeviceHelper.Miui.isPad;
 
+import android.graphics.Region;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.sevtinge.hyperceiler.common.utils.PrefsBridge;
@@ -48,44 +51,114 @@ public class BackGestureAreaHeight extends HomeBaseHookNew {
 
     @Override
     public void initBase() {
-        try {   // 适用于5.39.10929+
+        // 1. Restrict the Window touchable region strictly to the middle third of the screen
+        // Top boundary: totalHeight / 3; Bottom boundary: 2 * totalHeight / 3
+        // This leaves the top third and bottom third 100% free for application navigation drawers
+        try {
+            findAndHookMethod("com.miui.home.recents.GestureStubView", "updateTouchRegion",
+                "com.android.systemui.shared.recents.touchableRegion.InternalInsetsInfoCompat", new IMethodHook() {
+                @Override
+                public void after(HookParam param) {
+                    try {
+                        View view = (View) param.getThisObject();
+                        int mRotation = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mRotation");
+                        int mScreenHeight = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mScreenHeight");
+                        int mScreenWidth = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mScreenWidth");
+                        int totalHeight = (mRotation == 0 || mRotation == 2) ? mScreenHeight : mScreenWidth;
+                        if (totalHeight <= 0) return;
+
+                        int top = totalHeight / 3;
+                        int bottom = (totalHeight * 2) / 3;
+
+                        Region region = new Region();
+                        region.set(view.getLeft(), top, view.getLeft() + view.getWidth(), bottom);
+
+                        Object inoutInfo = param.getArgs()[0];
+                        com.sevtinge.hyperceiler.libhook.base.BaseHook.callMethod(inoutInfo, "setTouchableInsets", 3);
+                        com.sevtinge.hyperceiler.libhook.base.BaseHook.callMethod(inoutInfo, "setTouchableRegion", region);
+                    } catch (Throwable ignored) {}
+                }
+            });
+        } catch (Throwable ignored) {}
+
+        // 2. View-level touch event filter: redirect any touch outside the middle third to underlying app
+        try {
+            findAndHookMethod("com.miui.home.recents.GestureStubView", "shouldRedirectEvent", MotionEvent.class, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    MotionEvent event = (MotionEvent) param.getArgs()[0];
+                    if (event != null && event.getAction() == MotionEvent.ACTION_DOWN) {
+                        View view = (View) param.getThisObject();
+                        int mRotation = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mRotation");
+                        int mScreenHeight = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mScreenHeight");
+                        int mScreenWidth = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mScreenWidth");
+                        int totalHeight = (mRotation == 0 || mRotation == 2) ? mScreenHeight : mScreenWidth;
+                        if (totalHeight <= 0) return;
+
+                        float y = event.getRawY();
+                        float top = totalHeight / 3f;
+                        float bottom = (totalHeight * 2f) / 3f;
+
+                        if (y < top || y > bottom) {
+                            param.setResult(Boolean.TRUE);
+                        }
+                    }
+                }
+            });
+        } catch (Throwable ignored) {}
+
+        try {
+            findAndHookMethod("com.miui.home.recents.GestureStubView", "onTouchEvent", MotionEvent.class, new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    MotionEvent event = (MotionEvent) param.getArgs()[0];
+                    if (event != null && event.getAction() == MotionEvent.ACTION_DOWN) {
+                        View view = (View) param.getThisObject();
+                        int mRotation = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mRotation");
+                        int mScreenHeight = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mScreenHeight");
+                        int mScreenWidth = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(view, "mScreenWidth");
+                        int totalHeight = (mRotation == 0 || mRotation == 2) ? mScreenHeight : mScreenWidth;
+                        if (totalHeight <= 0) return;
+
+                        float y = event.getRawY();
+                        float top = totalHeight / 3f;
+                        float bottom = (totalHeight * 2f) / 3f;
+
+                        if (y < top || y > bottom) {
+                            try {
+                                com.sevtinge.hyperceiler.libhook.base.BaseHook.callMethod(view, "redirectEvent", event);
+                            } catch (Throwable ignored) {}
+                            param.setResult(Boolean.TRUE);
+                        }
+                    }
+                }
+            });
+        } catch (Throwable ignored) {}
+
+        // 3. Disable full-screen height expansion so NotesGesture does not stretch touch region across full screen
+        try {
+            findAndHookMethodReplace("com.miui.launcher.utils.NotesGestureCompat", "supportsGestureHeightExpansion", new IReplaceHook() {
+                @Override
+                public Object replace(HookParam param) {
+                    return false;
+                }
+            });
+        } catch (Throwable ignored) {}
+
+        // 4. Update touch height calculation
+        try {
             findAndReplaceMethod("com.miui.home.recents.GestureStubView", "updateGestureTouchHeight", new IReplaceHook() {
                 @Override
                 public Object replace(HookParam param) {
                     Object obj = param.getThisObject();
-
                     int mRotation = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(obj, "mRotation");
                     int mScreenHeight = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(obj, "mScreenHeight");
                     int mScreenWidth = com.sevtinge.hyperceiler.libhook.base.BaseHook.getIntField(obj, "mScreenWidth");
-
-                    float f = (float) PrefsBridge.getInt("home_navigation_back_area_height", 60) / 100;
-
-                    int gestureTouchHeight;
-                    if (mRotation == 0 || mRotation == 2) {
-                        gestureTouchHeight = (int) (mScreenHeight * f);
-                    } else {
-                        gestureTouchHeight = (int) (mScreenWidth * f);
-                    }
-                    com.sevtinge.hyperceiler.libhook.base.BaseHook.setIntField(obj, "mGestureTouchHeight", gestureTouchHeight);
-
+                    int totalHeight = (mRotation == 0 || mRotation == 2) ? mScreenHeight : mScreenWidth;
+                    com.sevtinge.hyperceiler.libhook.base.BaseHook.setIntField(obj, "mGestureTouchHeight", totalHeight / 3);
                     return null;
                 }
             });
-        } catch (NoSuchMethodError e) { // 旧版
-            findAndHookMethod("com.miui.home.recents.GestureStubView", "getGestureStubWindowParam", new IMethodHook() {
-                @Override
-                public void after(final HookParam param) {
-                    WindowManager.LayoutParams lp = (WindowManager.LayoutParams) param.getResult();
-                    int pct = PrefsBridge.getInt("home_navigation_back_area_height", 60);
-                    if (isPad()) {
-                        lp.height = Math.round(lp.height / 100.0f * pct);
-                        lp.width = Math.round(lp.width / 100.0f * pct);
-                    } else {
-                        lp.height = Math.round(lp.height / 60.0f * pct);
-                    }
-                    param.setResult(lp);
-                }
-            });
-        }
+        } catch (Throwable ignored) {}
     }
 }

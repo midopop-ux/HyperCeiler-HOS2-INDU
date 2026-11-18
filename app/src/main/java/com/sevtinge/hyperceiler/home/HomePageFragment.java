@@ -45,6 +45,7 @@ import com.sevtinge.hyperceiler.search.SearchResultAdapter;
 import com.sevtinge.hyperceiler.search.data.ModEntity;
 import com.sevtinge.hyperceiler.search.widget.FlowLayout;
 import com.sevtinge.hyperceiler.utils.DialogHelper;
+import com.sevtinge.hyperceiler.utils.ScopeManager;
 import com.sevtinge.hyperceiler.utils.ThreadUtils;
 
 import java.util.ArrayList;
@@ -73,6 +74,8 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
     private volatile boolean isClicking = false;
     private volatile boolean mIsInActionMode;
     private volatile boolean mIsScrollEnableForListView = true;
+
+    private final ScopeManager.ServiceStateListener mServiceStateListener = service -> scheduleHeaderRefresh();
 
     private BannerCallback mBannerCallback;
 
@@ -448,6 +451,7 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
         boolean effectEnabled = context != null && MiuiBlurUtils.isEffectEnable(context);
         mNestedHeaderLayout.setOverlayMode(effectEnabled);
         mNestedHeaderLayout.setEnableBlur(effectEnabled);
+        ScopeManager.addServiceStateListener(mServiceStateListener, false);
     }
 
     @Override
@@ -594,7 +598,26 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
         if (itemId == R.id.function_setting) {
             IntentUtils.goToCustomOrderDialog(requireActivity(), this);
         } else if (itemId == R.id.quick_restart) {
-            DialogHelper.showRestartDialog(requireContext());
+            Context context = requireContext();
+            List<Header> displayHeaders = HeaderManager.getDisplayHeaders(context, mHeaders);
+            List<String> names = new ArrayList<>();
+            List<String> pkgs = new ArrayList<>();
+            if (displayHeaders != null) {
+                for (Header h : displayHeaders) {
+                    if (h == null || h.summary == null) continue;
+                    String pkg = h.summary.toString();
+                    if (!TextUtils.isEmpty(pkg) && !pkg.equals("system") && pkg.contains(".")) {
+                        CharSequence title = h.getTitle(getResources());
+                        names.add(title != null ? title.toString() : pkg);
+                        pkgs.add(pkg);
+                    }
+                }
+            }
+            if (!names.isEmpty()) {
+                DialogHelper.showRestartDialog(context, names, pkgs);
+            } else {
+                DialogHelper.showRestartDialog(context);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -706,6 +729,7 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        ScopeManager.removeServiceStateListener(mServiceStateListener);
         HomePageBannerManager.setRefreshCallback(null);
         stopTipAutoRefresh();
         mTipsHandler.removeCallbacksAndMessages(null);

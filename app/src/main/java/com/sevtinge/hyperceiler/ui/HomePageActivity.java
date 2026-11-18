@@ -32,6 +32,7 @@ import com.sevtinge.hyperceiler.home.HomePageFragment;
 import com.sevtinge.hyperceiler.home.IconTitleLoader;
 import com.sevtinge.hyperceiler.home.adapter.HomeContentAdapter;
 import com.sevtinge.hyperceiler.home.manager.PageDecorator;
+import com.sevtinge.hyperceiler.home.safemode.AppCrashStore;
 import com.sevtinge.hyperceiler.home.task.AppInitializer;
 import com.sevtinge.hyperceiler.home.widget.NavigationStyle;
 import com.sevtinge.hyperceiler.home.widget.SwitchManager;
@@ -68,6 +69,11 @@ public class HomePageActivity extends AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (AppCrashStore.hasPendingCrash(this)) {
+            startActivity(AppCrashStore.createIntent(this));
+            finish();
+            return;
+        }
         if (PersistConfig.isAprilFoolsThemeView) setTheme(R.style.HomePageAprilFoolsTheme);
         if (!OobeUtils.isProvisioned(this) && !OobeUtils.isDebugOobeMode(this)) {
             startActivity(new Intent(this, SplashActivity.class));
@@ -117,7 +123,7 @@ public class HomePageActivity extends AppCompatActivity
         mContentAdapter.addFragment(new AboutPageFragment());
 
         mViewPager.setAdapter(mContentAdapter);
-        mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setOffscreenPageLimit(1);
     }
 
     public void reloadPagesForLanguageChange() {

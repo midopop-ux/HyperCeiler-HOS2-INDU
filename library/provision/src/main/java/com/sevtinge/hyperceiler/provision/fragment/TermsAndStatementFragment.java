@@ -77,16 +77,8 @@ public class TermsAndStatementFragment extends BaseFragment {
                 ((TextView) mNextView).setText(R.string.provision_agree_and_next);
             }
             mNextView.setEnabled(mAgreeCheckBox.isChecked());
-            mNextView.setAlpha(mAgreeCheckBox.isChecked() ? OobeUtils.NO_ALPHA : OobeUtils.HALF_ALPHA);
             mAgreeCheckBox.setOnClickListener(v -> {
-                if (mAgreeCheckBox.isChecked()) {
-                    mAgreeCheckBox.setChecked(false);
-                    showVerificationDialog(success -> {
-                        if (success) {
-                            mAgreeCheckBox.setChecked(true);
-                        }
-                    });
-                }
+                // Directly allow checking without verification dialog
             });
             mAgreeCheckBox.setOnCheckedChangeListener((v, isChecked) -> {
                 mNextView.setEnabled(isChecked);

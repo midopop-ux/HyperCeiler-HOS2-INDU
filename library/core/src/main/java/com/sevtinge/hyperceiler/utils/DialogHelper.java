@@ -175,6 +175,10 @@ public class DialogHelper {
         new RestartAlertDialog(context).show();
     }
 
+    public static void showRestartDialog(Context context, java.util.List<String> appNames, java.util.List<String> packageNames) {
+        new RestartAlertDialog(context, appNames, packageNames).show();
+    }
+
     public static void showRestartDialog(Context context, String packageName) {
         String appLabel = PackagesUtils.getAppLabel(context, packageName);
         showRestartDialog(context, false, appLabel, new String[]{packageName});

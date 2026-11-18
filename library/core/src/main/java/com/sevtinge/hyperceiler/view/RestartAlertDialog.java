@@ -38,16 +38,25 @@ public class RestartAlertDialog extends AlertDialog {
     private List<String> mAppPackageNameList;
 
     public RestartAlertDialog(Context context) {
-        super(context);
-        setTitle(R.string.hyperceiler_restart_quick);
-        setView(createMultipleChoiceView(context));
+        this(context, null, null);
     }
 
-    private MultipleChoiceView createMultipleChoiceView(Context context) {
+    public RestartAlertDialog(Context context, List<String> appNameList, List<String> appPackageNameList) {
+        super(context);
+        setTitle(R.string.hyperceiler_restart_quick);
+        setView(createMultipleChoiceView(context, appNameList, appPackageNameList));
+    }
+
+    private MultipleChoiceView createMultipleChoiceView(Context context, List<String> appNameList, List<String> appPackageNameList) {
         Resources mRes = context.getResources();
         MultipleChoiceView view = new MultipleChoiceView(context);
-        mAppNameList = Arrays.asList(mRes.getStringArray(R.array.restart_apps_name_hyperos));
-        mAppPackageNameList = Arrays.asList(mRes.getStringArray(R.array.restart_apps_packagename));
+        if (appNameList != null && appPackageNameList != null && !appNameList.isEmpty()) {
+            mAppNameList = appNameList;
+            mAppPackageNameList = appPackageNameList;
+        } else {
+            mAppNameList = Arrays.asList(mRes.getStringArray(R.array.restart_apps_name_hyperos));
+            mAppPackageNameList = Arrays.asList(mRes.getStringArray(R.array.restart_apps_packagename));
+        }
         view.setData(mAppNameList, null);
         view.deselectAll();
         view.setOnCheckedListener(sparseBooleanArray -> {
@@ -63,6 +72,9 @@ public class RestartAlertDialog extends AlertDialog {
                     // String test = "XX";
                     String packageGet = mAppPackageNameList.get(i);
                     AppsTool.killApps(packageGet);
+                    if ("com.miui.home".equals(packageGet)) {
+                        AppsTool.killApps("com.mi.android.globallauncher");
+                    }
                 }
             }
         });

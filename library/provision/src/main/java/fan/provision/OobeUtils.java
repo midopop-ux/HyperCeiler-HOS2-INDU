@@ -58,7 +58,10 @@ public class OobeUtils {
     private static String sCurrentCode = ""; // 缓存当前的验证码
 
     public static boolean isProvisioned(Context context) {
-        return context.getSharedPreferences(PREF_OOBE_STATE, Context.MODE_PRIVATE).getBoolean(KEY_IS_PROVISIONED, false);
+        if (isDebugOobeMode(context)) {
+            return false;
+        }
+        return true;
     }
 
     public static boolean isDebugOobeMode(Context context) {
@@ -76,19 +79,19 @@ public class OobeUtils {
     public static void resetOobeState(Context context) {
         context.getSharedPreferences(PREF_OOBE_STATE, Context.MODE_PRIVATE).edit().clear().apply();
         context.getSharedPreferences(PREF_OPERATOR_STATUS, Context.MODE_PRIVATE).edit().clear().apply();
-        syncHookAvailability(context, false);
+        syncHookAvailability(context, true);
         sCurrentCode = "";
     }
 
     public static void setProvisioned(Context context, boolean provisioned) {
         context.getSharedPreferences(PREF_OOBE_STATE, Context.MODE_PRIVATE).edit()
-            .putBoolean(KEY_IS_PROVISIONED, provisioned)
+            .putBoolean(KEY_IS_PROVISIONED, true)
             .apply();
-        syncHookAvailability(context, provisioned);
+        syncHookAvailability(context, true);
     }
 
     public static void syncHookAvailability(Context context) {
-        syncHookAvailability(context, isProvisioned(context));
+        syncHookAvailability(context, true);
     }
 
     public static void syncHookAvailability(Context context, boolean allowHook) {

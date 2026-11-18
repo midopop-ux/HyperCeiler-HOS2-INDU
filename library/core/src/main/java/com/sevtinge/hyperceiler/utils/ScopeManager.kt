@@ -217,14 +217,41 @@ object ScopeManager {
 
     /**
      * 同步读取当前生效的作用域，并返回规范化后的包集合。
+    private const val PREF_CACHED_SCOPE = "cached_lsposed_scope"
+
+    /**
+     * 同步读取当前生效的作用域，并返回规范化后的包集合。
      */
     @JvmStatic
     fun peekNormalizedScopeSync(): LinkedHashSet<String>? {
-        val service = getService() ?: return null
+        val service = getService()
+        if (service != null) {
+            return try {
+                val scope = normalizeScopePackages(service.scope)
+                if (scope.isNotEmpty()) {
+                    try {
+                        com.sevtinge.hyperceiler.common.utils.PrefsBridge.putByApp(PREF_CACHED_SCOPE, scope)
+                    } catch (_: Throwable) {}
+                }
+                scope
+            } catch (e: Exception) {
+                AndroidLog.e(TAG, "peekNormalizedScopeSync failed", e)
+                getCachedScope()
+            }
+        }
+        return getCachedScope()
+    }
+
+    @JvmStatic
+    fun getCachedScope(): LinkedHashSet<String>? {
         return try {
-            normalizeScopePackages(service.scope)
-        } catch (e: Exception) {
-            AndroidLog.e(TAG, "peekNormalizedScopeSync failed", e)
+            val cached = com.sevtinge.hyperceiler.common.utils.PrefsBridge.getStringSet(PREF_CACHED_SCOPE)
+            if (cached != null && cached.isNotEmpty()) {
+                normalizeScopePackages(cached)
+            } else {
+                null
+            }
+        } catch (_: Throwable) {
             null
         }
     }

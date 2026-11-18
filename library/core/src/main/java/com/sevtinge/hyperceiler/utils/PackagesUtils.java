@@ -73,6 +73,8 @@ public class PackagesUtils {
         return checkAppStatus(context(), pkg);
     }
 
+    private static final java.util.Map<String, Boolean> sAppStatusCache = new java.util.concurrent.ConcurrentHashMap<>();
+
     /**
      * 检查应用是否被卸载，禁用，隐藏。请注意满足其中任意一项就会返回 true。
      *
@@ -81,7 +83,36 @@ public class PackagesUtils {
      * @return 状态
      */
     public static boolean checkAppStatus(Context context, String pkg) {
-        return isUninstall(context, pkg) || isDisable(context, pkg) || isHidden(context, pkg);
+        if (context == null || pkg == null) return false;
+        Boolean cached = sAppStatusCache.get(pkg);
+        if (cached != null) {
+            return cached;
+        }
+        PackageManager pm = context.getPackageManager();
+        try {
+            ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
+            boolean unavailable = !info.enabled;
+            sAppStatusCache.put(pkg, unavailable);
+            return unavailable;
+        } catch (PackageManager.NameNotFoundException e) {
+            if ("com.miui.home".equals(pkg)) {
+                try {
+                    ApplicationInfo info = pm.getApplicationInfo("com.mi.android.globallauncher", 0);
+                    boolean unavailable = !info.enabled;
+                    sAppStatusCache.put(pkg, unavailable);
+                    return unavailable;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            } else if ("com.android.fileexplorer".equals(pkg)) {
+                try {
+                    ApplicationInfo info = pm.getApplicationInfo("com.mi.android.globalFileexplorer", 0);
+                    boolean unavailable = !info.enabled;
+                    sAppStatusCache.put(pkg, unavailable);
+                    return unavailable;
+                } catch (PackageManager.NameNotFoundException ignored) {}
+            }
+            sAppStatusCache.put(pkg, true);
+            return true;
+        }
     }
 
     /**

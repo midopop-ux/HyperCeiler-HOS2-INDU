@@ -114,7 +114,7 @@ public class HomePhone extends BaseLoad {
             PrefsBridge.getInt("home_gesture_up_swipe2_action", 0) > 0 ||
             PrefsBridge.getInt("home_gesture_down_swipe2_action", 0) > 0);
         initHook(new ShakeDevice(), PrefsBridge.getInt("home_gesture_shake_action", 0) > 0);
-        initHook(new BackGestureAreaHeight(), PrefsBridge.getInt("home_navigation_back_area_height", 60) != 60);
+        initHook(new BackGestureAreaHeight(), true);
         initHook(new BackGestureAreaWidth(), PrefsBridge.getInt("home_navigation_back_area_width", 100) != 100);
         initHook(new ThirdPartyLauncherGestureFix(), PrefsBridge.getBoolean("home_navigation_third_party_launcher", true));
 

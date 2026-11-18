@@ -198,6 +198,13 @@ public class LSPosedScopeHelper {
         try {
             XposedService service = ScopeManager.getService();
             if (service == null) {
+                java.util.Set<String> cached = ScopeManager.getCachedScope();
+                if (cached != null && !cached.isEmpty()) {
+                    mScope = new ArrayList<>(cached);
+                    isScopeGetFailed = false;
+                    isInitScopeGet = true;
+                    return;
+                }
                 AndroidLog.w(TAG, "XposedService not available, skip get scope.");
                 isScopeGetFailed = true;
                 isInitScopeGet = true;

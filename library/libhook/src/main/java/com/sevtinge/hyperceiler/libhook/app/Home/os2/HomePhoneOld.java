@@ -160,7 +160,7 @@ public class HomePhoneOld extends BaseLoad {
         // initHook(new SwipeAndStop(), PrefsBridge.getInt("home_gesture_swipe_and_stop_action" ,0) > 0);
 
         initHook(new DisableFullScreenBackGesture(), PrefsBridge.getBoolean("home_navigation_disable_full_screen_back_gesture"));
-        initHook(new BackGestureAreaHeight(), PrefsBridge.getInt("home_navigation_back_area_height", 60) != 60);
+        initHook(new BackGestureAreaHeight(), true);
         initHook(new BackGestureAreaWidth(), PrefsBridge.getInt("home_navigation_back_area_width", 100) != 100);
         initHook(new ThirdPartyLauncherGestureFix(), PrefsBridge.getBoolean("home_navigation_third_party_launcher", true));
 
