@@ -620,6 +620,8 @@
     <string name="system_ui_lock_screen_default_theme">Support default theme only</string>
     <string name="system_ui_lock_screen_show_charging_cv">Show charging information at the bottom</string>
     <string name="system_ui_lock_screen_show_charging_c_more">Show detailed current</string>
+    <string name="system_ui_lock_screen_charging_offset_y">Elevate charging info above fingerprint</string>
+    <string name="system_ui_lock_screen_charging_offset_y_desc">Adjust vertical offset to avoid overlapping with in-display fingerprint sensor</string>
     <string name="system_ui_lock_screen_show_battery_temperature">Show battery temperature</string>
     <string name="system_ui_lock_screen_show_spacing">Display refresh interval</string>
     <string name="system_ui_lock_screen_hide_camera">Hide camera</string>

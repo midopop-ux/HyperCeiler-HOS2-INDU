@@ -89,7 +89,7 @@ object ChargingCVP : BaseHook() {
                     textSize = 10.5f
                     typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
                     paint.isFakeBoldText = true
-                    lineSpacingMultiplier = 1.15f
+                    setLineSpacing(0f, 1.15f)
                     gravity = Gravity.CENTER_HORIZONTAL
                     if (offsetPx > 0f) {
                         translationY = -offsetPx
