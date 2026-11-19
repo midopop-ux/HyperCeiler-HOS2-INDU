@@ -364,6 +364,7 @@
     <string name="system_framework_disable_audio_focus_desc">منع يوتيوب من خفض صوته تلقائياً عند ورود مكالمات أو إشعارات. يتطلب تفعيل يوتيوب في نطاق LSPosed.</string>
     <string name="youtube_scope_required_title">يلزم تفعيل نطاق يوتيوب</string>
     <string name="youtube_scope_required_msg">لاستخدام هذه الميزة، يرجى تفعيل تطبيق يوتيوب (أو YouTube ReVanced) داخل نطاق (Scope) الهايبر سيلر في تطبيق LSPosed أولاً.</string>
+    <string name="youtube">يوتيوب</string>
     <string name="system_framework_allow_untrusted_touch">السماح باللمس الغير موثوق به</string>
     <string name="system_framework_clipboard_whitelist">السماح للتطبيق بقراءة الحافظة في الخلفية</string>
     <string name="system_framework_clipboard_whitelist_desc">السماح للتطبيقات بالحصول على إذن READ_LOGS (قراءة السجلات)</string>
@@ -941,7 +942,7 @@
     <string name="sound_recorder_unlock_recording_scene">افتح موقع التسجيل</string>
     <!--Notes-->
     <!--Always-on display-->
-    <string name="aod_hyperos">الشاشة الدائمة ومحرر قفل الشاشة</string>
+    <string name="aod_hyperos">الشاشة الدائمة (Always-on display)</string>
     <string name="aod_unlock_always_on_display">فتح الحد الزمني لعرض الشاشة الدائمة</string>
     <string name="aod_unlock_always_on_display_more">إعادة تشغيل واجهة النظام لتمكين الميزة بالكامل</string>
     <string name="aod_unlock_aon">فتح Aod Aon</string>

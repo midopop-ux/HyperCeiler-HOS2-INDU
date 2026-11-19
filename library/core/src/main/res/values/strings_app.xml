@@ -448,6 +448,7 @@
     <string name="system_framework_disable_audio_focus_desc">Prevent YouTube from lowering its volume during calls or notifications. Requires YouTube in LSPosed scope.</string>
     <string name="youtube_scope_required_title">YouTube Scope Required</string>
     <string name="youtube_scope_required_msg">To use this feature, please enable YouTube (or YouTube ReVanced) in HyperCeiler\'s scope in LSPosed first.</string>
+    <string name="youtube">YouTube</string>
     <string name="system_framework_allow_untrusted_touch">Allow untrusted touch</string>
     <string name="system_framework_clipboard_whitelist">Allow app to read clipboard at background</string>
     <string name="system_framework_clipboard_whitelist_desc">Allow apps to get READ_LOGS permission</string>
@@ -1043,7 +1044,7 @@
     <string name="notes">Notes</string>
     <string name="notes_disable_ai_watermark">Disable AI watermark</string>
     <!--Always-on display-->
-    <string name="aod_hyperos">Always-on display and Lock screen editor</string>
+    <string name="aod_hyperos">Always-on display</string>
     <string name="aod_unlock_always_on_display">Unlock the display time limit of the Always-on display</string>
     <string name="aod_unlock_always_on_display_more">Restart the System UI to fully enable the feature</string>
     <string name="aod_unlock_aon">Unlock Aod Aon</string>

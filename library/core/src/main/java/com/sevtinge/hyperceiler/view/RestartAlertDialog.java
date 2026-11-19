@@ -60,7 +60,7 @@ public class RestartAlertDialog extends AlertDialog {
                 : Arrays.asList(context.getResources().getStringArray(R.array.restart_apps_packagename));
         mAllNames = allNames;
         mAllPkgs = allPkgs;
-        mCurrentPkgs = mHookedNames;
+        mCurrentPkgs = mHookedPkgs;
 
         mChoiceView = createMultipleChoiceView(context);
         if (mAllNames != null && !mAllNames.isEmpty()) {
@@ -69,7 +69,7 @@ public class RestartAlertDialog extends AlertDialog {
                     mCurrentPkgs = mAllPkgs;
                     mChoiceView.setData(mAllNames, null);
                 } else {
-                    mCurrentPkgs = mHookedNames;
+                    mCurrentPkgs = mHookedPkgs;
                     mChoiceView.setData(mHookedNames, null);
                 }
                 mChoiceView.deselectAll();
@@ -97,6 +97,8 @@ public class RestartAlertDialog extends AlertDialog {
                         AppsTool.killApps(packageGet);
                         if ("com.miui.home".equals(packageGet)) {
                             AppsTool.killApps("com.mi.android.globallauncher");
+                        } else if ("com.google.android.youtube".equals(packageGet)) {
+                            AppsTool.killApps("app.revanced.android.youtube");
                         }
                     }
                 }
