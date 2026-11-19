@@ -610,22 +610,6 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
                 }
             }
 
-            // Include YouTube in hooked list if it is in scope and installed
-            java.util.Set<String> scopePackages = ScopeManager.peekNormalizedScopeSync();
-            String[] ytPkgs = {"com.google.android.youtube", "app.revanced.android.youtube"};
-            for (String ytPkg : ytPkgs) {
-                if (ScopeManager.containsScopePackage(scopePackages, ytPkg)) {
-                    if (!com.sevtinge.hyperceiler.utils.PackagesUtils.checkAppStatus(context, ytPkg)) {
-                        String ytTitle = com.sevtinge.hyperceiler.utils.PackagesUtils.getAppName(context, ytPkg);
-                        if (TextUtils.isEmpty(ytTitle)) ytTitle = getString(com.sevtinge.hyperceiler.core.R.string.youtube);
-                        if (!hookedPkgs.contains(ytPkg)) {
-                            hookedNames.add(ytTitle);
-                            hookedPkgs.add(ytPkg);
-                        }
-                    }
-                }
-            }
-
             List<String> allNames = new ArrayList<>();
             List<String> allPkgs = new ArrayList<>();
             if (mHeaders != null) {
@@ -638,18 +622,6 @@ public class HomePageFragment extends BasePreferenceFragment implements OnComple
                             allNames.add(title != null ? title.toString() : pkg);
                             allPkgs.add(pkg);
                         }
-                    }
-                }
-            }
-
-            // Include YouTube in supported apps list if installed
-            for (String ytPkg : ytPkgs) {
-                if (!com.sevtinge.hyperceiler.utils.PackagesUtils.checkAppStatus(context, ytPkg)) {
-                    String ytTitle = com.sevtinge.hyperceiler.utils.PackagesUtils.getAppName(context, ytPkg);
-                    if (TextUtils.isEmpty(ytTitle)) ytTitle = getString(com.sevtinge.hyperceiler.core.R.string.youtube);
-                    if (!allPkgs.contains(ytPkg)) {
-                        allNames.add(ytTitle);
-                        allPkgs.add(ytPkg);
                     }
                 }
             }

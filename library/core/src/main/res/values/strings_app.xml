@@ -444,11 +444,6 @@
     <string name="system_framework_hook_entry_desc">Allow navigation auto-disconnect protection to be used in non-navigation scenarios</string>
     <string name="system_framework_shortcut_title">Share shortcuts</string>
     <string name="system_framework_screen_all_rotations">Screen rotation</string>
-    <string name="system_framework_disable_audio_focus">Disable YouTube Duck</string>
-    <string name="system_framework_disable_audio_focus_desc">Prevent YouTube from lowering its volume during calls or notifications. Requires YouTube in LSPosed scope.</string>
-    <string name="youtube_scope_required_title">YouTube Scope Required</string>
-    <string name="youtube_scope_required_msg">To use this feature, please enable YouTube (or YouTube ReVanced) in HyperCeiler\'s scope in LSPosed first.</string>
-    <string name="youtube">YouTube</string>
     <string name="system_framework_allow_untrusted_touch">Allow untrusted touch</string>
     <string name="system_framework_clipboard_whitelist">Allow app to read clipboard at background</string>
     <string name="system_framework_clipboard_whitelist_desc">Allow apps to get READ_LOGS permission</string>

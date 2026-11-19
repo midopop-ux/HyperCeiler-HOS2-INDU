@@ -360,11 +360,6 @@
     <string name="system_framework_hook_entry_desc">تسمح حماية قطع الملاحة باستخدامها في سيناريوهات غير الملاحة</string>
     <string name="system_framework_shortcut_title">مشاركة الاختصارات</string>
     <string name="system_framework_screen_all_rotations">تدوير الشاشة</string>
-    <string name="system_framework_disable_audio_focus">تعطيل خفض صوت يوتيوب (Disable YouTube Duck)</string>
-    <string name="system_framework_disable_audio_focus_desc">منع يوتيوب من خفض صوته تلقائياً عند ورود مكالمات أو إشعارات. يتطلب تفعيل يوتيوب في نطاق LSPosed.</string>
-    <string name="youtube_scope_required_title">يلزم تفعيل نطاق يوتيوب</string>
-    <string name="youtube_scope_required_msg">لاستخدام هذه الميزة، يرجى تفعيل تطبيق يوتيوب (أو YouTube ReVanced) داخل نطاق (Scope) الهايبر سيلر في تطبيق LSPosed أولاً.</string>
-    <string name="youtube">يوتيوب</string>
     <string name="system_framework_allow_untrusted_touch">السماح باللمس الغير موثوق به</string>
     <string name="system_framework_clipboard_whitelist">السماح للتطبيق بقراءة الحافظة في الخلفية</string>
     <string name="system_framework_clipboard_whitelist_desc">السماح للتطبيقات بالحصول على إذن READ_LOGS (قراءة السجلات)</string>

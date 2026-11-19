@@ -23,7 +23,6 @@
         <item>@string/mihome</item>
         <item>@string/system_settings</item>
         <item>@string/security_center_hyperos</item>
-        <item>@string/youtube</item>
         <!--<item>@string/personal_assistant</item>
         <item>@string/notes</item>
         <item>@string/powerkeeper</item>
@@ -36,7 +35,6 @@
         <item>com.miui.home</item>
         <item>com.android.settings</item>
         <item>com.miui.securitycenter</item>
-        <item>com.google.android.youtube</item>
         <!--<item>com.miui.personalassistant</item>
         <item>com.miui.notes</item>
         <item>com.miui.powerkeeper</item>

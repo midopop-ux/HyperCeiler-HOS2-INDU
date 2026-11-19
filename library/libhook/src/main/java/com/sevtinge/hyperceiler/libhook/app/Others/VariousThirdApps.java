@@ -31,7 +31,6 @@ import com.sevtinge.hyperceiler.common.utils.PrefsBridge;
 import com.sevtinge.hyperceiler.libhook.appbase.input.InputMethodClassLoaderDispatcher;
 import com.sevtinge.hyperceiler.libhook.appbase.input.InputMethodConfig;
 import com.sevtinge.hyperceiler.libhook.base.BaseLoad;
-import com.sevtinge.hyperceiler.libhook.rules.various.DisableYouTubeDuck;
 import com.sevtinge.hyperceiler.libhook.rules.various.MusicHooks;
 import com.sevtinge.hyperceiler.libhook.rules.various.clipboard.BaiduClipboard;
 import com.sevtinge.hyperceiler.libhook.rules.various.clipboard.SoGouClipboard;
@@ -79,11 +78,6 @@ public class VariousThirdApps extends BaseLoad {
             } catch (Throwable e) {
                 XposedLog.e("GoogleQuickSearchBox", "Failed to spoof device info: " + e.getMessage());
             }
-            return;
-        }
-
-        if (isYouTubePackage(mPackageName)) {
-            initYouTubeHooks();
             return;
         }
 
@@ -150,17 +144,5 @@ public class VariousThirdApps extends BaseLoad {
 
     private boolean isBaiduPackage(String packageName) {
         return BAIDU_PACKAGE.equals(packageName) || XIAOMI_BAIDU_PACKAGE.equals(packageName);
-    }
-
-    private void initYouTubeHooks() {
-        boolean enableYouTubeDuck = PrefsBridge.getBoolean("system_framework_disable_audio_focus") ||
-                PrefsBridge.getBoolean("prefs_key_system_framework_disable_audio_focus");
-        initHook(new DisableYouTubeDuck(), enableYouTubeDuck);
-    }
-
-    private boolean isYouTubePackage(String packageName) {
-        return "com.google.android.youtube".equals(packageName) ||
-                "app.revanced.android.youtube".equals(packageName) ||
-                (packageName != null && packageName.contains("youtube"));
     }
 }
