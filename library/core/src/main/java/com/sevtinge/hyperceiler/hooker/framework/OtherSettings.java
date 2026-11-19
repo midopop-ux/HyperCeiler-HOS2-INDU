@@ -38,6 +38,10 @@ import com.sevtinge.hyperceiler.libhook.utils.api.ThreadPoolManager;
 import com.sevtinge.hyperceiler.libhook.utils.hookapi.tool.AppsTool;
 import com.sevtinge.hyperceiler.sub.SubPickerActivity;
 
+import com.sevtinge.hyperceiler.utils.DialogHelper;
+import com.sevtinge.hyperceiler.utils.ScopeManager;
+
+import java.util.LinkedHashSet;
 import java.util.concurrent.ExecutorService;
 
 import fan.preference.DropDownPreference;
@@ -82,6 +86,21 @@ public class OtherSettings extends DashboardFragment implements Preference.OnPre
             mLockAppSc.setOnPreferenceChangeListener(this);
             mLockAppScreen.setOnPreferenceChangeListener(this);
             mLockAppStatus.setOnPreferenceChangeListener(this);
+        }
+
+        SwitchPreference mDisableYouTubeDuck = findPreference("prefs_key_system_framework_disable_audio_focus");
+        if (mDisableYouTubeDuck != null) {
+            mDisableYouTubeDuck.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (Boolean.TRUE.equals(newValue)) {
+                    if (!isYouTubeInScope()) {
+                        DialogHelper.showDialog(getActivity(),
+                                getString(R.string.youtube_scope_required_title),
+                                getString(R.string.youtube_scope_required_msg));
+                        return false;
+                    }
+                }
+                return true;
+            });
         }
 
         mAutoStart.setOnPreferenceClickListener(preference -> {
@@ -154,5 +173,18 @@ public class OtherSettings extends DashboardFragment implements Preference.OnPre
             case "prefs_key_system_framework_guided_access_screen_int" -> initApp(executorService, () -> AppsTool.killApps("com.android.systemui"));
         }
         return true;
+    }
+
+    private boolean isYouTubeInScope() {
+        try {
+            LinkedHashSet<String> scope = ScopeManager.peekNormalizedScopeSync();
+            if (scope == null || scope.isEmpty()) return false;
+            for (String pkg : scope) {
+                if (pkg != null && pkg.contains("youtube")) {
+                    return true;
+                }
+            }
+        } catch (Throwable ignored) {}
+        return false;
     }
 }
