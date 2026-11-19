@@ -166,7 +166,7 @@ public class SystemFrameworkB extends BaseLoad {
         initHook(new BypassUnknownSourcesRestrictions(), PrefsBridge.getBoolean("system_framework_bypass_unknown_sources_restrictions"));
         initHook(new BypassForceMiAppStore(), PrefsBridge.getBoolean("system_framework_bypass_force_mi_appstore") || PrefsBridge.getBoolean("system_framework_market_use_detailmini"));
         initHook(new BypassForceDownloadui(), PrefsBridge.getBoolean("system_framework_bypass_force_downloadui"));
-        initHook(new DisableAudioFocus(), PrefsBridge.getBoolean("system_framework_disable_audio_focus"));
+        initHook(new DisableAudioFocus(), PrefsBridge.getBoolean("system_framework_disable_audio_focus") || PrefsBridge.getBoolean("prefs_key_system_framework_disable_audio_focus"));
         initHook(ConservativeMilletFramework.INSTANCE, PrefsBridge.getBoolean("powerkeeper_conservative_millet"));
         initHook(GMSDozeFixFramework.INSTANCE, PrefsBridge.getBoolean("powerkeeper_gms_doze_fix"));
 

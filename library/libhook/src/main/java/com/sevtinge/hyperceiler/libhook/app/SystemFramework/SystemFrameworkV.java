@@ -159,7 +159,7 @@ public class SystemFrameworkV extends BaseLoad {
 
         initHook(new BypassForceMiAppStore(), PrefsBridge.getBoolean("system_framework_bypass_force_mi_appstore") || PrefsBridge.getBoolean("system_framework_market_use_detailmini"));
         initHook(new BypassForceDownloadui(), PrefsBridge.getBoolean("system_framework_bypass_force_downloadui"));
-        initHook(new DisableAudioFocus(), PrefsBridge.getBoolean("system_framework_disable_audio_focus"));
+        initHook(new DisableAudioFocus(), PrefsBridge.getBoolean("system_framework_disable_audio_focus") || PrefsBridge.getBoolean("prefs_key_system_framework_disable_audio_focus"));
 
         initHook(new ThermalBrightness(), PrefsBridge.getBoolean("system_framework_other_thermal_brightness"));
         initHook(DisableCleaner.INSTANCE, PrefsBridge.getBoolean("system_framework_other_disable_cleaner"));

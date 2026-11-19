@@ -22,6 +22,7 @@ package com.sevtinge.hyperceiler.libhook.rules.systemframework.others;
 import android.content.Context;
 import android.media.AudioManager;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.sevtinge.hyperceiler.common.log.XposedLog;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
@@ -33,6 +34,7 @@ import io.github.lingqiqi5211.ezhooktool.xposed.java.IReplaceHook;
 public class DisableAudioFocus extends BaseHook {
 
     private static final String TAG = "DisableAudioFocus";
+    private static final String AUDIO_SERVICE = "com.android.server.audio.AudioService";
     private static final String MEDIA_FOCUS_CONTROL = "com.android.server.audio.MediaFocusControl";
     private static final String FOCUS_REQUESTER = "com.android.server.audio.FocusRequester";
     private static final String PLAYBACK_ACTIVITY_MONITOR = "com.android.server.audio.PlaybackActivityMonitor";
@@ -44,6 +46,7 @@ public class DisableAudioFocus extends BaseHook {
 
     @Override
     public void init() {
+        Log.i(TAG, "Initializing DisableAudioFocus in " + getPackageName());
         try {
             IReplaceHook returnTrueReplaceHook = new IReplaceHook() {
                 @Override
@@ -163,8 +166,25 @@ public class DisableAudioFocus extends BaseHook {
             hookAllMethods(PAM_STUB_IMPL, "updatePlayerVolumeByApc", noOpMethodHook);
             hookAllMethods(PAM_STUB_IMPL, "updatePlayerVolume", noOpMethodHook);
 
+            // 11. Block call-related stream muting and volume suppression in AudioService
+            hookAllMethods(AUDIO_SERVICE, "muteRingerModeStreams", noOpMethodHook);
+            hookAllMethods(AUDIO_SERVICE, "setRingerModeInt", new IMethodHook() {
+                @Override
+                public void before(HookParam param) {
+                    Object[] args = param.getArgs();
+                    if (args != null && args.length > 0 && args[0] instanceof Integer) {
+                        int ringerMode = (Integer) args[0];
+                        if (ringerMode == AudioManager.RINGER_MODE_SILENT || ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
+                            param.setResult(null);
+                        }
+                    }
+                }
+            });
+
+            Log.i(TAG, "Multi Audio Focus, focus loss suppression & call ducking elimination initialized successfully");
             XposedLog.d(TAG, "Multi Audio Focus, focus loss suppression & call ducking elimination initialized successfully");
         } catch (Throwable t) {
+            Log.e(TAG, "Error initializing DisableAudioFocus: " + t.getMessage(), t);
             XposedLog.e(TAG, getPackageName(), t);
         }
     }
