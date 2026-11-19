@@ -52,7 +52,7 @@ public class DisableAudioFocus extends BaseHook {
                 }
             });
 
-            // 2. مراقبة حالة المكالمة/الرنين واستعادة مستوى صوت الوسائط/اليوتيوب فوراً
+            // 2. مراقبة حالة المكالمة/الرنين وتثبيت مستوى صوت الوسائط بدقة (منع النزول والارتفاع النسبي)
             hookAllMethods(AUDIO_SERVICE, "setModeInt", new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
@@ -76,16 +76,16 @@ public class DisableAudioFocus extends BaseHook {
 
                         if (isCallState) {
                             if (!sInCallOrRing) {
-                                // بدأت المكالمة أو الرنين: حفظ الدرجة التي كان عليها صوت الوسائط/اليوتيوب
+                                // بدأت المكالمة أو الرنين: حفظ القيمة المستهدفة الحقيقية للوسائط
                                 int currentVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                                 if (currentVol > 0) {
                                     sSavedMediaVolume = currentVol;
-                                    Log.i(TAG, "Call/Ring starting. Saved STREAM_MUSIC volume: " + sSavedMediaVolume);
+                                    Log.i(TAG, "Call starting. Locked target STREAM_MUSIC volume: " + sSavedMediaVolume);
                                 }
                                 sInCallOrRing = true;
                             }
 
-                            // استعادة نفس درجة الصوت فوراً وبشكل متكرر عند بداية المكالمة لتجاوز خفض النظام
+                            // أثناء المكالمة: إذا نزل الصوت، أعده فوراً إلى sSavedMediaVolume
                             final int targetVol = sSavedMediaVolume;
                             if (targetVol > 0) {
                                 Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -96,7 +96,7 @@ public class DisableAudioFocus extends BaseHook {
                                             int nowVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                                             if (nowVol < targetVol) {
                                                 am.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0);
-                                                Log.i(TAG, "Restored STREAM_MUSIC volume to " + targetVol + " (was " + nowVol + ")");
+                                                Log.i(TAG, "Restored STREAM_MUSIC to target " + targetVol + " (was " + nowVol + ")");
                                             }
                                         } catch (Throwable t) {
                                             Log.w(TAG, "Error restoring volume: " + t.getMessage());
@@ -105,7 +105,25 @@ public class DisableAudioFocus extends BaseHook {
                                 }
                             }
                         } else if (mode == AudioManager.MODE_NORMAL) {
-                            // انتهت المكالمة: إعادة تعيين الحالة
+                            // انتهت المكالمة: منع النظام من مضاعفة أو رفع الصوت فوق الدرجة الأصلية المحفوظة
+                            final int targetVol = sSavedMediaVolume;
+                            if (sInCallOrRing && targetVol > 0) {
+                                Handler mainHandler = new Handler(Looper.getMainLooper());
+                                int[] postDelays = {50, 200, 500, 1000};
+                                for (int delay : postDelays) {
+                                    mainHandler.postDelayed(() -> {
+                                        try {
+                                            int nowVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+                                            if (nowVol > targetVol) {
+                                                am.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0);
+                                                Log.i(TAG, "Clamped post-call STREAM_MUSIC volume to original " + targetVol + " (was " + nowVol + ")");
+                                            }
+                                        } catch (Throwable t) {
+                                            Log.w(TAG, "Error clamping post-call volume: " + t.getMessage());
+                                        }
+                                    }, delay);
+                                }
+                            }
                             sInCallOrRing = false;
                         }
                     } catch (Throwable t) {
