@@ -85,7 +85,7 @@ import com.sevtinge.hyperceiler.libhook.rules.systemframework.volume.VolumeDisab
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.volume.VolumeFirstPress;
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.volume.VolumeMediaSteps;
 import com.sevtinge.hyperceiler.libhook.rules.systemframework.volume.VolumeSteps;
-import com.sevtinge.hyperceiler.libhook.rules.systemsettings.AntiQues;
+import com.sevtinge.hyperceiler.libhook.rules.systemframework.others.AntiQues;
 
 @HookBase(targetPackage = "system", maxSdk = 35)
 public class SystemFrameworkV extends BaseLoad {

@@ -45,6 +45,7 @@ import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AppDisable;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.AppRestrict;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.OpenByDefaultSetting;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.ShowAutostartToggle;
+import com.sevtinge.hyperceiler.libhook.rules.securitycenter.app.UninstallWithDefaultPackageManager;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.battery.BatteryHealth;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.battery.MoreBatteryInfoNew;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.battery.PowerConsumptionRanking;
@@ -68,6 +69,7 @@ import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.game.Remove
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.game.RemoveMacroBlackList;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.game.UnlockGunService;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.video.DisableRemoveScreenHoldOn;
+import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.video.RemoveVideoTempLimit;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.video.UnlockVideoSomeFunc;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.video.VBVideoMode;
 import com.sevtinge.hyperceiler.libhook.rules.securitycenter.sidebar.video.VideoDolbyOpen;
@@ -87,6 +89,7 @@ public class SecurityCenter extends BaseLoad {
         initHook(new OpenByDefaultSetting(), PrefsBridge.getBoolean("security_center_app_default_setting"));
         initHook(AddAppInfoEntry.INSTANCE, PrefsBridge.getBoolean("security_center_aosp_app_info"));
         initHook(AddAppManagerEntry.INSTANCE, PrefsBridge.getBoolean("security_center_aosp_app_manager"));
+        initHook(new UninstallWithDefaultPackageManager(), PrefsBridge.getBoolean("security_center_uninstall_with_default_package_manager"));
 
         // 省电与电池
         initHook(ShowBatteryTemperatureNew.INSTANCE, PrefsBridge.getBoolean("security_center_show_battery_temperature"));
@@ -143,6 +146,7 @@ public class SecurityCenter extends BaseLoad {
         initHook(UnlockGunService.INSTANCE, PrefsBridge.getBoolean("security_center_unlock_gun_service"));
         initHook(DisableRemoveScreenHoldOn.INSTANCE, PrefsBridge.getBoolean("security_center_disable_remove_screen_hold_on"));
         initHook(UnlockVideoSomeFunc.INSTANCE, isVideoFunc);
+        initHook(RemoveVideoTempLimit.INSTANCE, PrefsBridge.getBoolean("security_center_remove_vb_temp_limit"));
         initHook(new AddSideBarExpandReceiver(), PrefsBridge.getBoolean("security_center_hide_sidebar"));
         initHook(new VideoDolbyOpen(), PrefsBridge.getBoolean("security_center_dolby_open"));
         initHook(new VBVideoMode(), PrefsBridge.getBoolean("security_center_unlock_new_vb"));

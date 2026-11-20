@@ -66,7 +66,7 @@ public class GmsTile extends TileUtils {
         boolean isCurrentlyEnabled = isGmsEnabled(context);
 
         int newState = isCurrentlyEnabled
-            ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+            ? PackageManager.COMPONENT_ENABLED_STATE_DISABLED
             : PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
         int successCount = 0;
@@ -123,7 +123,7 @@ public class GmsTile extends TileUtils {
     }
 
     /**
-     * 检查 GMS 是否启用
+     * Check whether GMS is enabled.
      */
     private boolean isGmsEnabled(Context context) {
         try {

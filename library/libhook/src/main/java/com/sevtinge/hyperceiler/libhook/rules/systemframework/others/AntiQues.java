@@ -21,6 +21,7 @@ package com.sevtinge.hyperceiler.libhook.rules.systemframework.others;
 
 import android.content.Context;
 
+import com.sevtinge.hyperceiler.common.log.XposedLog;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
 
 import io.github.libxposed.api.XposedInterface;
@@ -28,30 +29,42 @@ import io.github.lingqiqi5211.ezhooktool.xposed.common.HookParam;
 import io.github.lingqiqi5211.ezhooktool.xposed.java.IMethodHook;
 
 public class AntiQues extends BaseHook {
-    XposedInterface.HookHandle clHook;
+    private static final String TAG = "AntiQues";
+    private static final String WIFI_SERVICE_CLASS = "com.android.server.wifi.WifiService";
+    private static final String WIFI_UTILS_CLASS = "com.android.server.wifi.Utils";
+    private static final String WIFI_UTILS_METHOD = "checkDeviceNameIsIllegalSync";
+
+    private XposedInterface.HookHandle mLoaderHook;
 
     @Override
     public void init() {
-        clHook = findAndHookMethod("com.android.server.SystemServiceManager",
+        mLoaderHook = findAndHookMethod("com.android.server.SystemServiceManager",
             "loadClassFromLoader", String.class, ClassLoader.class, new IMethodHook() {
                 @Override
                 public void before(HookParam param) {
-                    try {
-                        String clzName = (String) param.getArgs()[0];
-                        ClassLoader cl = (ClassLoader) param.getArgs()[1];
-                        if (clzName.equals("com.android.server.wifi.WifiService")) {
-                            com.sevtinge.hyperceiler.libhook.base.BaseHook.findAndHookMethod("com.android.server.wifi.Utils", cl, "checkDeviceNameIsIllegalSync", Context.class, int.class, String.class,
-                                new IMethodHook() {
-                                    @Override
-                                    public void before(HookParam param) {
-                                        param.setResult(false);
-                                    }
-                                });
-                            clHook.unhook();
-                        }
-                    } catch (Throwable ignored) {
-                    }
+                    if (!WIFI_SERVICE_CLASS.equals(param.getArgs()[0])) return;
+                    hookWifiUtils((ClassLoader) param.getArgs()[1]);
                 }
             });
+    }
+
+    private void hookWifiUtils(ClassLoader classLoader) {
+        try {
+            findAndHookMethod(WIFI_UTILS_CLASS, classLoader, WIFI_UTILS_METHOD,
+                Context.class, int.class, String.class, new IMethodHook() {
+                    @Override
+                    public void before(HookParam param) {
+                        param.setResult(false);
+                    }
+                });
+        } catch (Throwable t) {
+            XposedLog.w(TAG, "Hook " + WIFI_UTILS_CLASS + "#" + WIFI_UTILS_METHOD + " failed, will retry: " + t);
+            return;
+        }
+        XposedLog.d(TAG, "Hooked " + WIFI_UTILS_CLASS + "#" + WIFI_UTILS_METHOD);
+        if (mLoaderHook != null) {
+            mLoaderHook.unhook();
+            mLoaderHook = null;
+        }
     }
 }

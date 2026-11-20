@@ -37,6 +37,8 @@ import com.sevtinge.hyperceiler.home.task.AppInitializer;
 import com.sevtinge.hyperceiler.home.widget.NavigationStyle;
 import com.sevtinge.hyperceiler.home.widget.SwitchManager;
 import com.sevtinge.hyperceiler.home.widget.SwitchMediator;
+import com.sevtinge.hyperceiler.log.LogManager;
+import com.sevtinge.hyperceiler.log.XposedLogLoader;
 import com.sevtinge.hyperceiler.settings.SettingsFragment;
 import com.sevtinge.hyperceiler.settings.SettingsPageFragment;
 import com.sevtinge.hyperceiler.utils.PersistConfig;
@@ -84,7 +86,9 @@ public class HomePageActivity extends AppCompatActivity
             showUnsupportedVersionDialog();
             return;
         }
-        // Activity 启动阶段，绑定 UI 任务（如签名校验弹窗、公告展示）
+        // Log health/import belongs to an explicit UI session, not Provider startup.
+        LogManager.init(this, null, () -> XposedLogLoader.syncLogsToDatabaseSync(this));
+        // Activity startup phase: bind UI tasks (e.g. signature verification dialog, announcements)
         AppInitializer.initOnActivityCreate(this, this);
         setContentView(R.layout.activity_home);
         setupNavigation();

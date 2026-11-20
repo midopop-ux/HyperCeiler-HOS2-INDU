@@ -53,6 +53,7 @@ import com.sevtinge.hyperceiler.libhook.rules.home.other.HomeMode;
 import com.sevtinge.hyperceiler.libhook.rules.home.other.InfiniteScroll;
 import com.sevtinge.hyperceiler.libhook.rules.home.other.ShortcutItemCount;
 import com.sevtinge.hyperceiler.libhook.rules.home.other.ShowAllHideApp;
+import com.sevtinge.hyperceiler.libhook.rules.home.other.UninstallWithDefaultPackageManager;
 import com.sevtinge.hyperceiler.libhook.rules.home.recent.AlwaysShowCleanUp;
 import com.sevtinge.hyperceiler.libhook.rules.home.recent.BackgroundBlur;
 import com.sevtinge.hyperceiler.libhook.rules.home.recent.CardTextColor;
@@ -194,6 +195,7 @@ public class HomePad extends BaseLoad {
         initHook(new InfiniteScroll(), PrefsBridge.getBoolean("home_other_infinite_scroll"));
         initHook(new DisablePrestart(), PrefsBridge.getBoolean("home_other_disable_prestart"));
         initHook(new HomeMode(), PrefsBridge.getStringAsInt("home_other_home_mode", 0) > 0);
+        initHook(new UninstallWithDefaultPackageManager(), PrefsBridge.getBoolean("home_other_uninstall_with_default_package_manager"));
         initHook(ShowAllHideApp.INSTANCE, true); // 桌面快捷方式管理
 
         // 小米/红米平板相关

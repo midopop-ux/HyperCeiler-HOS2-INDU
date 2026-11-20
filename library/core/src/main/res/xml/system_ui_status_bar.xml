@@ -42,6 +42,10 @@
             android:key="prefs_key_system_ui_status_bar_music"
             android:title="@string/system_ui_statusbar_music_title" />
 
+        <Preference
+            android:fragment="com.sevtinge.hyperceiler.hooker.systemui.statusbar.BatteryDetailIndicatorSettings"
+            android:title="@string/system_ui_statusbar_battery_detail" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/system_ui_statusbar_horizmargin_title">

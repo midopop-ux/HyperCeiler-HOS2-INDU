@@ -66,12 +66,6 @@ public class FlagSecure {
             XposedLog.e(TAG, "system", "hook ScreenCapture failed", t);
         }
 
-        // WifiDisplay (S~Baklava) / OverlayDisplay (S~Baklava) / VirtualDisplay (U~Baklava)
-        try {
-            hookDisplayControl(classLoader);
-        } catch (Throwable t) {
-            XposedLog.e(TAG, "system", "hook DisplayControl failed", t);
-        }
 
         // VirtualDisplay with MediaProjection (S~Baklava)
         try {
@@ -87,15 +81,6 @@ public class FlagSecure {
             XposedLog.e(TAG, "system", "hook WindowState failed", t);
         }
     }
-
-    private final ChainHooker createDisplayHooker = new ChainHooker() {
-        @Override
-        public Object intercept(XposedInterface.Chain chain) throws Throwable {
-            Object[] args = chain.getArgs().toArray();
-            args[1] = true;
-            return chain.proceed(args);
-        }
-    };
 
     private final ChainHooker screenCaptureHooker = new ChainHooker() {
         @Override
@@ -117,18 +102,15 @@ public class FlagSecure {
     private final ChainHooker createVirtualDisplayLockedHooker = new ChainHooker() {
         @Override
         public Object intercept(XposedInterface.Chain chain) throws Throwable {
-            var caller = (int) chain.getArg(2);
-            if (caller >= 10000 && chain.getArg(1) == null) {
-                // not os and not media projection
+            // Only add SECURE for MediaProjection captures, keep system/Wi-Fi display intact
+            if (chain.getArg(1) == null) {
                 return chain.proceed();
             }
             for (int i = 3; i < chain.getArgs().size(); i++) {
                 var arg = chain.getArg(i);
                 if (arg instanceof Integer) {
-                    var flags = (int) arg;
-                    flags |= DisplayManager.VIRTUAL_DISPLAY_FLAG_SECURE;
                     Object[] args = chain.getArgs().toArray();
-                    args[i] = flags;
+                    args[i] = (int) arg | DisplayManager.VIRTUAL_DISPLAY_FLAG_SECURE;
                     return chain.proceed(args);
                 }
             }
@@ -139,14 +121,7 @@ public class FlagSecure {
 
     private final ChainHooker secureLockedHooker = new ChainHooker() {
         @Override
-        public Object intercept(XposedInterface.Chain chain) throws Throwable {
-            var walker = StackWalker.getInstance();
-            var match = walker.walk(frames -> frames
-                .map(StackWalker.StackFrame::getMethodName)
-                .limit(10)
-                .skip(6)
-                .anyMatch(s -> s.equals("setInitialSurfaceControlProperties") || s.equals("createSurfaceLocked")));
-            if (match) return chain.proceed();
+        public Object intercept(XposedInterface.Chain chain) {
             return false;
         }
     };
@@ -213,13 +188,6 @@ public class FlagSecure {
         captureSecureLayersField.setAccessible(true);
         hookMethods(screenCaptureClazz, screenCaptureHooker, "nativeCaptureDisplay");
         hookMethods(screenCaptureClazz, screenCaptureHooker, "nativeCaptureLayers");
-    }
-
-    private void hookDisplayControl(ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException {
-        var displayControlClazz = classLoader.loadClass("com.android.server.display.DisplayControl");
-        var method = displayControlClazz.getDeclaredMethod(
-            "createVirtualDisplay", String.class, boolean.class);
-        hook(method, createDisplayHooker);
     }
 
     private void hookVirtualDisplayAdapter(ClassLoader classLoader) throws ClassNotFoundException {
