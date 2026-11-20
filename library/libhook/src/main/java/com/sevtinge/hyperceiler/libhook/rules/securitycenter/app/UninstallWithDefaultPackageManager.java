@@ -36,8 +36,8 @@ import com.sevtinge.hyperceiler.common.utils.PrefsBridge;
 import com.sevtinge.hyperceiler.libhook.base.BaseHook;
 
 import org.luckypray.dexkit.DexKitBridge;
-import org.luckypray.dexkit.builder.MethodMatcher;
 import org.luckypray.dexkit.query.FindMethod;
+import org.luckypray.dexkit.query.matchers.MethodMatcher;
 import org.luckypray.dexkit.result.base.BaseData;
 
 import java.lang.ref.WeakReference;
