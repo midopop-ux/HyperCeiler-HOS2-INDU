@@ -19,7 +19,14 @@
 package com.sevtinge.hyperceiler.libhook.base;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.ContentObserver;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.net.ConnectivityManager;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,9 +41,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.github.libxposed.api.XposedInterface;
@@ -91,7 +102,142 @@ public abstract class BaseHook {
     }
 
     private static final CopyOnWriteArrayList<ApplicationHook> APPLICATION_HOOKS = new CopyOnWriteArrayList<>();
+    private static final ConcurrentLinkedDeque<Runnable> HOT_RELOAD_CLEANUPS = new ConcurrentLinkedDeque<>();
+    /**
+     * Stores runtime state across hot reloads.
+     */
+    private static final ConcurrentHashMap<String, Object> HOT_RELOAD_RUNTIME_STATE =
+        new ConcurrentHashMap<>();
     private static volatile boolean sApplicationHookInstalled = false;
+
+    public static void registerHotReloadCleanup(@NonNull Runnable cleanup) {
+        HOT_RELOAD_CLEANUPS.addLast(cleanup);
+    }
+
+    /** Register idempotent cleanup for BroadcastReceiver during hot reload. */
+    public static void registerReceiverHotReloadCleanup(@NonNull Context context,
+                                                        @NonNull BroadcastReceiver receiver) {
+        registerHotReloadCleanup(() -> {
+            try {
+                context.unregisterReceiver(receiver);
+            } catch (IllegalArgumentException ignored) {
+            }
+        });
+    }
+
+    /** Register idempotent cleanup for ContentObserver during hot reload. */
+    public static void registerContentObserverHotReloadCleanup(@NonNull ContentResolver resolver,
+                                                               @NonNull ContentObserver observer) {
+        registerHotReloadCleanup(() -> {
+            try {
+                resolver.unregisterContentObserver(observer);
+            } catch (IllegalArgumentException ignored) {
+            }
+        });
+    }
+
+    /** Register idempotent cleanup for NetworkCallback during hot reload. */
+    public static void registerNetworkCallbackHotReloadCleanup(
+        @NonNull ConnectivityManager manager,
+        @NonNull ConnectivityManager.NetworkCallback callback
+    ) {
+        registerHotReloadCleanup(() -> {
+            try {
+                manager.unregisterNetworkCallback(callback);
+            } catch (IllegalArgumentException ignored) {
+            }
+        });
+    }
+
+    /** Register idempotent cleanup for Application LifecycleCallbacks during hot reload. */
+    public static void registerActivityLifecycleHotReloadCleanup(
+        @NonNull Application application,
+        @NonNull Application.ActivityLifecycleCallbacks callback
+    ) {
+        registerHotReloadCleanup(() -> application.unregisterActivityLifecycleCallbacks(callback));
+    }
+
+    /** Register idempotent cleanup for SensorEventListener during hot reload. */
+    public static void registerSensorListenerHotReloadCleanup(
+        @NonNull SensorManager manager,
+        @NonNull SensorEventListener listener
+    ) {
+        registerHotReloadCleanup(() -> manager.unregisterListener(listener));
+    }
+
+    /** Remove callbacks and messages for Handler during hot reload. */
+    public static void registerHandlerHotReloadCleanup(@NonNull Handler handler) {
+        registerHotReloadCleanup(() -> handler.removeCallbacksAndMessages(null));
+    }
+
+    /**
+     * Store safe host runtime state reusable across hot reloads.
+     */
+    public static void putHotReloadRuntimeState(@NonNull String key, @Nullable Object value) {
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("Hot reload runtime state key must not be empty");
+        }
+        if (value == null) {
+            HOT_RELOAD_RUNTIME_STATE.remove(key);
+            return;
+        }
+        ClassLoader moduleClassLoader = BaseHook.class.getClassLoader();
+        if (moduleClassLoader != null && value.getClass().getClassLoader() == moduleClassLoader) {
+            throw new IllegalArgumentException(
+                "Hot reload runtime state must not retain a module-classloader object: "
+                    + value.getClass().getName()
+            );
+        }
+        HOT_RELOAD_RUNTIME_STATE.put(key, value);
+    }
+
+    @Nullable
+    public static <T> T getHotReloadRuntimeState(@NonNull String key, @NonNull Class<T> type) {
+        Object value = HOT_RELOAD_RUNTIME_STATE.get(key);
+        return type.isInstance(value) ? type.cast(value) : null;
+    }
+
+    @NonNull
+    static Map<String, Object> snapshotHotReloadRuntimeState() {
+        return new HashMap<>(HOT_RELOAD_RUNTIME_STATE);
+    }
+
+    static void restoreHotReloadRuntimeState(@Nullable Object rawState) {
+        HOT_RELOAD_RUNTIME_STATE.clear();
+        if (!(rawState instanceof Map<?, ?> states)) {
+            return;
+        }
+        for (Map.Entry<?, ?> entry : states.entrySet()) {
+            if (!(entry.getKey() instanceof String key) || entry.getValue() == null) {
+                continue;
+            }
+            putHotReloadRuntimeState(key, entry.getValue());
+        }
+    }
+
+    static void prepareHotReload() {
+        Throwable firstFailure = null;
+        Runnable cleanup;
+        while ((cleanup = HOT_RELOAD_CLEANUPS.pollLast()) != null) {
+            try {
+                cleanup.run();
+            } catch (Throwable t) {
+                if (firstFailure == null) {
+                    firstFailure = t;
+                }
+                XposedLog.w(BaseLoad.getTag(), BaseLoad.getPackageName(),
+                    "Failed to release a host callback before hot reload", t);
+            }
+        }
+        APPLICATION_HOOKS.clear();
+        sApplicationHookInstalled = false;
+        HOT_RELOAD_RUNTIME_STATE.clear();
+        if (firstFailure != null) {
+            throw new IllegalStateException(
+                "One or more module-owned host callbacks could not be released", firstFailure
+            );
+        }
+    }
 
     private static void runApplicationAttachBefore(ApplicationHook hook, Context context) {
         try {

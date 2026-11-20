@@ -190,7 +190,7 @@ object BatteryDetailIndicator : BaseHook() {
     }
 
     private fun setupHotReloadCleanup() {
-        registerHotReloadCleanup {
+        BaseHook.registerHotReloadCleanup {
             workerHandler?.removeCallbacksAndMessages(null)
             workerThread?.quitSafely()
             workerThread = null
